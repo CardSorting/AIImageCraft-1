@@ -265,6 +265,7 @@ interface ModelCardProps {
 
 function ModelCard({ model }: ModelCardProps) {
   const [isLiked, setIsLiked] = useState(false);
+  const [viewStartTime] = useState(Date.now());
   
   const categoryIcon = categoryIcons[model.category as keyof typeof categoryIcons] || Brain;
   const Icon = categoryIcon;
@@ -273,6 +274,49 @@ function ModelCard({ model }: ModelCardProps) {
     if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1)}M`;
     if (downloads >= 1000) return `${(downloads / 1000).toFixed(1)}K`;
     return downloads.toString();
+  };
+
+  // Track user interactions for personalization learning
+  const trackInteraction = async (interactionType: string, engagementLevel: number = 5) => {
+    try {
+      const sessionDuration = Math.round((Date.now() - viewStartTime) / 1000);
+      
+      await fetch('/api/interactions/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: 1, // Demo user - in production would come from auth
+          modelId: model.id,
+          interactionType,
+          engagementLevel,
+          sessionDuration,
+          deviceType: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop',
+          referralSource: 'recommendation'
+        }),
+      });
+    } catch (error) {
+      console.log('Interaction tracking temporarily unavailable');
+    }
+  };
+
+  // Track view interaction when card is visible
+  useEffect(() => {
+    trackInteraction('view', 6);
+  }, [model.id]);
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const newLikedState = !isLiked;
+    setIsLiked(newLikedState);
+    
+    // Track like/unlike interaction with appropriate engagement level
+    if (newLikedState) {
+      await trackInteraction('like', 8);
+    }
   };
 
   return (

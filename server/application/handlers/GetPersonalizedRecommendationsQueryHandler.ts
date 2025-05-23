@@ -122,51 +122,63 @@ export class GetPersonalizedRecommendationsQueryHandler {
 
   private async buildUserProfile(userId: number): Promise<UserProfile> {
     try {
-      // Get user interactions to build profile
-      // For now, we'll create a smart default profile based on community trends
+      // Import behavior repository for real data analysis
+      const { UserBehaviorRepository } = await import('../../infrastructure/repositories/UserBehaviorRepository');
+      const behaviorRepo = new UserBehaviorRepository();
+      
+      // Get real user interaction patterns
+      const interactionPattern = await behaviorRepo.getInteractionPattern(userId);
+      const categoryAffinities = await behaviorRepo.getUserCategoryAffinities(userId);
+      const providerAffinities = await behaviorRepo.getUserProviderAffinities(userId);
+      const behaviorProfile = await behaviorRepo.getUserBehaviorProfile(userId);
+      const recentInteractions = await behaviorRepo.getUserInteractions(userId, 50, undefined, 30);
+
+      // Build preferences from real data
       const preferences: UserPreferences = {
-        preferredCategories: ['Photorealistic', 'Artistic', 'General'],
-        preferredProviders: ['RunDiffusion', 'Black Forest Labs'],
-        preferredStyles: ['realistic', 'creative', 'professional'],
-        qualityThreshold: 75,
-        speedPreference: 'balanced',
-        complexityLevel: 'intermediate'
+        preferredCategories: interactionPattern.preferredCategories.length > 0 
+          ? interactionPattern.preferredCategories 
+          : ['General', 'Photorealistic'],
+        preferredProviders: interactionPattern.preferredProviders.length > 0 
+          ? interactionPattern.preferredProviders 
+          : ['RunDiffusion'],
+        preferredStyles: behaviorProfile?.preferredStyles || ['realistic', 'creative'],
+        qualityThreshold: interactionPattern.qualityThreshold,
+        speedPreference: (behaviorProfile?.speedPreference as 'fast' | 'balanced' | 'quality') || 'balanced',
+        complexityLevel: (behaviorProfile?.complexityLevel as 'beginner' | 'intermediate' | 'advanced') || 'intermediate'
       };
 
+      // Build behavior metrics from real interactions
       const behaviorMetrics: UserBehaviorMetrics = {
-        totalInteractions: 25,
-        averageSessionDuration: 15, // minutes
-        mostActiveTimeOfDay: new Date().getHours(),
-        favoriteFeatures: ['high-quality', 'fast-generation'],
-        searchPatterns: ['portrait', 'landscape', 'creative'],
-        generationFrequency: 5 // per week
+        totalInteractions: recentInteractions.length,
+        averageSessionDuration: Math.round(interactionPattern.averageSessionDuration / 60), // convert to minutes
+        mostActiveTimeOfDay: interactionPattern.timeOfDay,
+        favoriteFeatures: this.extractFavoriteFeatures(recentInteractions),
+        searchPatterns: this.extractSearchPatterns(recentInteractions),
+        generationFrequency: this.calculateGenerationFrequency(recentInteractions)
       };
 
-      // Create engagement scores based on intelligent defaults
-      const categoryAffinities = new Map<string, number>();
-      categoryAffinities.set('Photorealistic', 0.8);
-      categoryAffinities.set('Artistic', 0.7);
-      categoryAffinities.set('General', 0.6);
-      categoryAffinities.set('Speed', 0.5);
-      categoryAffinities.set('Latest', 0.4);
+      // Build engagement scores from real affinities
+      const categoryAffinityMap = new Map<string, number>();
+      categoryAffinities.forEach(affinity => {
+        categoryAffinityMap.set(affinity.category, affinity.affinityScore / 100);
+      });
 
-      const providerAffinities = new Map<string, number>();
-      providerAffinities.set('RunDiffusion', 0.8);
-      providerAffinities.set('Black Forest Labs', 0.7);
-      providerAffinities.set('Stability AI', 0.6);
-      providerAffinities.set('Midjourney', 0.9);
+      const providerAffinityMap = new Map<string, number>();
+      providerAffinities.forEach(affinity => {
+        providerAffinityMap.set(affinity.provider, affinity.affinityScore / 100);
+      });
 
       const featureUsageScores = new Map<string, number>();
-      featureUsageScores.set('image-generation', 1.0);
-      featureUsageScores.set('style-transfer', 0.6);
-      featureUsageScores.set('upscaling', 0.4);
+      featureUsageScores.set('image-generation', this.calculateFeatureUsage(recentInteractions, 'generate'));
+      featureUsageScores.set('browsing', this.calculateFeatureUsage(recentInteractions, 'view'));
+      featureUsageScores.set('curation', this.calculateFeatureUsage(recentInteractions, 'bookmark'));
 
       const engagementScores: UserEngagementScores = {
-        categoryAffinities,
-        providerAffinities,
+        categoryAffinities: categoryAffinityMap,
+        providerAffinities: providerAffinityMap,
         featureUsageScores,
-        qualityPreferenceScore: 0.8,
-        explorationScore: 0.6 // Moderate willingness to explore
+        qualityPreferenceScore: this.calculateQualityPreference(recentInteractions),
+        explorationScore: interactionPattern.explorationScore
       };
 
       return new UserProfile(
@@ -177,10 +189,53 @@ export class GetPersonalizedRecommendationsQueryHandler {
       );
 
     } catch (error) {
-      console.error('Error building user profile:', error);
+      console.error('Error building user profile from real data:', error);
       // Return intelligent default profile
       return this.createDefaultUserProfile(userId);
     }
+  }
+
+  private extractFavoriteFeatures(interactions: any[]): string[] {
+    const featureCounts = interactions.reduce((acc, interaction) => {
+      acc[interaction.interactionType] = (acc[interaction.interactionType] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(featureCounts)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 3)
+      .map(([feature]) => feature);
+  }
+
+  private extractSearchPatterns(interactions: any[]): string[] {
+    // Extract patterns from interaction types and timing
+    const patterns = ['model-browsing'];
+    
+    const hasHighEngagement = interactions.some(i => (i.engagementLevel || 5) >= 8);
+    if (hasHighEngagement) patterns.push('quality-focused');
+    
+    const hasBookmarks = interactions.some(i => i.interactionType === 'bookmark');
+    if (hasBookmarks) patterns.push('collection-building');
+    
+    return patterns;
+  }
+
+  private calculateGenerationFrequency(interactions: any[]): number {
+    const generateInteractions = interactions.filter(i => i.interactionType === 'generate');
+    const daysSpan = Math.max(1, interactions.length > 0 ? 
+      (Date.now() - new Date(interactions[interactions.length - 1].createdAt).getTime()) / (1000 * 60 * 60 * 24) : 7);
+    
+    return Math.round((generateInteractions.length / daysSpan) * 7); // per week
+  }
+
+  private calculateFeatureUsage(interactions: any[], featureType: string): number {
+    const featureInteractions = interactions.filter(i => i.interactionType === featureType);
+    return Math.min(1.0, featureInteractions.length / Math.max(1, interactions.length));
+  }
+
+  private calculateQualityPreference(interactions: any[]): number {
+    const avgEngagement = interactions.reduce((sum, i) => sum + (i.engagementLevel || 5), 0) / Math.max(1, interactions.length);
+    return Math.min(1.0, avgEngagement / 10);
   }
 
   private createDefaultUserProfile(userId: number): UserProfile {

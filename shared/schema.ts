@@ -52,8 +52,53 @@ export const userModelInteractions = pgTable("user_model_interactions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   modelId: integer("model_id").notNull().references(() => aiModels.id),
-  interactionType: text("interaction_type").notNull(), // 'view', 'like', 'bookmark', 'generate'
+  interactionType: text("interaction_type").notNull(), // 'view', 'like', 'bookmark', 'generate', 'share', 'download'
+  engagementLevel: integer("engagement_level").default(5), // 1-10 scale based on time spent, actions taken
+  sessionDuration: integer("session_duration"), // seconds spent viewing/interacting
+  deviceType: text("device_type"), // 'mobile', 'tablet', 'desktop'
+  referralSource: text("referral_source"), // 'search', 'recommendation', 'direct', 'featured'
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const userBehaviorProfiles = pgTable("user_behavior_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  preferredCategories: text("preferred_categories").array().default([]),
+  preferredProviders: text("preferred_providers").array().default([]),
+  preferredStyles: text("preferred_styles").array().default([]),
+  qualityThreshold: integer("quality_threshold").default(70), // 0-100
+  speedPreference: text("speed_preference").default("balanced"), // 'fast', 'balanced', 'quality'
+  complexityLevel: text("complexity_level").default("intermediate"), // 'beginner', 'intermediate', 'advanced'
+  explorationScore: integer("exploration_score").default(60), // 0-100, willingness to try new things
+  averageSessionDuration: integer("average_session_duration").default(600), // seconds
+  mostActiveTimeOfDay: integer("most_active_time_of_day").default(14), // 0-23 hours
+  totalInteractions: integer("total_interactions").default(0),
+  lastActiveAt: timestamp("last_active_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const userCategoryAffinities = pgTable("user_category_affinities", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  category: text("category").notNull(),
+  affinityScore: integer("affinity_score").notNull(), // 0-100
+  interactionCount: integer("interaction_count").default(0),
+  lastInteractionAt: timestamp("last_interaction_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const userProviderAffinities = pgTable("user_provider_affinities", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  provider: text("provider").notNull(),
+  affinityScore: integer("affinity_score").notNull(), // 0-100
+  interactionCount: integer("interaction_count").default(0),
+  qualityRating: integer("quality_rating").default(70), // perceived quality 0-100
+  lastInteractionAt: timestamp("last_interaction_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const userBookmarks = pgTable("user_bookmarks", {
@@ -105,6 +150,24 @@ export const insertUserBookmarkSchema = createInsertSchema(userBookmarks).omit({
   createdAt: true,
 });
 
+export const insertUserBehaviorProfileSchema = createInsertSchema(userBehaviorProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserCategoryAffinitySchema = createInsertSchema(userCategoryAffinities).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserProviderAffinitySchema = createInsertSchema(userProviderAffinities).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
@@ -115,4 +178,10 @@ export type UserModelInteraction = typeof userModelInteractions.$inferSelect;
 export type InsertUserModelInteraction = z.infer<typeof insertUserModelInteractionSchema>;
 export type UserBookmark = typeof userBookmarks.$inferSelect;
 export type InsertUserBookmark = z.infer<typeof insertUserBookmarkSchema>;
+export type UserBehaviorProfile = typeof userBehaviorProfiles.$inferSelect;
+export type InsertUserBehaviorProfile = z.infer<typeof insertUserBehaviorProfileSchema>;
+export type UserCategoryAffinity = typeof userCategoryAffinities.$inferSelect;
+export type InsertUserCategoryAffinity = z.infer<typeof insertUserCategoryAffinitySchema>;
+export type UserProviderAffinity = typeof userProviderAffinities.$inferSelect;
+export type InsertUserProviderAffinity = z.infer<typeof insertUserProviderAffinitySchema>;
 export type GenerateImageRequest = z.infer<typeof generateImageRequestSchema>;
