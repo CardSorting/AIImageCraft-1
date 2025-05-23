@@ -121,26 +121,7 @@ export default function Generate() {
           )}
         />
 
-        {/* Quick Prompt Suggestions - Mobile Grid */}
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            "Majestic dragon",
-            "Cyberpunk city", 
-            "Fantasy castle",
-            "Space station"
-          ].map((suggestion) => (
-            <Button
-              key={suggestion}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => addQuickPrompt(suggestion)}
-              className="text-xs h-8"
-            >
-              {suggestion}
-            </Button>
-          ))}
-        </div>
+
 
         {/* Essential Settings - Mobile */}
         <div className="space-y-4">
