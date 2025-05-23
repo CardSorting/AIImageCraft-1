@@ -125,7 +125,7 @@ export default function Generate() {
 
         {/* Essential Settings - Mobile */}
         <div className="space-y-4">
-          {/* Aspect Ratio Cards */}
+          {/* Aspect Ratio Cards - Mobile Optimized */}
           <FormField
             control={form.control}
             name="aspectRatio"
@@ -133,26 +133,82 @@ export default function Generate() {
               <FormItem className="space-y-3">
                 <FormLabel className="text-sm font-medium">Aspect Ratio</FormLabel>
                 <FormControl>
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-3 gap-3">
                     {[
-                      { value: "1:1", label: "Square", icon: "□" },
-                      { value: "4:3", label: "Landscape", icon: "▭" },
-                      { value: "16:9", label: "Wide", icon: "▬" },
-                      { value: "3:4", label: "Portrait", icon: "▯" },
-                      { value: "9:16", label: "Mobile", icon: "▮" }
+                      { 
+                        value: "1:1", 
+                        label: "Square", 
+                        description: "Perfect for social media",
+                        visualRatio: "aspect-square",
+                        popular: true
+                      },
+                      { 
+                        value: "4:3", 
+                        label: "Landscape", 
+                        description: "Classic photo format",
+                        visualRatio: "aspect-[4/3]",
+                        popular: false
+                      },
+                      { 
+                        value: "16:9", 
+                        label: "Widescreen", 
+                        description: "Cinematic format",
+                        visualRatio: "aspect-[16/9]",
+                        popular: false
+                      },
+                      { 
+                        value: "3:4", 
+                        label: "Portrait", 
+                        description: "Tall format",
+                        visualRatio: "aspect-[3/4]",
+                        popular: false
+                      },
+                      { 
+                        value: "9:16", 
+                        label: "Mobile", 
+                        description: "Stories & reels",
+                        visualRatio: "aspect-[9/16]",
+                        popular: true
+                      }
                     ].map((ratio) => (
-                      <Button
-                        key={ratio.value}
-                        type="button"
-                        variant={field.value === ratio.value ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => field.onChange(ratio.value)}
-                        className="h-16 flex flex-col items-center justify-center p-2"
-                      >
-                        <div className="text-lg mb-1">{ratio.icon}</div>
-                        <div className="text-xs font-medium">{ratio.label}</div>
-                        <div className="text-xs text-muted-foreground">{ratio.value}</div>
-                      </Button>
+                      <div key={ratio.value} className="relative">
+                        <Button
+                          type="button"
+                          variant={field.value === ratio.value ? "default" : "outline"}
+                          onClick={() => field.onChange(ratio.value)}
+                          className={`w-full h-20 p-3 flex flex-col items-center justify-center relative transition-all duration-200 ${
+                            field.value === ratio.value 
+                              ? "ring-2 ring-primary ring-offset-2 shadow-md" 
+                              : "hover:shadow-sm"
+                          }`}
+                        >
+                          {/* Visual Ratio Representation */}
+                          <div className="flex items-center justify-center mb-2">
+                            <div className={`bg-current opacity-20 ${ratio.visualRatio} w-6 h-6 max-w-6 max-h-6 rounded-sm`}></div>
+                          </div>
+                          
+                          {/* Labels */}
+                          <div className="text-center">
+                            <div className="text-xs font-semibold">{ratio.label}</div>
+                            <div className="text-xs text-muted-foreground">{ratio.value}</div>
+                          </div>
+                          
+                          {/* Popular Badge */}
+                          {ratio.popular && (
+                            <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 flex items-center justify-center">
+                              <Star className="w-2 h-2" />
+                            </div>
+                          )}
+                        </Button>
+                        
+                        {/* Description Tooltip on Selection */}
+                        {field.value === ratio.value && (
+                          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md whitespace-nowrap z-10">
+                            {ratio.description}
+                            <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rotate-45"></div>
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </FormControl>
