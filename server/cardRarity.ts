@@ -11,12 +11,13 @@ interface RarityResult {
 }
 
 const RARITY_TIERS = {
-  COMMON: { name: 'Common', stars: 1, letter: 'C', probability: 0.50 },
-  UNCOMMON: { name: 'Uncommon', stars: 2, letter: 'U', probability: 0.30 },
-  RARE: { name: 'Rare', stars: 3, letter: 'R', probability: 0.15 },
-  EPIC: { name: 'Epic', stars: 4, letter: 'E', probability: 0.04 },
-  LEGENDARY: { name: 'Legendary', stars: 5, letter: 'L', probability: 0.009 },
-  MYTHIC: { name: 'Mythic', stars: 6, letter: 'M', probability: 0.001 }
+  COMMON: { name: 'Standard', stars: 1, letter: 'S', probability: 0.45 },
+  UNCOMMON: { name: 'Enhanced', stars: 2, letter: 'E', probability: 0.28 },
+  RARE: { name: 'Superior', stars: 3, letter: 'R', probability: 0.18 },
+  EPIC: { name: 'Prismatic', stars: 4, letter: 'P', probability: 0.06 },
+  LEGENDARY: { name: 'Holographic', stars: 5, letter: 'H', probability: 0.025 },
+  MYTHIC: { name: 'Chromatic', stars: 6, letter: 'C', probability: 0.004 },
+  COSMIC: { name: 'Cosmic', stars: 7, letter: 'X', probability: 0.001 }
 };
 
 export function generateCardRarity(prompt: string): RarityResult {

@@ -29,70 +29,88 @@ interface TradingCardProps {
 
 const RARITY_CONFIGS = {
   COMMON: {
-    name: 'Common',
+    name: 'Standard',
     colors: {
-      primary: 'from-gray-400 to-gray-600',
-      border: 'border-gray-400',
-      glow: 'shadow-gray-400/20',
-      text: 'text-gray-700 dark:text-gray-300'
+      primary: 'from-slate-400 to-slate-600',
+      border: 'border-slate-400',
+      glow: 'shadow-slate-400/20',
+      text: 'text-slate-700 dark:text-slate-300',
+      chrome: 'bg-gradient-to-r from-slate-300 to-slate-500'
     },
     icon: Star,
-    effects: { holographic: false, sparkles: false }
+    effects: { holographic: false, sparkles: false, oilslick: false, chrome: false }
   },
   UNCOMMON: {
-    name: 'Uncommon', 
+    name: 'Enhanced', 
     colors: {
-      primary: 'from-green-400 to-emerald-600',
-      border: 'border-green-400',
-      glow: 'shadow-green-400/30',
-      text: 'text-green-700 dark:text-green-300'
-    },
-    icon: Star,
-    effects: { holographic: false, sparkles: false }
-  },
-  RARE: {
-    name: 'Rare',
-    colors: {
-      primary: 'from-blue-400 to-blue-600',
-      border: 'border-blue-400',
-      glow: 'shadow-blue-400/40',
-      text: 'text-blue-700 dark:text-blue-300'
+      primary: 'from-emerald-400 to-teal-600',
+      border: 'border-emerald-400',
+      glow: 'shadow-emerald-400/30',
+      text: 'text-emerald-700 dark:text-emerald-300',
+      chrome: 'bg-gradient-to-r from-emerald-300 to-teal-500'
     },
     icon: Zap,
-    effects: { holographic: false, sparkles: true }
+    effects: { holographic: false, sparkles: false, oilslick: false, chrome: true }
   },
-  EPIC: {
-    name: 'Epic',
+  RARE: {
+    name: 'Superior',
     colors: {
-      primary: 'from-purple-400 to-purple-600',
-      border: 'border-purple-400',
-      glow: 'shadow-purple-400/50',
-      text: 'text-purple-700 dark:text-purple-300'
+      primary: 'from-blue-400 to-indigo-600',
+      border: 'border-blue-400',
+      glow: 'shadow-blue-400/40',
+      text: 'text-blue-700 dark:text-blue-300',
+      chrome: 'bg-gradient-to-r from-blue-300 to-indigo-500'
     },
     icon: Gem,
-    effects: { holographic: true, sparkles: true }
+    effects: { holographic: false, sparkles: true, oilslick: false, chrome: true }
+  },
+  EPIC: {
+    name: 'Prismatic',
+    colors: {
+      primary: 'from-purple-400 to-pink-600',
+      border: 'border-purple-400',
+      glow: 'shadow-purple-400/50',
+      text: 'text-purple-700 dark:text-purple-300',
+      chrome: 'bg-gradient-to-r from-purple-300 to-pink-500'
+    },
+    icon: Crown,
+    effects: { holographic: true, sparkles: true, oilslick: false, chrome: true }
   },
   LEGENDARY: {
-    name: 'Legendary',
+    name: 'Holographic',
     colors: {
       primary: 'from-yellow-400 to-orange-500',
       border: 'border-yellow-400',
       glow: 'shadow-yellow-400/60',
-      text: 'text-yellow-700 dark:text-yellow-300'
+      text: 'text-yellow-700 dark:text-yellow-300',
+      chrome: 'bg-gradient-to-r from-yellow-300 to-orange-500'
     },
-    icon: Crown,
-    effects: { holographic: true, sparkles: true }
+    icon: Sparkles,
+    effects: { holographic: true, sparkles: true, oilslick: true, chrome: true }
   },
   MYTHIC: {
-    name: 'Mythic',
+    name: 'Chromatic',
     colors: {
       primary: 'from-red-400 to-pink-500',
       border: 'border-red-400',
       glow: 'shadow-red-400/70',
-      text: 'text-red-700 dark:text-red-300'
+      text: 'text-red-700 dark:text-red-300',
+      chrome: 'bg-gradient-to-r from-red-300 to-pink-500'
+    },
+    icon: Crown,
+    effects: { holographic: true, sparkles: true, oilslick: true, chrome: true }
+  },
+  COSMIC: {
+    name: 'Cosmic',
+    colors: {
+      primary: 'from-violet-500 to-purple-700',
+      border: 'border-violet-500',
+      glow: 'shadow-violet-500/80',
+      text: 'text-violet-700 dark:text-violet-300',
+      chrome: 'bg-oilslick-rainbow'
     },
     icon: Sparkles,
-    effects: { holographic: true, sparkles: true }
+    effects: { holographic: true, sparkles: true, oilslick: true, chrome: true }
   }
 };
 
@@ -187,19 +205,30 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => setShowModal(true)}
       >
-        {/* Card Frame with Y2K Aesthetic */}
+        {/* Card Frame with Y2K Oilslick Chrome Aesthetic */}
         <div className={`
           relative p-2 rounded-2xl 
-          bg-gradient-to-br ${rarity.colors.primary}
+          ${rarity.effects.oilslick ? 'bg-oilslick-rainbow' : `bg-gradient-to-br ${rarity.colors.primary}`}
           ${rarity.colors.border} border-2
           shadow-2xl ${rarity.colors.glow}
-          ${rarity.effects.holographic ? 'bg-holographic' : ''}
+          rarity-${image.rarityTier.toLowerCase()}
           overflow-hidden
+          ${rarity.effects.chrome ? 'chrome-frame' : ''}
         `}>
           
-          {/* Holographic Overlay */}
+          {/* Y2K Holographic Chrome Overlay */}
           {rarity.effects.holographic && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-shimmer"></div>
+          )}
+          
+          {/* Oilslick Rainbow Shimmer */}
+          {rarity.effects.oilslick && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rainbow-shimmer to-transparent transform -skew-x-25 opacity-40 group-hover:opacity-70 transition-opacity duration-500 animate-chromeShimmer"></div>
+          )}
+          
+          {/* Chrome Reflection */}
+          {rarity.effects.chrome && (
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           )}
 
           {/* Card Content */}
@@ -207,22 +236,33 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
             <CardContent className="p-0">
               
               {/* Header with Rarity Info */}
-              <div className={`p-3 bg-gradient-to-r ${rarity.colors.primary} text-white`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <IconComponent className="h-5 w-5" />
-                    <span className="font-bold text-lg">
-                      {image.rarityLetter}{image.rarityStars}★
-                    </span>
+              <div className={`
+                p-3 text-white relative overflow-hidden
+                ${rarity.effects.oilslick ? 'bg-oilslick-rainbow' : `bg-gradient-to-r ${rarity.colors.primary}`}
+                ${rarity.effects.chrome ? 'chrome-header' : ''}
+              `}>
+                {/* Chrome Reflection Overlay */}
+                {rarity.effects.chrome && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/10 opacity-50"></div>
+                )}
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <IconComponent className={`h-5 w-5 ${rarity.effects.oilslick ? 'drop-shadow-lg' : ''}`} />
+                      <span className={`font-bold text-lg ${rarity.effects.oilslick ? 'text-shadow-rainbow' : ''}`}>
+                        {image.rarityLetter}{image.rarityStars}★
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      {Array.from({ length: image.rarityStars }, (_, i) => (
+                        <Star key={i} className={`h-4 w-4 fill-current ${rarity.effects.sparkles ? 'animate-pulse' : ''}`} />
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    {Array.from({ length: image.rarityStars }, (_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-current" />
-                    ))}
+                  <div className="text-xs opacity-90 mt-1">
+                    {rarity.name} • Score: {image.rarityScore}
                   </div>
-                </div>
-                <div className="text-xs opacity-90 mt-1">
-                  {rarity.name} • Score: {image.rarityScore}
                 </div>
               </div>
 
