@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useModelsQuery, useModelsSearchQuery, ModelFilter } from "@/hooks/useModelsQuery";
 import { Link, useParams } from "wouter";
 import { 
   Search, 
@@ -57,33 +57,21 @@ export default function ModelsPage() {
   const [sortBy, setSortBy] = useState("newest");
   const [showSortMenu, setShowSortMenu] = useState(false);
 
-  // Fetch models based on active tab and sorting
-  const { data: models = [], isLoading } = useQuery({
-    queryKey: ["/api/models", selectedTab, sortBy],
-    queryFn: () => {
-      if (selectedTab === "for_you") {
-        // Use intelligent personalized recommendations
-        return fetch("/api/models/for-you?userId=1&limit=20").then(res => res.json());
-      }
-      if (selectedTab === "bookmarked") {
-        // Fetch user's bookmarked models
-        return fetch("/api/models/bookmarked/1").then(res => res.json());
-      }
-      return fetch(`/api/models?sortBy=${sortBy}`).then(res => res.json());
-    },
+  // Use our new CQRS-based hooks for clean architecture
+  const { data: modelsResponse, isLoading } = useModelsQuery({
+    filter: selectedTab as ModelFilter,
+    sortBy,
+    limit: 20,
+    userId: 1,
+    searchQuery
   });
 
-  // Search functionality
-  const { data: searchResults = [] } = useQuery({
-    queryKey: ["/api/models/search", searchQuery],
-    queryFn: () => 
-      searchQuery.length > 2 
-        ? fetch(`/api/models/search/${encodeURIComponent(searchQuery)}`).then(res => res.json())
-        : [],
-    enabled: searchQuery.length > 2,
-  });
+  // Search functionality with dedicated hook
+  const { data: searchResults = [] } = useModelsSearchQuery(searchQuery);
 
-  const displayModels = searchQuery.length > 2 ? (Array.isArray(searchResults) ? searchResults : []) : (Array.isArray(models) ? models : []);
+  // Extract models from response (handles both new structured and legacy format)
+  const models = modelsResponse?.data || [];
+  const displayModels = searchQuery.length > 2 ? searchResults : models;
 
   const formatDownloads = (downloads: number) => {
     if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1)}M`;
