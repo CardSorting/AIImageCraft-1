@@ -125,15 +125,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Enhanced Navigation Header */}
-      <NavigationHeader 
-        credits={userCredits}
-        onNavigationClick={handleNavigationClick}
-        activeItem={activeNavItem}
-      />
 
-      {/* Main Content Section */}
-      <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+      {/* Clean Create Interface */}
+      <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12 safe-area-top">
         <div className="max-w-4xl mx-auto">
           {/* Premium Generation Interface */}
           <div className="relative group">
@@ -145,9 +139,9 @@ export default function Home() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   {/* Enhanced Prompt Input with Apple Design */}
                   <div className="space-y-4">
-                    <div className="text-center mb-6">
-                      <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Create with AI</h2>
-                      <p className="text-muted-foreground">Transform your ideas into stunning visuals</p>
+                    <div className="text-center mb-8">
+                      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">Create with AI</h1>
+                      <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">Transform your imagination into stunning visuals using advanced AI technology</p>
                     </div>
                     <label className="block text-lg font-semibold text-foreground mb-3">
                       Describe Your Vision
