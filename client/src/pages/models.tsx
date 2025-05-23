@@ -53,19 +53,25 @@ const mainTabs = [
 
 export default function ModelsPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedTab, setSelectedTab] = useState("for_you");
+  const [sortBy, setSortBy] = useState("newest");
+  const [showSortMenu, setShowSortMenu] = useState(false);
 
-  // Fetch models based on category
+  // Fetch models based on active tab and sorting
   const { data: models = [], isLoading } = useQuery({
-    queryKey: ["/api/models", selectedCategory],
+    queryKey: ["/api/models", selectedTab, sortBy],
     queryFn: () => {
-      if (selectedCategory === "featured") {
+      if (selectedTab === "for_you") {
+        // For demonstration, using featured models as "For You" 
+        // In production, this would use user ID from auth context
         return fetch("/api/models/featured").then(res => res.json());
       }
-      if (selectedCategory === "all") {
-        return fetch("/api/models").then(res => res.json());
+      if (selectedTab === "bookmarked") {
+        // For demonstration, returning empty array
+        // In production, this would use user ID from auth context
+        return Promise.resolve([]);
       }
-      return fetch(`/api/models?category=${selectedCategory}`).then(res => res.json());
+      return fetch(`/api/models?sortBy=${sortBy}`).then(res => res.json());
     },
   });
 
@@ -124,32 +130,83 @@ export default function ModelsPage() {
       </div>
 
       <div className="pb-20">
-        {/* Category Pills - iOS Style */}
+        {/* Main Tabs - iOS Style */}
         <div className="px-4 py-4">
-          <ScrollArea className="w-full">
-            <div className="flex space-x-3">
-              {categories.map((category) => {
-                const Icon = category.icon;
-                const isSelected = selectedCategory === category.id;
+          <div className="flex justify-center mb-4">
+            <div className="ios-tab-list inline-flex">
+              {mainTabs.map((tab) => {
+                const Icon = tab.icon;
+                const isSelected = selectedTab === tab.id;
                 return (
                   <Button
-                    key={category.id}
-                    variant={isSelected ? "default" : "outline"}
+                    key={tab.id}
+                    variant={isSelected ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`ios-pill whitespace-nowrap ${
+                    onClick={() => setSelectedTab(tab.id)}
+                    className={`ios-tab ${
                       isSelected 
-                        ? 'bg-blue-500 text-white border-blue-500' 
-                        : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+                        ? 'bg-white dark:bg-gray-700 text-blue-500' 
+                        : 'text-gray-600 dark:text-gray-400'
                     }`}
                   >
                     <Icon className="h-4 w-4 mr-2" />
-                    {category.name}
+                    {tab.name}
                   </Button>
                 );
               })}
             </div>
-          </ScrollArea>
+          </div>
+
+          {/* Advanced Sort Options */}
+          {selectedTab === "all" && (
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Sort by
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSortMenu(!showSortMenu)}
+                className="ios-button text-xs"
+              >
+                {sortOptions.find(opt => opt.id === sortBy)?.name || "Newest"}
+                <Filter className="h-3 w-3 ml-2" />
+              </Button>
+            </div>
+          )}
+
+          {/* Sort Menu */}
+          {showSortMenu && selectedTab === "all" && (
+            <div className="mb-4 ios-fade-in">
+              <ScrollArea className="w-full">
+                <div className="flex space-x-2 pb-2">
+                  {sortOptions.map((option) => {
+                    const Icon = option.icon;
+                    const isSelected = sortBy === option.id;
+                    return (
+                      <Button
+                        key={option.id}
+                        variant={isSelected ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          setSortBy(option.id);
+                          setShowSortMenu(false);
+                        }}
+                        className={`ios-pill whitespace-nowrap ${
+                          isSelected 
+                            ? 'bg-blue-500 text-white border-blue-500' 
+                            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 mr-2" />
+                        {option.name}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            </div>
+          )}
         </div>
 
         {/* Models Grid */}
@@ -174,13 +231,27 @@ export default function ModelsPage() {
 
           {displayModels.length === 0 && !isLoading && (
             <div className="text-center py-12">
-              <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                No models found
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Try adjusting your search or browse different categories.
-              </p>
+              {selectedTab === "bookmarked" ? (
+                <>
+                  <Bookmark className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    No bookmarked models
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Bookmark your favorite models to find them easily later.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    No models found
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Try adjusting your search or explore different sorting options.
+                  </p>
+                </>
+              )}
             </div>
           )}
         </div>
