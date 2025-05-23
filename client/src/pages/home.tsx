@@ -30,17 +30,6 @@ export default function Home() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Credit cost calculation based on settings
-  const calculateCreditCost = () => {
-    const baseCreditsPerImage = 10; // Base cost per image
-    const aspectRatioMultiplier = form.watch("aspectRatio") === "16:9" || form.watch("aspectRatio") === "9:16" ? 1.2 : 1.0;
-    const numImages = form.watch("numImages") || 1;
-    
-    return Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
-  };
-
-  const currentCost = calculateCreditCost();
-
   const form = useForm<GenerateImageRequest>({
     resolver: zodResolver(generateImageRequestSchema),
     defaultValues: {
@@ -50,6 +39,15 @@ export default function Home() {
       numImages: 1,
     },
   });
+
+  // Watch form values for dynamic cost calculation
+  const aspectRatio = form.watch("aspectRatio") || "1:1";
+  const numImages = form.watch("numImages") || 1;
+  
+  // Calculate credit cost dynamically
+  const baseCreditsPerImage = 10;
+  const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
+  const currentCost = Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
 
   const { data: images = [], isLoading: imagesLoading } = useQuery<GeneratedImage[]>({
     queryKey: ["/api/images"],
