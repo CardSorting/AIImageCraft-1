@@ -1,9 +1,11 @@
 import { DatabaseImageGenerationRepository } from '../repositories/DatabaseImageGenerationRepository';
 import { FalAiImageGenerationService } from '../services/FalAiImageGenerationService';
+import { BackblazeB2ImageStorageService } from '../services/BackblazeB2ImageStorageService';
 import { GenerateImagesCommandHandler } from '../../application/handlers/GenerateImagesCommandHandler';
 import { GetImagesQueryHandler } from '../../application/handlers/GetImagesQueryHandler';
 import { IImageGenerationRepository } from '../../domain/repositories/IImageGenerationRepository';
 import { IImageGenerationService } from '../../domain/services/IImageGenerationService';
+import { IImageStorageService } from '../../domain/services/IImageStorageService';
 
 export class DependencyContainer {
   private static instance: DependencyContainer;
@@ -13,6 +15,7 @@ export class DependencyContainer {
   
   // Services
   private _imageGenerationService: IImageGenerationService;
+  private _imageStorageService: IImageStorageService;
   
   // Handlers
   private _generateImagesCommandHandler: GenerateImagesCommandHandler;
@@ -22,11 +25,13 @@ export class DependencyContainer {
     // Initialize dependencies following dependency inversion principle
     this._imageRepository = new DatabaseImageGenerationRepository();
     this._imageGenerationService = new FalAiImageGenerationService();
+    this._imageStorageService = new BackblazeB2ImageStorageService();
     
     // Initialize handlers with injected dependencies
     this._generateImagesCommandHandler = new GenerateImagesCommandHandler(
       this._imageGenerationService,
-      this._imageRepository
+      this._imageRepository,
+      this._imageStorageService
     );
     
     this._getImagesQueryHandler = new GetImagesQueryHandler(
@@ -48,6 +53,10 @@ export class DependencyContainer {
 
   public get imageGenerationService(): IImageGenerationService {
     return this._imageGenerationService;
+  }
+
+  public get imageStorageService(): IImageStorageService {
+    return this._imageStorageService;
   }
 
   public get generateImagesCommandHandler(): GenerateImagesCommandHandler {
