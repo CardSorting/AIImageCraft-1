@@ -16,7 +16,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={ForYouFeed} />
-      <Route path="/create" component={Home} />
+      <Route path="/create" component={Generate} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/generate" component={Generate} />
       <Route path="/history" component={History} />
