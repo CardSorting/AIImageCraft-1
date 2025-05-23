@@ -30,6 +30,17 @@ export default function Home() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Credit cost calculation based on settings
+  const calculateCreditCost = () => {
+    const baseCreditsPerImage = 10; // Base cost per image
+    const aspectRatioMultiplier = form.watch("aspectRatio") === "16:9" || form.watch("aspectRatio") === "9:16" ? 1.2 : 1.0;
+    const numImages = form.watch("numImages") || 1;
+    
+    return Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
+  };
+
+  const currentCost = calculateCreditCost();
+
   const form = useForm<GenerateImageRequest>({
     resolver: zodResolver(generateImageRequestSchema),
     defaultValues: {
@@ -150,6 +161,29 @@ export default function Home() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Dynamic Cost Display */}
+                      <div className="flex items-center justify-center mb-6">
+                        <div className="flex items-center space-x-2 bg-primary/10 border border-primary/20 rounded-xl px-4 py-3">
+                          <span className="text-sm font-medium text-foreground">Generation Cost:</span>
+                          <div className="flex items-center space-x-1">
+                            <Coins className="h-4 w-4 text-primary" />
+                            <span className="text-lg font-bold text-primary">{currentCost}</span>
+                            <span className="text-sm text-muted-foreground">credits</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Credit Balance Check */}
+                      {userCredits < currentCost && (
+                        <div className="flex items-center justify-center mb-6">
+                          <div className="bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-3 text-center">
+                            <p className="text-sm font-medium text-destructive">
+                              Insufficient credits. You need {currentCost - userCredits} more credits.
+                            </p>
+                          </div>
+                        </div>
+                      )}
                       
                       <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">Create with AI</h1>
                       <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">Transform your imagination into stunning visuals using advanced AI technology</p>
@@ -276,17 +310,35 @@ export default function Home() {
                     </CollapsibleContent>
                   </Collapsible>
 
-                  {/* Premium Generate Button with Apple Design */}
+                  {/* Premium Generate Button with Cost Display */}
                   <div className="relative pt-4">
                     <Button 
                       type="submit" 
-                      disabled={generateImagesMutation.isPending}
-                      className="w-full h-16 text-lg font-bold bg-gradient-to-r from-primary via-primary/95 to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-2xl shadow-xl shadow-primary/25 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden"
+                      disabled={generateImagesMutation.isPending || userCredits < currentCost}
+                      className={`w-full h-16 text-lg font-bold rounded-2xl shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden ${
+                        userCredits < currentCost 
+                          ? 'bg-gradient-to-r from-destructive/80 to-destructive/60 text-destructive-foreground shadow-destructive/25' 
+                          : 'bg-gradient-to-r from-primary via-primary/95 to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground shadow-primary/25'
+                      }`}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-2xl" />
                       <div className="relative flex items-center justify-center space-x-3">
                         <Sparkles className="h-6 w-6" />
-                        <span>{generateImagesMutation.isPending ? "Creating Magic..." : "Generate Images"}</span>
+                        <div className="flex flex-col items-center">
+                          <span>
+                            {generateImagesMutation.isPending 
+                              ? "Creating Magic..." 
+                              : userCredits < currentCost 
+                                ? "Insufficient Credits" 
+                                : "Generate Images"
+                            }
+                          </span>
+                          {!generateImagesMutation.isPending && userCredits >= currentCost && (
+                            <span className="text-sm opacity-90">
+                              Use {currentCost} credits
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </Button>
                   </div>
