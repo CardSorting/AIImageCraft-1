@@ -311,7 +311,11 @@ function ModelCard({ model }: ModelCardProps) {
     // Check if model is liked
     const loadLikeStatus = async () => {
       try {
-        const response = await fetch(`/api/likes/1/${model.id}`);
+        const response = await fetch(`/api/likes/1/${model.id}`, {
+          headers: {
+            'Accept': 'application/json',
+          }
+        });
         const data = await response.json();
         setIsLiked(data.liked || false);
       } catch (error) {
@@ -333,21 +337,17 @@ function ModelCard({ model }: ModelCardProps) {
     setIsLiked(newLikedState);
     
     try {
-      const response = await fetch('/api/likes', {
-        method: 'POST',
+      const response = await fetch(`/api/likes/1/${model.id}/toggle`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: 1, // Using hardcoded user ID for now
-          modelId: model.id
-        })
+          'Accept': 'application/json',
+        }
       });
       
       if (response.ok) {
         try {
           const data = await response.json();
-          console.log('Like API response:', data);
+          console.log('Like toggle API response:', data);
           if (data.success) {
             // Confirm the state matches the server response
             setIsLiked(data.liked);

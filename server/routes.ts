@@ -287,6 +287,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Toggle like using GET request (workaround for POST issues)
+  app.get("/api/likes/:userId/:modelId/toggle", async (req, res) => {
+    try {
+      console.log("Toggle like API called with userId:", req.params.userId, "modelId:", req.params.modelId);
+      const { userId, modelId } = req.params;
+      
+      if (!userId || !modelId) {
+        console.log("Missing userId or modelId");
+        return res.status(400).json({ error: "Missing userId or modelId" });
+      }
+      
+      const isLiked = await storage.isModelLiked(Number(userId), Number(modelId));
+      console.log(`Model ${modelId} is currently liked by user ${userId}:`, isLiked);
+      
+      if (isLiked) {
+        // Unlike the model
+        const removed = await storage.removeUserLike(Number(userId), Number(modelId));
+        console.log("Remove like result:", removed);
+        res.json({ success: true, liked: false, message: "Model unliked successfully" });
+      } else {
+        // Like the model
+        const created = await storage.createUserLike({ userId: Number(userId), modelId: Number(modelId) });
+        console.log("Create like result:", created);
+        res.json({ success: true, liked: true, message: "Model liked successfully" });
+      }
+    } catch (error) {
+      console.error("Error handling like toggle:", error);
+      res.status(500).json({ error: "Failed to handle like" });
+    }
+  });
+
   // Get user's bookmarked models
   app.get("/api/models/bookmarked/:userId", async (req, res) => {
     try {
