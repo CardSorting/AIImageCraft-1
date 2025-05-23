@@ -116,301 +116,258 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
-      {/* Header - Apple-style Navigation */}
-      <header className="border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl z-50 supports-[backdrop-filter]:bg-white/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--accent))] rounded-xl flex items-center justify-center shadow-sm">
-                <Sparkles className="text-white w-4 h-4 sm:w-5 sm:h-5" />
+    <div className="min-h-screen bg-background">
+      {/* Native iOS-style Header */}
+      <header className="glass-effect sticky top-0 z-50 safe-area-top">
+        <div className="container-responsive">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-md haptic-light">
+                <Sparkles className="text-primary-foreground w-4 h-4" />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg sm:text-xl font-semibold text-[hsl(var(--near-black))] dark:text-white tracking-tight">AI Image Generator</h1>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Powered by Google Imagen 4</p>
+                <h1 className="text-lg font-semibold text-foreground tracking-tight">AI Studio</h1>
+                <p className="text-xs text-muted-foreground">Imagen 4 • Google</p>
               </div>
               <div className="block sm:hidden">
-                <h1 className="text-lg font-semibold text-[hsl(var(--near-black))] dark:text-white tracking-tight">AI Images</h1>
+                <h1 className="text-lg font-semibold text-foreground tracking-tight">AI Studio</h1>
               </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <Button variant="ghost" size="sm" className="h-8 w-8 sm:h-9 sm:w-9 p-0">
-                <History className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 sm:h-9 sm:w-9 p-0">
-                <Settings className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center space-x-2">
+              <button className="btn-ios-ghost w-10 h-10 haptic-light">
+                <History className="h-5 w-5" />
+              </button>
+              <button className="btn-ios-ghost w-10 h-10 haptic-light">
+                <Settings className="h-5 w-5" />
+              </button>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+      <main className="container-responsive py-6 safe-area-bottom">
         {/* Hero Section */}
-        <section className="text-center mb-8 sm:mb-12 lg:mb-16">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-[hsl(var(--near-black))] dark:text-white mb-3 sm:mb-4 tracking-tight">Create stunning AI images</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 text-base sm:text-lg leading-relaxed">Describe your vision and watch it come to life with Google's Imagen 4 model</p>
+        <section className="text-center mb-8 animate-fade-in">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight text-balance">Create Amazing AI Images</h2>
+            <p className="text-muted-foreground mb-8 text-lg leading-relaxed text-balance">Transform your ideas into stunning visuals with Google's advanced Imagen 4 model</p>
             
-            {/* Generation Form - Apple-style Card */}
-            <div className="relative">
-              <div className="bg-gradient-to-r from-[hsl(var(--primary))]/8 to-[hsl(var(--accent))]/12 p-1 rounded-2xl sm:rounded-3xl shadow-sm">
-                <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 dark:border-gray-800">
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      {/* Prompt Input - Apple-style */}
+            {/* Generation Form - Native iOS Card */}
+            <div className="card-ios-elevated p-6 space-y-6 animate-scale-in">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="touch-spacing">
+                  {/* Prompt Input - Native Style */}
+                  <FormField
+                    control={form.control}
+                    name="prompt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="relative">
+                            <Textarea
+                              placeholder="Describe your vision... (e.g., A serene mountain lake at sunset with golden reflections)"
+                              className="input-ios min-h-[120px] resize-none text-base leading-relaxed"
+                              {...field}
+                            />
+                            <div className="absolute bottom-3 right-3 text-xs text-muted-foreground bg-card px-2 py-1 rounded-lg border border-border/50">
+                              {field.value?.length || 0}/500
+                            </div>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Native iOS Options Panel */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="aspectRatio"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-muted-foreground">Aspect Ratio</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="input-ios">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="1:1">1:1 Square</SelectItem>
+                              <SelectItem value="16:9">16:9 Landscape</SelectItem>
+                              <SelectItem value="9:16">9:16 Portrait</SelectItem>
+                              <SelectItem value="4:3">4:3 Standard</SelectItem>
+                              <SelectItem value="3:4">3:4 Portrait</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="numImages"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-muted-foreground">Count</FormLabel>
+                          <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
+                            <FormControl>
+                              <SelectTrigger className="input-ios">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="1">1 Image</SelectItem>
+                              <SelectItem value="2">2 Images</SelectItem>
+                              <SelectItem value="3">3 Images</SelectItem>
+                              <SelectItem value="4">4 Images</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Advanced Options Toggle */}
+                    <div className="sm:col-span-1">
+                      <FormLabel className="text-sm font-medium text-muted-foreground">Options</FormLabel>
+                      <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+                        <CollapsibleTrigger asChild>
+                          <button type="button" className="btn-ios-secondary w-full justify-between haptic-light">
+                            <span className="flex items-center">
+                              <Sliders className="h-4 w-4 mr-2" />
+                              Advanced
+                            </span>
+                            {showAdvanced ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          </button>
+                        </CollapsibleTrigger>
+                      </Collapsible>
+                    </div>
+                  </div>
+
+                  {/* Advanced Options Panel */}
+                  <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+                    <CollapsibleContent className="animate-slide-up">
                       <FormField
                         control={form.control}
-                        name="prompt"
+                        name="negativePrompt"
                         render={({ field }) => (
                           <FormItem>
+                            <FormLabel className="text-sm font-medium text-muted-foreground">Negative Prompt (Optional)</FormLabel>
                             <FormControl>
-                              <div className="relative">
-                                <Textarea
-                                  placeholder="Describe the image you want to create... (e.g., A majestic lion in a sunlit savanna with golden grass)"
-                                  className="min-h-[100px] sm:min-h-[120px] resize-none apple-focus bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl text-sm sm:text-base leading-relaxed placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                                  {...field}
-                                />
-                                <div className="absolute bottom-3 right-3 text-xs sm:text-sm text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-800 px-2 py-1 rounded-md">
-                                  {field.value?.length || 0}/500
-                                </div>
-                              </div>
+                              <Input
+                                placeholder="What you don't want to see..."
+                                className="input-ios"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+                    </CollapsibleContent>
+                  </Collapsible>
 
-                      {/* Generation Options - Responsive Layout */}
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            <FormField
-                              control={form.control}
-                              name="aspectRatio"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">Aspect Ratio</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                      <SelectTrigger className="apple-focus bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-lg text-sm">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value="1:1">1:1 Square</SelectItem>
-                                      <SelectItem value="16:9">16:9 Landscape</SelectItem>
-                                      <SelectItem value="9:16">9:16 Portrait</SelectItem>
-                                      <SelectItem value="4:3">4:3 Standard</SelectItem>
-                                      <SelectItem value="3:4">3:4 Portrait</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name="numImages"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">Images</FormLabel>
-                                  <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
-                                    <FormControl>
-                                      <SelectTrigger className="apple-focus bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-lg text-sm">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value="1">1</SelectItem>
-                                      <SelectItem value="2">2</SelectItem>
-                                      <SelectItem value="3">3</SelectItem>
-                                      <SelectItem value="4">4</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <div className="col-span-2 sm:col-span-1">
-                              <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
-                                <CollapsibleTrigger asChild>
-                                  <Button variant="outline" type="button" className="w-full apple-focus bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-sm font-medium">
-                                    <Sliders className="h-4 w-4 mr-2" />
-                                    Advanced
-                                    {showAdvanced ? <ChevronDown className="h-4 w-4 ml-2" /> : <ChevronRight className="h-4 w-4 ml-2" />}
-                                  </Button>
-                                </CollapsibleTrigger>
-                              </Collapsible>
-                            </div>
-                          </div>
-
-                          {/* Advanced Options */}
-                          <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
-                            <CollapsibleContent className="space-y-4 mt-4">
-                              <FormField
-                                control={form.control}
-                                name="negativePrompt"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-sm text-gray-600 dark:text-gray-400 font-medium">Negative Prompt (Optional)</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="What you don't want to see in the image..."
-                                        className="apple-focus bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-lg"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </CollapsibleContent>
-                          </Collapsible>
-                        </div>
-                        
-                        {/* Apple-style Generate Button */}
-                        <div className="flex justify-center sm:justify-end">
-                          <Button 
-                            type="submit" 
-                            disabled={generateImagesMutation.isPending}
-                            className="w-full sm:w-auto bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl font-semibold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
-                          >
-                            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
-                            <span className="text-sm sm:text-base">{generateImagesMutation.isPending ? "Generating..." : "Generate Images"}</span>
-                          </Button>
-                        </div>
-                      </div>
-                    </form>
-                  </Form>
-                </div>
-              </div>
+                  {/* Native iOS Generate Button */}
+                  <Button 
+                    type="submit" 
+                    disabled={generateImagesMutation.isPending}
+                    className="btn-ios-primary w-full h-12 text-lg font-semibold haptic-medium"
+                  >
+                    <Sparkles className="h-5 w-5 mr-2" />
+                    {generateImagesMutation.isPending ? "Creating..." : "Generate Images"}
+                  </Button>
+                </form>
+              </Form>
             </div>
           </div>
         </section>
 
-        {/* Loading State */}
+        {/* Loading State - Native iOS Style */}
         {generateImagesMutation.isPending && (
-          <section className="mb-12">
-            <div className="text-center py-12">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--accent))] rounded-full mb-4">
-                <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+          <section className="mb-8 animate-fade-in">
+            <div className="card-ios-elevated p-8 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-3xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+                <Sparkles className="text-primary-foreground w-8 h-8" />
               </div>
-              <h3 className="text-xl font-medium text-[hsl(var(--near-black))] mb-2">Generating your images...</h3>
-              <p className="text-gray-600 mb-6">This may take a few moments</p>
-              
-              <div className="max-w-md mx-auto">
-                <Progress value={65} className="h-2" />
-                <p className="text-sm text-gray-500 mt-2">Processing your request...</p>
-              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">Creating Your Images</h3>
+              <p className="text-muted-foreground mb-4">Our AI is working its magic...</p>
+              <Progress value={undefined} className="w-full max-w-xs mx-auto" />
             </div>
           </section>
         )}
 
-        {/* Image Gallery - Apple-style Grid */}
-        <section className="mb-8 sm:mb-12">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-3">
-            <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-[hsl(var(--near-black))] dark:text-white tracking-tight">Recent Generations</h3>
-            <div className="flex items-center space-x-3">
-              <span className="text-gray-500 dark:text-gray-400 text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">{images.length} images</span>
+        {/* Gallery - Native iOS Style */}
+        {images.length > 0 && (
+          <section className="animate-fade-in">
+            <div className="section-header-ios mb-4">
+              <h3>Recent Creations</h3>
             </div>
-          </div>
-
-          {images.length === 0 && !imagesLoading ? (
-            <div className="text-center py-12 sm:py-20">
-              <div className="max-w-md mx-auto px-4">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[hsl(var(--primary))]/20 to-[hsl(var(--accent))]/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                  <Sparkles className="text-[hsl(var(--primary))] w-8 h-8 sm:w-10 sm:h-10" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-[hsl(var(--near-black))] dark:text-white mb-3 tracking-tight">No images generated yet</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm sm:text-base leading-relaxed">Start by describing the image you want to create in the prompt above.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {images.map((image) => (
-                <Card key={image.id} className="group relative bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-xl dark:shadow-gray-900/20 transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700">
-                  <div className="relative">
+                <div key={image.id} className="card-ios group hover:scale-[1.02] transition-transform duration-200">
+                  <div className="aspect-square overflow-hidden rounded-t-2xl">
                     <img 
                       src={image.imageUrl} 
                       alt={image.prompt}
-                      className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+                      onClick={() => openImageModal(image)}
                     />
-                    
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
-                        <p className="text-white text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2 leading-relaxed">{image.prompt}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-white/80 text-xs">{formatTimeAgo(new Date(image.createdAt))}</span>
-                          <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="bg-white/20 backdrop-blur-sm text-white p-2 h-8 w-8 hover:bg-white/30"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                downloadImage(image.imageUrl, image.fileName || undefined);
-                              }}
-                            >
-                              <Download className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="bg-white/20 backdrop-blur-sm text-white p-2 h-8 w-8 hover:bg-white/30"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openImageModal(image);
-                              }}
-                            >
-                              <Expand className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-sm text-foreground line-clamp-2 mb-2">{image.prompt}</p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{formatTimeAgo(new Date(image.createdAt))}</span>
+                      <button 
+                        onClick={() => downloadImage(image.imageUrl, image.fileName || undefined)}
+                        className="btn-ios-ghost p-2 haptic-light"
+                      >
+                        <Download className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
-                  <CardContent className="p-4">
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">{image.prompt}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-400">{formatTimeAgo(new Date(image.createdAt))}</span>
-                      <span className="text-xs bg-[hsl(var(--accent))] text-[hsl(var(--primary))] px-2 py-1 rounded-full">{image.aspectRatio}</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                </div>
               ))}
             </div>
-          )}
-        </section>
+          </section>
+        )}
       </main>
 
-      {/* Image Modal */}
+      {/* Native iOS Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle>Generated Image</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="card-ios-elevated max-w-4xl p-0 overflow-hidden">
           {selectedImage && (
-            <div className="space-y-4">
-              <img 
-                src={selectedImage.imageUrl}
-                alt={selectedImage.prompt}
-                className="w-full h-auto max-h-96 object-contain rounded-lg"
-              />
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600 flex-1 mr-4">{selectedImage.prompt}</p>
-                <Button
-                  onClick={() => downloadImage(selectedImage.imageUrl, selectedImage.fileName || undefined)}
-                  className="bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download
-                </Button>
+            <>
+              <div className="aspect-video overflow-hidden">
+                <img 
+                  src={selectedImage.imageUrl} 
+                  alt={selectedImage.prompt}
+                  className="w-full h-full object-contain bg-muted"
+                />
               </div>
-            </div>
+              <div className="p-6">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-semibold text-foreground mb-2">
+                    {selectedImage.prompt}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="flex items-center justify-between mt-4">
+                  <span className="text-sm text-muted-foreground">
+                    {formatTimeAgo(new Date(selectedImage.createdAt))}
+                  </span>
+                  <Button 
+                    onClick={() => downloadImage(selectedImage.imageUrl, selectedImage.fileName || undefined)}
+                    className="btn-ios-primary haptic-medium"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
