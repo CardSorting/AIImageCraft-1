@@ -2,6 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { ImageController } from "./presentation/controllers/ImageController";
 import { storage } from "./storage";
+import { db } from "./db";
+import { userLikes, userBookmarks } from "@shared/schema";
+import { eq, count } from "drizzle-orm";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const imageController = new ImageController();
