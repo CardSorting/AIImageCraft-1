@@ -1,0 +1,168 @@
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:02:07 PM [express] POST /api/interactions/track 500 in 3059ms :: {"error":"Failed to track interac…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:02:07 PM [express] POST /api/interactions/track 500 in 3351ms :: {"error":"Failed to track interac…
+Error updating behavior profile: error: column "most_active_time_of_day" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 124,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '420',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "most_active_time_of_day" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 124,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '420',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "most_active_time_of_day" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 124,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '420',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:02:09 PM [express] POST /api/interactions/track 500 in 5261ms :: {"error":"Failed to track interac…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:02:10 PM [express] POST /api/interactions/track 500 in 5606ms :: {"error":"Failed to track interac…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:02:10 PM [express] POST /api/interactions/track 500 in 5517ms :: {"error":"Failed to track interac…
+Error updating behavior profile: error: column "most_active_time_of_day" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 124,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '420',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "most_active_time_of_day" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 124,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '420',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:02:11 PM [express] POST /api/interactions/track 500 in 7499ms :: {"error":"Failed to track interac…
+Error updating behavior profile: error: column "most_active_time_of_day" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 124,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '420',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}

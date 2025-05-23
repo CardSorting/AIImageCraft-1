@@ -119,22 +119,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Helper function for affinity calculation
-  function calculateAffinityBoost(interactionType: string, engagementLevel: number): number {
-    const baseBoosts = {
-      view: 0.1,
-      like: 0.3,
-      bookmark: 0.5,
-      generate: 0.7,
-      share: 0.4,
-      download: 0.6
-    };
-    
-    const baseBoost = baseBoosts[interactionType as keyof typeof baseBoosts] || 0.1;
-    const engagementMultiplier = engagementLevel / 10;
-    
-    return Math.min(1.0, baseBoost * engagementMultiplier * 1.5);
-  }
+
 
   // Get user behavior analytics endpoint
   app.get("/api/users/:userId/behavior-analytics", async (req, res) => {
