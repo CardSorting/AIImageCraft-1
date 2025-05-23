@@ -243,9 +243,10 @@ export default function Generate() {
       return response.json();
     },
     onSuccess: (data) => {
+      const imageCount = data.data?.imageUrls?.length || data.images?.length || 1;
       toast({
         title: "Images Generated Successfully! 🎨",
-        description: `Created ${data.data.imageUrls.length} stunning images`,
+        description: `Created ${imageCount} stunning image${imageCount > 1 ? 's' : ''}`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/images"] });
       form.reset();
