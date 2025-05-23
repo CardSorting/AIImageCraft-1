@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "wouter";
 import { 
@@ -343,10 +343,7 @@ function ModelCard({ model }: ModelCardProps) {
                 size="sm"
                 variant="secondary"
                 className="ios-floating-button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsLiked(!isLiked);
-                }}
+                onClick={handleLike}
               >
                 <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
               </Button>
