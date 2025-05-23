@@ -191,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recentActivity: {
           totalInteractions: recentInteractions.length,
           avgEngagement: recentInteractions.reduce((sum, i) => sum + (i.engagementLevel || 5), 0) / Math.max(1, recentInteractions.length),
-          topInteractionTypes: this.getTopInteractionTypes(recentInteractions)
+          topInteractionTypes: getTopInteractionTypes(recentInteractions)
         }
       };
 
