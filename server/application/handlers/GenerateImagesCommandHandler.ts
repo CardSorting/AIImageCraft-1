@@ -1,20 +1,20 @@
 import { GenerateImagesCommand } from '../commands/GenerateImagesCommand';
-import { StoreImageCommand } from '../commands/StoreImageCommand';
-import { StoreImageCommandHandler } from './StoreImageCommandHandler';
+import { StoreImageToCloudCommand } from '../commands/StoreImageToCloudCommand';
+import { StoreImageToCloudCommandHandler } from './StoreImageToCloudCommandHandler';
 import { ImageGeneration } from '../../domain/entities/ImageGeneration';
 import { IImageGenerationRepository } from '../../domain/repositories/IImageGenerationRepository';
 import { IImageGenerationService } from '../../domain/services/IImageGenerationService';
-import { IImageStorageService } from '../../domain/services/IImageStorageService';
+import { ICloudStorageService } from '../../domain/services/ICloudStorageService';
 
 export class GenerateImagesCommandHandler {
-  private storeImageHandler: StoreImageCommandHandler;
+  private cloudStorageHandler: StoreImageToCloudCommandHandler;
 
   constructor(
     private readonly imageGenerationService: IImageGenerationService,
     private readonly imageRepository: IImageGenerationRepository,
-    private readonly imageStorageService: IImageStorageService
+    private readonly cloudStorageService: ICloudStorageService
   ) {
-    this.storeImageHandler = new StoreImageCommandHandler(imageStorageService);
+    this.cloudStorageHandler = new StoreImageToCloudCommandHandler(cloudStorageService, imageRepository);
   }
 
   async handle(command: GenerateImagesCommand): Promise<ImageGeneration[]> {
@@ -52,8 +52,8 @@ export class GenerateImagesCommandHandler {
         
         console.log(`💾 Saved image: ${savedImage.fileName}`);
         
-        // Store to B2 in background (non-blocking)
-        this.storeImageInBackground(result.url, result.fileName, savedImage.id);
+        // Store to cloud in background (non-blocking)
+        this.storeImageToCloudInBackground(result.url, savedImage.id, result.fileName);
         
       } catch (error: any) {
         console.error(`❌ Failed to save image: ${error.message}`);
@@ -66,22 +66,14 @@ export class GenerateImagesCommandHandler {
   }
 
   /**
-   * Store image to B2 in background without blocking the response
+   * Store image to cloud storage in background without blocking the response
    */
-  private async storeImageInBackground(falUrl: string, fileName: string | undefined, imageId: number): Promise<void> {
+  private async storeImageToCloudInBackground(falUrl: string, imageId: number, fileName?: string): Promise<void> {
     try {
-      const storeCommand = new StoreImageCommand(falUrl, fileName);
-      const storageResult = await this.storeImageHandler.handle(storeCommand);
-      
-      // Update the database with the B2 URL
-      const image = await this.imageRepository.findById(imageId);
-      if (image) {
-        image.updateImageUrl(storageResult.url);
-        await this.imageRepository.save(image);
-        console.log(`🔄 Updated image ${imageId} with B2 URL: ${storageResult.fileName}`);
-      }
+      const cloudCommand = new StoreImageToCloudCommand(falUrl, imageId, fileName);
+      await this.cloudStorageHandler.handle(cloudCommand);
     } catch (error: any) {
-      console.error(`⚠️ Background B2 storage failed for image ${imageId}:`, error.message);
+      console.error(`⚠️ Background cloud storage failed for image ${imageId}:`, error.message);
       // Don't throw - this is background processing
     }
   }

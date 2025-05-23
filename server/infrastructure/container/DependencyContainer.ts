@@ -1,11 +1,11 @@
 import { DatabaseImageGenerationRepository } from '../repositories/DatabaseImageGenerationRepository';
 import { FalAiImageGenerationService } from '../services/FalAiImageGenerationService';
-import { BackblazeB2ImageStorageService } from '../services/BackblazeB2ImageStorageService';
+import { EnhancedBackblazeB2Service } from '../services/EnhancedBackblazeB2Service';
 import { GenerateImagesCommandHandler } from '../../application/handlers/GenerateImagesCommandHandler';
 import { GetImagesQueryHandler } from '../../application/handlers/GetImagesQueryHandler';
 import { IImageGenerationRepository } from '../../domain/repositories/IImageGenerationRepository';
 import { IImageGenerationService } from '../../domain/services/IImageGenerationService';
-import { IImageStorageService } from '../../domain/services/IImageStorageService';
+import { ICloudStorageService } from '../../domain/services/ICloudStorageService';
 
 export class DependencyContainer {
   private static instance: DependencyContainer;
@@ -15,7 +15,7 @@ export class DependencyContainer {
   
   // Services
   private _imageGenerationService: IImageGenerationService;
-  private _imageStorageService: IImageStorageService;
+  private _cloudStorageService: ICloudStorageService;
   
   // Handlers
   private _generateImagesCommandHandler: GenerateImagesCommandHandler;
@@ -25,13 +25,13 @@ export class DependencyContainer {
     // Initialize dependencies following dependency inversion principle
     this._imageRepository = new DatabaseImageGenerationRepository();
     this._imageGenerationService = new FalAiImageGenerationService();
-    this._imageStorageService = new BackblazeB2ImageStorageService();
+    this._cloudStorageService = new EnhancedBackblazeB2Service();
     
     // Initialize handlers with injected dependencies
     this._generateImagesCommandHandler = new GenerateImagesCommandHandler(
       this._imageGenerationService,
       this._imageRepository,
-      this._imageStorageService
+      this._cloudStorageService
     );
     
     this._getImagesQueryHandler = new GetImagesQueryHandler(
@@ -55,8 +55,8 @@ export class DependencyContainer {
     return this._imageGenerationService;
   }
 
-  public get imageStorageService(): IImageStorageService {
-    return this._imageStorageService;
+  public get cloudStorageService(): ICloudStorageService {
+    return this._cloudStorageService;
   }
 
   public get generateImagesCommandHandler(): GenerateImagesCommandHandler {
