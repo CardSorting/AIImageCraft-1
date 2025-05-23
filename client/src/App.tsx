@@ -10,6 +10,8 @@ import Gallery from "@/pages/gallery";
 import Generate from "@/pages/generate";
 import History from "@/pages/history";
 import Profile from "@/pages/profile";
+import ModelsPage from "@/pages/models";
+import ModelDetailPage from "@/pages/model-detail";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -21,6 +23,8 @@ function Router() {
       <Route path="/generate" component={Generate} />
       <Route path="/history" component={History} />
       <Route path="/profile" component={Profile} />
+      <Route path="/models" component={ModelsPage} />
+      <Route path="/models/:id" component={ModelDetailPage} />
       <Route component={NotFound} />
     </Switch>
   );
