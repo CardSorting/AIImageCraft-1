@@ -13,6 +13,8 @@ import { Progress } from "@/components/ui/progress";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Sparkles, ChevronDown, ChevronRight, Sliders, Palette, Camera, Wand2 } from "lucide-react";
+import { ModelSelector } from "@/components/ModelSelector";
+import { LoRASelector } from "@/components/LoRASelector";
 
 interface ImageGenerationResponse {
   success: boolean;
@@ -41,6 +43,10 @@ export default function Generate() {
       negativePrompt: "",
       aspectRatio: "1:1",
       numImages: 1,
+      model: "runware:100@1",
+      loras: [],
+      steps: 20,
+      cfgScale: 7,
     },
   });
 
@@ -206,15 +212,60 @@ export default function Generate() {
               </div>
             </div>
 
+            {/* Model Selection */}
+            <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border">
+              <FormField
+                control={form.control}
+                name="model"
+                render={({ field }) => (
+                  <FormItem>
+                    <ModelSelector value={field.value} onChange={field.onChange} />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* LoRA Selection */}
+            <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border">
+              <FormField
+                control={form.control}
+                name="loras"
+                render={({ field }) => (
+                  <FormItem>
+                    <LoRASelector value={field.value} onChange={field.onChange} />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             {/* Advanced Options */}
             <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
-              <CollapsibleContent className="animate-slide-up">
+              <CollapsibleTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-between h-12 text-sm font-medium"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Sliders className="h-4 w-4" />
+                    <span>Advanced Settings</span>
+                  </div>
+                  {showAdvanced ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="animate-slide-up space-y-4 mt-4">
                 <FormField
                   control={form.control}
                   name="negativePrompt"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-muted-foreground">Negative Prompt (Optional)</FormLabel>
+                      <FormLabel className="text-sm font-medium text-muted-foreground">Negative Prompt</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="blur, distortion, low quality..."
@@ -222,6 +273,96 @@ export default function Generate() {
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="steps"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-muted-foreground">Steps</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="1"
+                            max="100"
+                            className="input-ios"
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 20)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="cfgScale"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-muted-foreground">CFG Scale</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="50"
+                            step="0.5"
+                            className="input-ios"
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 7)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="seed"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-muted-foreground">Seed (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Random if empty"
+                          className="input-ios"
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="scheduler"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-muted-foreground">Scheduler</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="input-ios">
+                            <SelectValue placeholder="Default scheduler" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="euler">Euler</SelectItem>
+                          <SelectItem value="euler_ancestral">Euler Ancestral</SelectItem>
+                          <SelectItem value="dpm_solver">DPM Solver</SelectItem>
+                          <SelectItem value="ddim">DDIM</SelectItem>
+                          <SelectItem value="plms">PLMS</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
