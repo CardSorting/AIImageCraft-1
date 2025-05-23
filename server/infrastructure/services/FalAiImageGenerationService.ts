@@ -17,9 +17,9 @@ export class FalAiImageGenerationService implements IImageGenerationService {
     try {
       console.log(`🎨 Starting FAL AI generation for prompt: "${request.prompt}"`);
       
-      // Add timeout wrapper
+      // Add timeout wrapper with longer timeout for queue delays
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Image generation timeout after 60 seconds')), 60000);
+        setTimeout(() => reject(new Error('AI service is experiencing high demand. Please try again in a moment!')), 120000); // 2 minutes
       });
 
       const generationPromise = fal.subscribe("fal-ai/imagen4/preview", {
