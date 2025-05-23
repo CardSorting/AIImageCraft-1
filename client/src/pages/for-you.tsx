@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Heart, MessageCircle, Share, Download, MoreHorizontal, Play, Volume2, VolumeX } from "lucide-react";
-import { NavigationHeader } from "@/components/navigation/NavigationHeader";
+import { TikTokHeader } from "@/components/navigation/TikTokHeader";
 
 interface FeedItem {
   id: number;
@@ -36,10 +36,10 @@ interface ForYouFeedProps {
 }
 
 export default function ForYouFeed() {
-  const [activeNavItem, setActiveNavItem] = useState("for-you");
+  const [activeTab, setActiveTab] = useState<"for-you" | "following">("for-you");
   
-  const handleNavigationClick = (itemId: string) => {
-    setActiveNavItem(itemId);
+  const handleTabChange = (tab: "for-you" | "following") => {
+    setActiveTab(tab);
   };
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -153,11 +153,10 @@ export default function ForYouFeed() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header Navigation - For You & Following */}
-      <NavigationHeader 
-        credits={1250}
-        onNavigationClick={handleNavigationClick}
-        activeItem={activeNavItem}
+      {/* TikTok-Style Header Navigation */}
+      <TikTokHeader 
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
       />
 
       {/* TikTok-style Feed Container */}
