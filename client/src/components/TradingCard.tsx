@@ -386,7 +386,7 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2 text-xl">
               <IconComponent className="h-6 w-6" />
-              <span>{rarity.name} Trading Card</span>
+              <span>{rarity.name}</span>
               <div className="flex items-center space-x-1 ml-2">
                 {Array.from({ length: image.rarityStars }, (_, i) => (
                   <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
