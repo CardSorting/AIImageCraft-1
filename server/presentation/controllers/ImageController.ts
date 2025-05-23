@@ -4,6 +4,7 @@ import { GenerateImagesCommand } from '../../application/commands/GenerateImages
 import { GetImagesQuery } from '../../application/queries/GetImagesQuery';
 import { GetImageByIdQuery } from '../../application/queries/GetImageByIdQuery';
 import { DependencyContainer } from '../../infrastructure/container/DependencyContainer';
+import { generateCardRarity } from '../../cardRarity.js';
 
 export class ImageController {
   private container = DependencyContainer.getInstance();
@@ -21,9 +22,22 @@ export class ImageController {
 
       const images = await this.container.generateImagesCommandHandler.handle(command);
       
+      // Generate card rarity for each image
+      const enhancedImages = images.map(img => {
+        const rarity = generateCardRarity(validatedData.prompt);
+        const plainObject = img.toPlainObject();
+        return {
+          ...plainObject,
+          rarityTier: rarity.tier,
+          rarityScore: rarity.score,
+          rarityStars: rarity.stars,
+          rarityLetter: rarity.letter,
+        };
+      });
+      
       res.json({
         success: true,
-        images: images.map(img => img.toPlainObject()),
+        images: enhancedImages,
         requestId: `req_${Date.now()}`,
       });
 
