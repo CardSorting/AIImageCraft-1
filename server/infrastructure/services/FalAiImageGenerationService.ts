@@ -15,7 +15,14 @@ export class FalAiImageGenerationService implements IImageGenerationService {
     }
 
     try {
-      const result = await fal.subscribe("fal-ai/imagen4/preview", {
+      console.log(`🎨 Starting FAL AI generation for prompt: "${request.prompt}"`);
+      
+      // Add timeout wrapper
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Image generation timeout after 60 seconds')), 60000);
+      });
+
+      const generationPromise = fal.subscribe("fal-ai/imagen4/preview", {
         input: {
           prompt: request.prompt,
           negative_prompt: request.negativePrompt || "",
@@ -24,17 +31,22 @@ export class FalAiImageGenerationService implements IImageGenerationService {
         },
         logs: true,
         onQueueUpdate: (update) => {
+          console.log(`📊 FAL AI Status: ${update.status}`);
           if (update.status === "IN_PROGRESS") {
-            console.log("Generation progress:", update.logs?.map(log => log.message).join(", "));
+            console.log("🔄 Generation progress:", update.logs?.map((log: any) => log.message).join(", "));
           }
         },
       });
+
+      const result = await Promise.race([generationPromise, timeoutPromise]) as any;
 
       if (!result.data || !result.data.images) {
         throw new Error("No images generated from FAL AI service");
       }
 
-      return result.data.images.map(image => ({
+      console.log(`✅ FAL AI generation completed: ${result.data.images.length} images`);
+
+      return result.data.images.map((image: any) => ({
         url: image.url,
         fileName: image.file_name || `generated-${Date.now()}.png`,
         fileSize: image.file_size || undefined,
@@ -42,7 +54,7 @@ export class FalAiImageGenerationService implements IImageGenerationService {
       }));
 
     } catch (error: any) {
-      console.error("FAL AI generation error:", error);
+      console.error("❌ FAL AI generation error:", error);
       throw new Error(`Image generation failed: ${error.message}`);
     }
   }
