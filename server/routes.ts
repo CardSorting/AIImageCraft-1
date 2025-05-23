@@ -315,6 +315,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get model statistics (like and bookmark counts)
+  app.get("/api/models/:modelId/stats", async (req, res) => {
+    try {
+      const modelId = Number(req.params.modelId);
+      
+      // Get like count
+      const [likeCountResult] = await db.select({ count: count() }).from(userLikes).where(eq(userLikes.modelId, modelId));
+      const likeCount = likeCountResult?.count || 0;
+      
+      // Get bookmark count
+      const [bookmarkCountResult] = await db.select({ count: count() }).from(userBookmarks).where(eq(userBookmarks.modelId, modelId));
+      const bookmarkCount = bookmarkCountResult?.count || 0;
+      
+      res.json({ 
+        modelId, 
+        likeCount: Number(likeCount), 
+        bookmarkCount: Number(bookmarkCount) 
+      });
+    } catch (error) {
+      console.error("Error fetching model stats:", error);
+      res.status(500).json({ error: "Failed to fetch model statistics" });
+    }
+  });
+
   // Get user's bookmarked models
   app.get("/api/models/bookmarked/:userId", async (req, res) => {
     try {

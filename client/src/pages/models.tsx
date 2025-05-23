@@ -324,9 +324,25 @@ function ModelCard({ model }: ModelCardProps) {
         setIsLiked(false);
       }
     };
+
+    // Load actual counts from database
+    const loadCounts = async () => {
+      try {
+        // Get like count
+        const likeResponse = await fetch(`/api/models/${model.id}/stats`);
+        if (likeResponse.ok) {
+          const stats = await likeResponse.json();
+          setLikeCount(stats.likeCount || 0);
+          setBookmarkCount(stats.bookmarkCount || 0);
+        }
+      } catch (error) {
+        console.log('Could not load counts, keeping default values');
+      }
+    };
     
     loadBookmarkStatus();
     loadLikeStatus();
+    loadCounts();
   }, [model.id]);
 
   // Handle like functionality
