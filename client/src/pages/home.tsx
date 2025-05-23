@@ -239,6 +239,26 @@ export default function Home() {
                                 {showAdvanced ? <ChevronDown className="h-4 w-4 ml-2" /> : <ChevronRight className="h-4 w-4 ml-2" />}
                               </Button>
                             </CollapsibleTrigger>
+                            
+                            {/* Advanced Options */}
+                            <CollapsibleContent className="space-y-4 mt-4">
+                              <FormField
+                                control={form.control}
+                                name="negativePrompt"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Negative Prompt (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="What you don't want to see in the image..."
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </CollapsibleContent>
                           </Collapsible>
                         </div>
                         
@@ -251,26 +271,6 @@ export default function Home() {
                           <span>{generateImagesMutation.isPending ? "Generating..." : "Generate Images"}</span>
                         </Button>
                       </div>
-
-                      {/* Advanced Options */}
-                      <CollapsibleContent className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name="negativePrompt"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Negative Prompt (Optional)</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="What you don't want to see in the image..."
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </CollapsibleContent>
                     </form>
                   </Form>
                 </div>
