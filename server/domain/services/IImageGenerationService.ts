@@ -11,7 +11,7 @@ export interface GeneratedImageResult {
   url: string;
   fileName?: string;
   fileSize?: number;
-  seed?: number;
+  seed?: string;
 }
 
 export interface IImageGenerationService {

@@ -38,7 +38,7 @@ export class FalAiImageGenerationService implements IImageGenerationService {
         url: image.url,
         fileName: image.file_name || `generated-${Date.now()}.png`,
         fileSize: image.file_size || undefined,
-        seed: result.data.seed || undefined,
+        seed: result.data.seed ? String(result.data.seed) : undefined,
       }));
 
     } catch (error: any) {
