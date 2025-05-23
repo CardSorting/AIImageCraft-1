@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, bigint } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -16,7 +16,7 @@ export const generatedImages = pgTable("generated_images", {
   imageUrl: text("image_url").notNull(),
   fileName: text("file_name"),
   fileSize: integer("file_size"),
-  seed: integer("seed"),
+  seed: text("seed"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

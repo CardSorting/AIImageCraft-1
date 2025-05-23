@@ -35,18 +35,15 @@ export class GenerateImagesCommandHandler {
     
     for (const result of generatedResults) {
       try {
-        // Store image in B2 and get permanent URL
-        const storeCommand = new StoreImageCommand(result.url, result.fileName);
-        const storageResult = await this.storeImageHandler.handle(storeCommand);
-
-        // Create domain entity with B2 URL
+        // For now, use FAL URL directly to prevent timeout
+        // TODO: Implement background B2 storage later
         const imageGeneration = ImageGeneration.create({
           prompt: command.prompt,
           negativePrompt: command.negativePrompt,
           aspectRatio: command.aspectRatio,
-          imageUrl: storageResult.url, // Use B2 URL instead of FAL URL
-          fileName: storageResult.fileName,
-          fileSize: storageResult.fileSize,
+          imageUrl: result.url, // Use FAL URL for immediate response
+          fileName: result.fileName,
+          fileSize: result.fileSize,
           seed: result.seed
         });
 
@@ -54,13 +51,38 @@ export class GenerateImagesCommandHandler {
         savedImages.push(savedImage);
         
         console.log(`💾 Saved image: ${savedImage.fileName}`);
+        
+        // Store to B2 in background (non-blocking)
+        this.storeImageInBackground(result.url, result.fileName, savedImage.id);
+        
       } catch (error: any) {
-        console.error(`❌ Failed to store image: ${error.message}`);
+        console.error(`❌ Failed to save image: ${error.message}`);
         // Continue with other images even if one fails
       }
     }
 
     console.log(`🎉 Successfully processed ${savedImages.length}/${generatedResults.length} images`);
     return savedImages;
+  }
+
+  /**
+   * Store image to B2 in background without blocking the response
+   */
+  private async storeImageInBackground(falUrl: string, fileName: string | undefined, imageId: number): Promise<void> {
+    try {
+      const storeCommand = new StoreImageCommand(falUrl, fileName);
+      const storageResult = await this.storeImageHandler.handle(storeCommand);
+      
+      // Update the database with the B2 URL
+      const image = await this.imageRepository.findById(imageId);
+      if (image) {
+        image.updateImageUrl(storageResult.url);
+        await this.imageRepository.save(image);
+        console.log(`🔄 Updated image ${imageId} with B2 URL: ${storageResult.fileName}`);
+      }
+    } catch (error: any) {
+      console.error(`⚠️ Background B2 storage failed for image ${imageId}:`, error.message);
+      // Don't throw - this is background processing
+    }
   }
 }
