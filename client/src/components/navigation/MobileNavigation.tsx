@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Heart, Users, Gavel, User, Coins, Sparkles, Menu, X } from "lucide-react";
+import { Heart, Users, Gavel, User, Coins, Sparkles, Menu, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useLocation } from "wouter";
 
 interface NavigationItem {
   id: string;
@@ -28,9 +29,15 @@ export function MobileNavigation({
   activeItem = "for-you" 
 }: MobileNavigationProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [location, setLocation] = useLocation();
 
   const handleNavigationClick = (itemId: string) => {
     onNavigationClick(itemId);
+    setIsMenuOpen(false);
+  };
+
+  const handleCreateClick = () => {
+    setLocation("/create");
     setIsMenuOpen(false);
   };
 
@@ -48,6 +55,15 @@ export function MobileNavigation({
 
           {/* Mobile Actions */}
           <div className="flex items-center space-x-3">
+            {/* Create Button */}
+            <Button 
+              onClick={handleCreateClick}
+              size="sm"
+              className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground p-2 h-10 w-10 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+
             {/* Compact Credits Display */}
             <div className="flex items-center space-x-2 bg-background/60 backdrop-blur-sm border border-border/50 rounded-full px-3 py-2">
               <div className="w-4 h-4 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
@@ -131,8 +147,16 @@ export function MobileNavigation({
                   })}
                 </div>
 
-                {/* Sign In Section */}
-                <div className="p-6 mt-auto border-t border-border/30">
+                {/* Action Buttons Section */}
+                <div className="p-6 mt-auto border-t border-border/30 space-y-3">
+                  <Button 
+                    onClick={handleCreateClick}
+                    className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground h-12 text-base font-semibold shadow-lg rounded-2xl"
+                  >
+                    <Plus className="h-5 w-5 mr-3" />
+                    Create New Image
+                  </Button>
+                  
                   <Button 
                     className="w-full btn-ios-primary h-12 text-base font-semibold shadow-lg"
                     onClick={() => setIsMenuOpen(false)}
