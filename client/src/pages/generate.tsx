@@ -22,6 +22,7 @@ import {
   Brain, Zap, Star, Plus, X, Settings, Lightbulb, ImageIcon, 
   Shuffle, Copy, Download, Share, Eye
 } from "lucide-react";
+import { ImageGenerationSuccess } from "@/components/ImageGenerationSuccess";
 
 interface ImageGenerationResponse {
   success: boolean;
@@ -217,6 +218,9 @@ export default function Generate() {
   const [activeTab, setActiveTab] = useState("basic");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedLoras, setSelectedLoras] = useState<Array<{model: string; weight: number}>>([]);
+  const [generatedImages, setGeneratedImages] = useState<any[]>([]);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [generationStartTime, setGenerationStartTime] = useState<number>(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -236,6 +240,7 @@ export default function Generate() {
 
   const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
     mutationFn: async (data) => {
+      setGenerationStartTime(Date.now());
       const response = await apiRequest("POST", "/api/generate-images", {
         ...data,
         loras: selectedLoras
@@ -243,14 +248,20 @@ export default function Generate() {
       return response.json();
     },
     onSuccess: (data) => {
-      const imageCount = data.data?.imageUrls?.length || data.images?.length || 1;
-      toast({
-        title: "Images Generated Successfully! 🎨",
-        description: `Created ${imageCount} stunning image${imageCount > 1 ? 's' : ''}`,
-      });
+      const generationTime = Date.now() - generationStartTime;
+      const images = data.images || [];
+      
+      setGeneratedImages(images.map((img: any) => ({
+        id: img.id,
+        imageUrl: img.imageUrl,
+        prompt: form.getValues("prompt"),
+        model: form.getValues("model"),
+        dimensions: { width: 512, height: 512 },
+        createdAt: new Date().toISOString()
+      })));
+      
+      setShowSuccess(true);
       queryClient.invalidateQueries({ queryKey: ["/api/images"] });
-      form.reset();
-      setSelectedLoras([]);
     },
     onError: (error) => {
       toast({
@@ -262,7 +273,20 @@ export default function Generate() {
   });
 
   const onSubmit = (data: GenerateImageRequest) => {
+    setShowSuccess(false);
     generateImagesMutation.mutate(data);
+  };
+
+  const handleNewGeneration = () => {
+    setShowSuccess(false);
+    setGeneratedImages([]);
+    form.reset();
+    setSelectedLoras([]);
+    setActiveTab("basic");
+  };
+
+  const handleViewGallery = () => {
+    window.location.href = "/gallery";
   };
 
   const addQuickPrompt = (prompt: string) => {
@@ -313,6 +337,21 @@ export default function Generate() {
     groups[category].push(scheduler);
     return groups;
   }, {} as Record<string, typeof availableSchedulers>);
+
+  // Show success view when images are generated
+  if (showSuccess && generatedImages.length > 0) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <ImageGenerationSuccess
+          images={generatedImages}
+          prompt={form.getValues("prompt")}
+          generationTime={Date.now() - generationStartTime}
+          onNewGeneration={handleNewGeneration}
+          onViewGallery={handleViewGallery}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
