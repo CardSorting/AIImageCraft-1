@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { Home, Image, Plus, Gavel, User } from "lucide-react";
+import { Home, Image, Plus, Brain, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -30,10 +30,10 @@ const navItems: NavItem[] = [
     href: "/create",
   },
   {
-    id: "auction",
-    label: "Auction",
-    icon: Gavel,
-    href: "/auction",
+    id: "models",
+    label: "Models",
+    icon: Brain,
+    href: "/models",
   },
   {
     id: "profile",
