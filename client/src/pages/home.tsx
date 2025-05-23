@@ -44,13 +44,10 @@ export default function Home() {
   const aspectRatio = form.watch("aspectRatio") || "1:1";
   const numImages = form.watch("numImages") || 1;
   
-  // Calculate credit cost dynamically - $0.15 per image
-  const dollarCostPerImage = 0.15; // $0.15 per image
-  const creditsPerDollar = 100; // 100 credits = $1.00
-  const baseCreditsPerImage = Math.ceil(dollarCostPerImage * creditsPerDollar); // 15 credits per image
+  // Calculate credit cost dynamically
+  const baseCreditsPerImage = 15; // Base cost per image
   const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
   const currentCost = Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
-  const dollarCost = (currentCost / creditsPerDollar).toFixed(2);
 
   const { data: images = [], isLoading: imagesLoading } = useQuery<GeneratedImage[]>({
     queryKey: ["/api/images"],
@@ -165,18 +162,12 @@ export default function Home() {
 
                       {/* Dynamic Cost Display */}
                       <div className="flex items-center justify-center mb-6">
-                        <div className="flex items-center space-x-3 bg-primary/10 border border-primary/20 rounded-xl px-6 py-4">
-                          <div className="text-center">
-                            <span className="text-sm font-medium text-foreground block mb-1">Generation Cost</span>
-                            <div className="flex items-center space-x-2">
-                              <div className="flex items-center space-x-1">
-                                <Coins className="h-4 w-4 text-primary" />
-                                <span className="text-lg font-bold text-primary">{currentCost}</span>
-                                <span className="text-sm text-muted-foreground">credits</span>
-                              </div>
-                              <span className="text-muted-foreground">•</span>
-                              <span className="text-lg font-bold text-green-600">${dollarCost}</span>
-                            </div>
+                        <div className="flex items-center space-x-2 bg-primary/10 border border-primary/20 rounded-xl px-4 py-3">
+                          <span className="text-sm font-medium text-foreground">Generation Cost:</span>
+                          <div className="flex items-center space-x-1">
+                            <Coins className="h-4 w-4 text-primary" />
+                            <span className="text-lg font-bold text-primary">{currentCost}</span>
+                            <span className="text-sm text-muted-foreground">credits</span>
                           </div>
                         </div>
                       </div>
@@ -342,7 +333,7 @@ export default function Home() {
                           </span>
                           {!generateImagesMutation.isPending && userCredits >= currentCost && (
                             <span className="text-sm opacity-90">
-                              Use {currentCost} credits (${dollarCost})
+                              Use {currentCost} credits
                             </span>
                           )}
                         </div>
