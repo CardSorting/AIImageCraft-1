@@ -1,5 +1,5 @@
 import { DatabaseImageGenerationRepository } from '../repositories/DatabaseImageGenerationRepository';
-import { FalAiImageGenerationService } from '../services/FalAiImageGenerationService';
+import { RunwareImageGenerationService } from '../services/RunwareImageGenerationService';
 import { GenerateImagesCommandHandler } from '../../application/handlers/GenerateImagesCommandHandler';
 import { GetImagesQueryHandler } from '../../application/handlers/GetImagesQueryHandler';
 import { IImageGenerationRepository } from '../../domain/repositories/IImageGenerationRepository';
@@ -21,7 +21,7 @@ export class DependencyContainer {
   private constructor() {
     // Initialize dependencies following dependency inversion principle
     this._imageRepository = new DatabaseImageGenerationRepository();
-    this._imageGenerationService = new FalAiImageGenerationService();
+    this._imageGenerationService = new RunwareImageGenerationService();
     
     // Initialize handlers with injected dependencies
     this._generateImagesCommandHandler = new GenerateImagesCommandHandler(
