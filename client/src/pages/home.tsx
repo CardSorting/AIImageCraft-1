@@ -116,25 +116,28 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-100 sticky top-0 bg-white/80 backdrop-blur-md z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--accent))] rounded-xl flex items-center justify-center">
-                <Sparkles className="text-white text-lg" />
+    <div className="min-h-screen bg-white dark:bg-gray-950">
+      {/* Header - Apple-style Navigation */}
+      <header className="border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl z-50 supports-[backdrop-filter]:bg-white/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--accent))] rounded-xl flex items-center justify-center shadow-sm">
+                <Sparkles className="text-white w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <h1 className="text-xl font-semibold text-[hsl(var(--near-black))]">AI Image Generator</h1>
-                <p className="text-sm text-gray-500">Powered by Google Imagen 4</p>
+              <div className="hidden sm:block">
+                <h1 className="text-lg sm:text-xl font-semibold text-[hsl(var(--near-black))] dark:text-white tracking-tight">AI Image Generator</h1>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Powered by Google Imagen 4</p>
+              </div>
+              <div className="block sm:hidden">
+                <h1 className="text-lg font-semibold text-[hsl(var(--near-black))] dark:text-white tracking-tight">AI Images</h1>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Button variant="ghost" size="sm" className="h-8 w-8 sm:h-9 sm:w-9 p-0">
                 <History className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="h-8 w-8 sm:h-9 sm:w-9 p-0">
                 <Settings className="h-4 w-4" />
               </Button>
             </div>
@@ -143,20 +146,20 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
         {/* Hero Section */}
-        <section className="text-center mb-12">
+        <section className="text-center mb-8 sm:mb-12 lg:mb-16">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-semibold text-[hsl(var(--near-black))] mb-4">Create stunning AI images</h2>
-            <p className="text-gray-600 mb-8">Describe your vision and watch it come to life with Google's Imagen 4 model</p>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-[hsl(var(--near-black))] dark:text-white mb-3 sm:mb-4 tracking-tight">Create stunning AI images</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 text-base sm:text-lg leading-relaxed">Describe your vision and watch it come to life with Google's Imagen 4 model</p>
             
-            {/* Generation Form */}
+            {/* Generation Form - Apple-style Card */}
             <div className="relative">
-              <div className="bg-gradient-to-r from-[hsl(var(--primary))]/10 to-[hsl(var(--accent))]/20 p-1 rounded-2xl">
-                <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="bg-gradient-to-r from-[hsl(var(--primary))]/8 to-[hsl(var(--accent))]/12 p-1 rounded-2xl sm:rounded-3xl shadow-sm">
+                <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 dark:border-gray-800">
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      {/* Prompt Input */}
+                      {/* Prompt Input - Apple-style */}
                       <FormField
                         control={form.control}
                         name="prompt"
@@ -166,10 +169,10 @@ export default function Home() {
                               <div className="relative">
                                 <Textarea
                                   placeholder="Describe the image you want to create... (e.g., A majestic lion in a sunlit savanna with golden grass)"
-                                  className="min-h-[120px] resize-none focus:ring-2 focus:ring-[hsl(var(--primary))]/20 focus:border-[hsl(var(--primary))] transition-colors"
+                                  className="min-h-[100px] sm:min-h-[120px] resize-none apple-focus bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl text-sm sm:text-base leading-relaxed placeholder:text-gray-400 dark:placeholder:text-gray-500"
                                   {...field}
                                 />
-                                <div className="absolute bottom-3 right-3 text-sm text-gray-400">
+                                <div className="absolute bottom-3 right-3 text-xs sm:text-sm text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-800 px-2 py-1 rounded-md">
                                   {field.value?.length || 0}/500
                                 </div>
                               </div>
@@ -179,9 +182,9 @@ export default function Home() {
                         )}
                       />
 
-                      {/* Generation Options */}
-                      <div className="flex flex-wrap items-center justify-between gap-4">
-                        <div className="flex flex-wrap items-center gap-4">
+                      {/* Generation Options - Responsive Layout */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                           <FormField
                             control={form.control}
                             name="aspectRatio"
