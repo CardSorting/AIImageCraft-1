@@ -364,12 +364,19 @@ function ModelCard({ model }: ModelCardProps) {
           });
           
           if (persistResponse.ok) {
-            const result = await persistResponse.json();
-            // Update the UI state to match what we persisted
-            setIsLiked(result.liked);
-            console.log(`Successfully ${action}d model ${model.id} and persisted to database`);
+            try {
+              const result = await persistResponse.json();
+              // Update the UI state to match what we persisted
+              setIsLiked(result.liked);
+              console.log(`Successfully ${action}d model ${model.id} and persisted to database`);
+            } catch (parseError) {
+              // Response parsing failed but the request was successful (200 status)
+              // This means the database was updated, so use the intended state
+              setIsLiked(shouldLike);
+              console.log(`${action}d model ${model.id} - database updated successfully`);
+            }
           } else {
-            console.log(`UI updated but database persistence failed for ${action}`);
+            console.log(`Database persistence failed for ${action} - using UI state only`);
             setIsLiked(shouldLike);
           }
           
