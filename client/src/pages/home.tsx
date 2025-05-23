@@ -331,7 +331,11 @@ export default function Home() {
                                 : "Generate Images"
                             }
                           </span>
-
+                          {!generateImagesMutation.isPending && userCredits >= currentCost && (
+                            <span className="text-sm opacity-90">
+                              Use {currentCost} credits
+                            </span>
+                          )}
                         </div>
                       </div>
                     </Button>
