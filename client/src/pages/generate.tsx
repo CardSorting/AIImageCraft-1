@@ -52,7 +52,7 @@ export default function Generate() {
   // Fetch existing images
   const { data: existingImages = [], refetch } = useQuery({
     queryKey: ["/api/images"],
-    queryFn: () => getQueryFn({ on401: "throw" })<any[]>("/api/images"),
+    queryFn: () => fetch("/api/images").then(res => res.json()),
   });
 
   const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
@@ -106,7 +106,7 @@ export default function Generate() {
             </div>
             <div className="flex items-center space-x-4">
               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                {existingImages.length} Images Created
+                {Array.isArray(existingImages) ? existingImages.length : 0} Images Created
               </Badge>
             </div>
           </div>
@@ -479,13 +479,13 @@ export default function Generate() {
                   <span>Your Gallery</span>
                 </h2>
                 <div className="text-sm text-muted-foreground">
-                  {existingImages.length} masterpieces created
+                  {Array.isArray(existingImages) ? existingImages.length : 0} masterpieces created
                 </div>
               </div>
 
               {/* Images Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {existingImages.length > 0 ? (
+                {Array.isArray(existingImages) && existingImages.length > 0 ? (
                   existingImages.map((image: any) => (
                     <ImageCard
                       key={image.id}
