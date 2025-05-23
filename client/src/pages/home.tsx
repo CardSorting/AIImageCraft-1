@@ -13,7 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Coins } from "lucide-react";
+import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Coins, Square, Monitor, Smartphone, Image as ImageIcon, MoreHorizontal } from "lucide-react";
 
 interface ImageGenerationResponse {
   success: boolean;
@@ -217,8 +217,8 @@ export default function Home() {
                               { value: "1:1", label: "Square", icon: Square, description: "1:1", example: "Social posts" },
                               { value: "16:9", label: "Landscape", icon: Monitor, description: "16:9", example: "Widescreen" },
                               { value: "9:16", label: "Portrait", icon: Smartphone, description: "9:16", example: "Mobile stories" },
-                              { value: "4:3", label: "Classic", icon: RectangleHorizontal, description: "4:3", example: "Traditional" },
-                              { value: "3:4", label: "Photo", icon: RectangleVertical, description: "3:4", example: "Portrait photo" }
+                              { value: "4:3", label: "Classic", icon: MoreHorizontal, description: "4:3", example: "Traditional" },
+                              { value: "3:4", label: "Photo", icon: ImageIcon, description: "3:4", example: "Portrait photo" }
                             ].map((option) => {
                               const Icon = option.icon;
                               const isSelected = field.value === option.value;
