@@ -287,11 +287,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Handle like/unlike actions using POST (same pattern as bookmarks)
-  app.post("/api/likes/toggle", async (req, res) => {
+  // Handle like/unlike actions using GET with query params (workaround for routing issues)
+  app.get("/api/likes/toggle", async (req, res) => {
     try {
-      console.log("Toggle like API called with body:", req.body);
-      const { userId, modelId } = req.body;
+      console.log("Toggle like API called with query:", req.query);
+      const { userId, modelId } = req.query;
       
       if (!userId || !modelId) {
         console.log("Missing userId or modelId");

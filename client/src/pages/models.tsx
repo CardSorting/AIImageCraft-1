@@ -337,15 +337,11 @@ function ModelCard({ model }: ModelCardProps) {
     setIsLiked(newLikedState);
     
     try {
-      const response = await fetch('/api/likes/toggle', {
-        method: 'POST',
+      const response = await fetch(`/api/likes/toggle?userId=1&modelId=${model.id}`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: 1,
-          modelId: model.id
-        })
+          'Accept': 'application/json',
+        }
       });
       
       if (response.ok) {
