@@ -248,17 +248,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User likes API endpoints
   app.post("/api/likes", async (req, res) => {
     try {
+      console.log("Like API called with:", req.body);
       const { userId, modelId } = req.body;
       
+      if (!userId || !modelId) {
+        console.log("Missing userId or modelId");
+        return res.status(400).json({ error: "Missing userId or modelId" });
+      }
+      
       const isLiked = await storage.isModelLiked(userId, modelId);
+      console.log(`Model ${modelId} is currently liked by user ${userId}:`, isLiked);
       
       if (isLiked) {
         // Unlike the model
-        await storage.removeUserLike(userId, modelId);
+        const removed = await storage.removeUserLike(userId, modelId);
+        console.log("Remove like result:", removed);
         res.json({ success: true, liked: false, message: "Model unliked successfully" });
       } else {
         // Like the model
-        await storage.createUserLike({ userId, modelId });
+        const created = await storage.createUserLike({ userId, modelId });
+        console.log("Create like result:", created);
         res.json({ success: true, liked: true, message: "Model liked successfully" });
       }
     } catch (error) {
