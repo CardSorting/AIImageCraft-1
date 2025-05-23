@@ -52,7 +52,7 @@ export default function Generate() {
       prompt: "",
       negativePrompt: "",
       aspectRatio: "1:1",
-      model: "runware:100@1",
+      model: "rundiffusion:130@100",
       steps: 30,
       cfgScale: 7,
     },
@@ -71,6 +71,9 @@ export default function Generate() {
         title: "Model Selected",
         description: `Ready to create with ${modelParam}`,
       });
+    } else {
+      // Default to Juggernaut Pro Flux if no model is selected
+      form.setValue('model', 'rundiffusion:130@100');
     }
   }, [location, form, toast]);
 
@@ -251,31 +254,7 @@ export default function Generate() {
             )}
           />
 
-          {/* Model Selection */}
-          <FormField
-            control={form.control}
-            name="model"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">AI Model</FormLabel>
-                <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="h-10">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableModels.map((model: any) => (
-                        <SelectItem key={model.id} value={model.modelId}>
-                          {model.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
           {/* Quick Quality Control */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -1231,34 +1210,7 @@ export default function Generate() {
                         )}
                       />
 
-                      {/* Model Selection */}
-                      <FormField
-                        control={form.control}
-                        name="model"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center space-x-2">
-                              <Brain className="h-4 w-4" />
-                              <span>AI Model</span>
-                            </FormLabel>
-                            <FormControl>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {availableModels.map((model: any) => (
-                                    <SelectItem key={model.id} value={model.modelId}>
-                                      {model.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+
 
                       {/* Advanced Settings */}
                       <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
