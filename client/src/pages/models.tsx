@@ -459,18 +459,20 @@ function ModelCard({ model }: ModelCardProps) {
               <Button
                 size="sm"
                 variant="secondary"
-                className="ios-floating-button"
+                className="ios-floating-button flex items-center gap-1"
                 onClick={handleLike}
               >
                 <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                <span className="text-xs">{model.likeCount || 0}</span>
               </Button>
               <Button
                 size="sm"
                 variant="secondary"
-                className="ios-floating-button"
+                className="ios-floating-button flex items-center gap-1"
                 onClick={handleBookmark}
               >
                 <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-blue-500 text-blue-500' : ''}`} />
+                <span className="text-xs">{model.bookmarkCount || 0}</span>
               </Button>
             </div>
 

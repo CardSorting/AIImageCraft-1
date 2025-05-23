@@ -97,7 +97,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAIModels(limit: number = 50, sortBy: string = 'newest', category?: string): Promise<AIModel[]> {
-    let query = db.select().from(aiModels);
+    let query = db.select({
+      ...aiModels,
+      likeCount: sql<number>`(SELECT COUNT(*) FROM ${userLikes} WHERE ${userLikes.modelId} = ${aiModels.id})`,
+      bookmarkCount: sql<number>`(SELECT COUNT(*) FROM ${userBookmarks} WHERE ${userBookmarks.modelId} = ${aiModels.id})`
+    }).from(aiModels);
     
     if (category) {
       query = query.where(eq(aiModels.category, category));
@@ -109,7 +113,7 @@ export class DatabaseStorage implements IStorage {
         query = query.orderBy(desc(aiModels.rating));
         break;
       case 'most_liked':
-        query = query.orderBy(desc(aiModels.likes));
+        query = query.orderBy(sql`(SELECT COUNT(*) FROM ${userLikes} WHERE ${userLikes.modelId} = ${aiModels.id}) DESC`);
         break;
       case 'most_discussed':
         query = query.orderBy(desc(aiModels.discussions));

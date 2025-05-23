@@ -185,6 +185,7 @@ export type User = typeof users.$inferSelect;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
 export type InsertImage = z.infer<typeof insertImageSchema>;
 export type AIModel = typeof aiModels.$inferSelect;
+export type AIModelWithCounts = AIModel & { likeCount: number; bookmarkCount: number };
 export type InsertAIModel = z.infer<typeof insertAIModelSchema>;
 export type UserModelInteraction = typeof userModelInteractions.$inferSelect;
 export type InsertUserModelInteraction = z.infer<typeof insertUserModelInteractionSchema>;
