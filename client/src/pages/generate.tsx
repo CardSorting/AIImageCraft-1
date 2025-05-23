@@ -1,18 +1,15 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { generateImageRequestSchema, type GenerateImageRequest, type GeneratedImage } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { useToast } from "@/hooks/use-toast";
-import { Progress } from "@/components/ui/progress";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,205 +19,21 @@ import {
   Brain, Zap, Star, Plus, X, Settings, Lightbulb, ImageIcon, 
   Shuffle, Copy, Download, Share, Eye
 } from "lucide-react";
-import { ImageGenerationSuccess } from "@/components/ImageGenerationSuccess";
+import { ImageCard } from "@/components/ImageCard";
+import { generateImageRequestSchema, type GenerateImageRequest } from "@shared/schema";
+import { apiRequest, getQueryFn } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImageGenerationResponse {
   success: boolean;
-  data: {
-    id: string;
-    imageUrls: string[];
-    prompt: string;
-    status: string;
-  };
+  images: any[];
   requestId: string;
 }
-
-// Enhanced model definitions with more details
-const AI_MODELS = {
-  general: [
-    {
-      id: "runware:100@1",
-      name: "Runware Foundation",
-      description: "Premium general-purpose model with exceptional quality",
-      category: "Foundation",
-      icon: Brain,
-      popular: true,
-      features: ["High Quality", "Fast", "Versatile"]
-    },
-    {
-      id: "flux/schnell",
-      name: "Flux Schnell",
-      description: "Lightning-fast generation without sacrificing quality",
-      category: "Speed",
-      icon: Zap,
-      popular: true,
-      features: ["Ultra Fast", "Good Quality", "Real-time"]
-    }
-  ],
-  artistic: [
-    {
-      id: "flux/dev",
-      name: "Flux Development",
-      description: "Cutting-edge experimental model with latest features",
-      category: "Experimental",
-      icon: Sparkles,
-      popular: true,
-      features: ["Latest Tech", "Experimental", "High Detail"]
-    },
-    {
-      id: "sdxl/base",
-      name: "SDXL Foundation",
-      description: "Industry-standard for photorealistic imagery",
-      category: "Photorealistic",
-      icon: Camera,
-      features: ["Photorealistic", "Stable", "Professional"]
-    }
-  ],
-  specialized: [
-    {
-      id: "artistic/anime",
-      name: "Anime Master Pro",
-      description: "Specialized for anime, manga, and illustration styles",
-      category: "Anime",
-      icon: Palette,
-      features: ["Anime Style", "Vibrant Colors", "Character Focus"]
-    }
-  ]
-};
-
-// Enhanced LoRA collection with categories
-const LORA_COLLECTION = {
-  style: [
-    {
-      id: "realistic/photoreal",
-      name: "PhotoRealistic Pro",
-      description: "Enhances photorealism and fine details",
-      category: "Realism",
-      icon: Camera,
-      defaultWeight: 0.8,
-      tags: ["photorealistic", "detailed", "professional"]
-    },
-    {
-      id: "artistic/oil-painting",
-      name: "Master Oil Painting",
-      description: "Classic oil painting artistic style",
-      category: "Classical Art",
-      icon: Palette,
-      defaultWeight: 1.0,
-      tags: ["artistic", "classical", "painterly"]
-    },
-    {
-      id: "style/anime-v2",
-      name: "Anime Studio",
-      description: "High-quality anime and manga style enhancement",
-      category: "Anime",
-      icon: Sparkles,
-      defaultWeight: 1.2,
-      tags: ["anime", "manga", "vibrant"]
-    }
-  ],
-  enhancement: [
-    {
-      id: "enhance/detail-master",
-      name: "Detail Master",
-      description: "Dramatically improves texture and fine details",
-      category: "Enhancement",
-      icon: Eye,
-      defaultWeight: 0.6,
-      tags: ["details", "texture", "sharp"]
-    },
-    {
-      id: "lighting/cinematic",
-      name: "Cinematic Lighting",
-      description: "Professional movie-quality lighting effects",
-      category: "Lighting",
-      icon: Wand2,
-      defaultWeight: 0.7,
-      tags: ["cinematic", "dramatic", "moody"]
-    }
-  ]
-};
-
-const QUICK_PROMPTS = [
-  "A serene mountain lake at sunset with golden reflections, photorealistic, 8k",
-  "Futuristic cityscape with flying cars and neon lights, cyberpunk style",
-  "Cozy coffee shop interior on a rainy day, warm lighting, atmospheric",
-  "Magical enchanted forest with glowing mushrooms and fairy lights",
-  "Minimalist modern living room with natural lighting, Scandinavian design",
-  "Vintage classic car on scenic coastal highway, golden hour photography"
-];
-
-const ASPECT_RATIOS = [
-  { value: "1:1", label: "Square (1:1)", description: "Perfect for social media" },
-  { value: "16:9", label: "Landscape (16:9)", description: "Widescreen format" },
-  { value: "9:16", label: "Portrait (9:16)", description: "Mobile-friendly" },
-  { value: "4:3", label: "Standard (4:3)", description: "Classic photography" },
-  { value: "3:4", label: "Portrait (3:4)", description: "Tall format" }
-];
-
-// Enhanced scheduler collections based on Runware documentation
-const FLUX_SCHEDULERS = [
-  { value: "Euler", label: "Euler", description: "Basic Euler method implementation", category: "Standard" },
-  { value: "FlowMatchEulerDiscreteScheduler", label: "FlowMatch Euler", description: "Flow matching techniques with Euler precision", category: "Advanced" },
-  { value: "DPM++", label: "DPM++", description: "Basic DPM++ sampling method", category: "Standard" },
-  { value: "DPM++ SDE", label: "DPM++ SDE", description: "Stochastic differential equations for high quality", category: "High Quality" },
-  { value: "DPM++ 2M", label: "DPM++ 2M", description: "Enhanced DPM++ with second-order multistep", category: "Advanced" },
-  { value: "DPM++ 2M SDE", label: "DPM++ 2M SDE", description: "Second-order scheduler with SDE for robustness", category: "High Quality" },
-  { value: "DPM++ 3M", label: "DPM++ 3M", description: "Advanced DPM++ with third-order multistep", category: "Premium" },
-  { value: "Euler Beta", label: "Euler Beta", description: "Euler method with Beta noise scheduling", category: "Specialized" },
-  { value: "Euler Exponential", label: "Euler Exponential", description: "Euler with exponential noise scheduling", category: "Specialized" },
-  { value: "Euler Karras", label: "Euler Karras", description: "Euler method with Karras noise scheduling", category: "Popular" },
-  { value: "DPM++ Karras", label: "DPM++ Karras", description: "DPM++ with Karras noise scheduling", category: "Popular" },
-  { value: "DPM++ 2M Karras", label: "DPM++ 2M Karras", description: "Second-order multistep with Karras scheduling", category: "Recommended" },
-  { value: "DPM++ 2M SDE Karras", label: "DPM++ 2M SDE Karras", description: "Second-order SDE with Karras scheduling", category: "Premium" }
-];
-
-const STABLE_DIFFUSION_SCHEDULERS = [
-  { value: "Default", label: "Model Default", description: "Uses the model's default scheduler", category: "Default" },
-  { value: "DDIM", label: "DDIM", description: "Direct DDIM sampling method", category: "Standard" },
-  { value: "DDIMScheduler", label: "DDIM Scheduler", description: "Accelerated denoising with fewer steps", category: "Fast" },
-  { value: "DDPMScheduler", label: "DDPM", description: "Standard diffusion process", category: "Standard" },
-  { value: "DPMSolverMultistepScheduler", label: "DPM-Solver Multi-step", description: "Multi-step solver for accuracy", category: "High Quality" },
-  { value: "DPM++", label: "DPM++", description: "Basic DPM++ sampling method", category: "Standard" },
-  { value: "DPM++ Karras", label: "DPM++ Karras", description: "DPM++ with Karras noise scheduling", category: "Popular" },
-  { value: "DPM++ 2M", label: "DPM++ 2M", description: "Enhanced DPM++ with 2nd-order method", category: "Advanced" },
-  { value: "DPM++ 2M Karras", label: "DPM++ 2M Karras", description: "Advanced Karras with second-order method", category: "Recommended" },
-  { value: "DPM++ 2M SDE Karras", label: "DPM++ 2M SDE Karras", description: "Superior denoising with SDE techniques", category: "Premium" },
-  { value: "DPM++ 3M Karras", label: "DPM++ 3M Karras", description: "Third-order DPM++ with Karras scheduling", category: "Premium" },
-  { value: "Euler", label: "Euler", description: "Basic Euler method implementation", category: "Standard" },
-  { value: "EulerDiscreteScheduler", label: "Euler Discrete", description: "Simple and effective denoising", category: "Standard" },
-  { value: "Euler Karras", label: "Euler Karras", description: "Euler with Karras noise scheduling", category: "Popular" },
-  { value: "Euler a", label: "Euler Ancestral", description: "Euler with ancestral sampling", category: "Creative" },
-  { value: "EulerAncestralDiscreteScheduler", label: "Euler Ancestral Discrete", description: "Better quality with ancestral sampling", category: "Creative" },
-  { value: "Heun", label: "Heun", description: "Basic Heun's method implementation", category: "Precision" },
-  { value: "HeunDiscreteScheduler", label: "Heun Discrete", description: "Precise and efficient denoising", category: "Precision" },
-  { value: "Heun Karras", label: "Heun Karras", description: "Heun's method with Karras scheduling", category: "Precision" },
-  { value: "LCMScheduler", label: "LCM", description: "Low-complexity for minimal resources", category: "Fast" },
-  { value: "LMSDiscreteScheduler", label: "LMS", description: "Linear multistep for balanced speed", category: "Balanced" },
-  { value: "LMS Karras", label: "LMS Karras", description: "Linear multistep with Karras scheduling", category: "Balanced" },
-  { value: "UniPCMultistepScheduler", label: "UniPC Multistep", description: "Universal multi-step for diverse applications", category: "Versatile" },
-  { value: "UniPC 2M Karras", label: "UniPC 2M Karras", description: "Second-order Universal PC with Karras", category: "Advanced" }
-];
-
-// Scheduler categories for better organization
-const SCHEDULER_CATEGORIES = {
-  "Recommended": { color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200", icon: "⭐" },
-  "Popular": { color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200", icon: "🔥" },
-  "Premium": { color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200", icon: "💎" },
-  "Fast": { color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200", icon: "⚡" },
-  "High Quality": { color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200", icon: "🎨" },
-  "Creative": { color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200", icon: "🎭" },
-  "Standard": { color: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200", icon: "📊" },
-  "Default": { color: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200", icon: "🔧" }
-};
 
 export default function Generate() {
   const [activeTab, setActiveTab] = useState("basic");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedLoras, setSelectedLoras] = useState<Array<{model: string; weight: number}>>([]);
-  const [generatedImages, setGeneratedImages] = useState<any[]>([]);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [generationStartTime, setGenerationStartTime] = useState<number>(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -230,17 +43,20 @@ export default function Generate() {
       prompt: "",
       negativePrompt: "",
       aspectRatio: "1:1",
-      numImages: 1,
       model: "runware:100@1",
-      loras: [],
-      steps: 20,
+      steps: 30,
       cfgScale: 7,
     },
   });
 
+  // Fetch existing images
+  const { data: existingImages = [], refetch } = useQuery({
+    queryKey: ["/api/images"],
+    queryFn: () => getQueryFn({ on401: "throw" })<any[]>("/api/images"),
+  });
+
   const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
     mutationFn: async (data) => {
-      setGenerationStartTime(Date.now());
       const response = await apiRequest("POST", "/api/generate-images", {
         ...data,
         loras: selectedLoras
@@ -248,20 +64,14 @@ export default function Generate() {
       return response.json();
     },
     onSuccess: (data) => {
-      const generationTime = Date.now() - generationStartTime;
-      const images = data.images || [];
-      
-      setGeneratedImages(images.map((img: any) => ({
-        id: img.id,
-        imageUrl: img.imageUrl,
-        prompt: form.getValues("prompt"),
-        model: form.getValues("model"),
-        dimensions: { width: 512, height: 512 },
-        createdAt: new Date().toISOString()
-      })));
-      
-      setShowSuccess(true);
+      toast({
+        title: "Images Generated Successfully! 🎨",
+        description: "Your masterpiece has been added to the gallery",
+      });
       queryClient.invalidateQueries({ queryKey: ["/api/images"] });
+      refetch();
+      form.reset();
+      setSelectedLoras([]);
     },
     onError: (error) => {
       toast({
@@ -273,636 +83,298 @@ export default function Generate() {
   });
 
   const onSubmit = (data: GenerateImageRequest) => {
-    setShowSuccess(false);
     generateImagesMutation.mutate(data);
-  };
-
-  const handleNewGeneration = () => {
-    setShowSuccess(false);
-    setGeneratedImages([]);
-    form.reset();
-    setSelectedLoras([]);
-    setActiveTab("basic");
-  };
-
-  const handleViewGallery = () => {
-    window.location.href = "/gallery";
   };
 
   const addQuickPrompt = (prompt: string) => {
     form.setValue("prompt", prompt);
   };
 
-  const addLora = (lora: any) => {
-    if (!selectedLoras.find(l => l.model === lora.id)) {
-      setSelectedLoras([...selectedLoras, { model: lora.id, weight: lora.defaultWeight }]);
-    }
-  };
-
-  const removeLora = (index: number) => {
-    setSelectedLoras(selectedLoras.filter((_, i) => i !== index));
-  };
-
-  const updateLoraWeight = (index: number, weight: number) => {
-    const updated = [...selectedLoras];
-    updated[index] = { ...updated[index], weight };
-    setSelectedLoras(updated);
-  };
-
-  const getLoraName = (model: string) => {
-    const allLoras = [...LORA_COLLECTION.style, ...LORA_COLLECTION.enhancement];
-    return allLoras.find(l => l.id === model)?.name || model;
-  };
-
-  const generateRandomSeed = () => {
-    const seed = Math.floor(Math.random() * 1000000);
-    form.setValue("seed", seed);
-  };
-
-  // Get appropriate schedulers based on selected model
-  const getAvailableSchedulers = (modelId: string) => {
-    const isFluxModel = modelId.includes("flux") || modelId.includes("Flux");
-    return isFluxModel ? FLUX_SCHEDULERS : STABLE_DIFFUSION_SCHEDULERS;
-  };
-
-  const selectedModel = form.watch("model");
-  const availableSchedulers = getAvailableSchedulers(selectedModel);
-
-  // Group schedulers by category for better organization
-  const groupedSchedulers = availableSchedulers.reduce((groups, scheduler) => {
-    const category = scheduler.category;
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(scheduler);
-    return groups;
-  }, {} as Record<string, typeof availableSchedulers>);
-
-  // Show success view when images are generated
-  if (showSuccess && generatedImages.length > 0) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <ImageGenerationSuccess
-          images={generatedImages}
-          prompt={form.getValues("prompt")}
-          generationTime={Date.now() - generationStartTime}
-          onNewGeneration={handleNewGeneration}
-          onViewGallery={handleViewGallery}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-          AI Image Studio
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Create stunning AI-generated artwork with professional-grade controls
-        </p>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="border-b bg-white/50 dark:bg-gray-950/50 backdrop-blur-sm sticky top-0 z-40">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                AI Image Studio
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Professional AI artwork creation
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                {existingImages.length} Images Created
+              </Badge>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      {/* Main Layout */}
+      <div className="container mx-auto px-6 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[calc(100vh-120px)]">
           
-          {/* Main Content Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="basic" className="flex items-center gap-2">
-                <Lightbulb className="h-4 w-4" />
-                Prompt
-              </TabsTrigger>
-              <TabsTrigger value="models" className="flex items-center gap-2">
-                <Brain className="h-4 w-4" />
-                Models
-              </TabsTrigger>
-              <TabsTrigger value="style" className="flex items-center gap-2">
-                <Palette className="h-4 w-4" />
-                Style
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Settings
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Basic Prompt Tab */}
-            <TabsContent value="basic" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lightbulb className="h-5 w-5" />
-                    Describe Your Vision
-                  </CardTitle>
-                  <CardDescription>
-                    Write a detailed description of the image you want to create
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="prompt"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Main Prompt</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="A majestic dragon soaring through clouds at sunset, detailed fantasy art, cinematic lighting..."
-                            className="min-h-[120px] resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Quick Prompts */}
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-medium text-muted-foreground">Quick Start Ideas</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {QUICK_PROMPTS.map((prompt, index) => (
-                        <Button
-                          key={index}
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addQuickPrompt(prompt)}
-                          className="text-left h-auto p-3 justify-start"
-                        >
-                          <span className="text-xs line-clamp-2">{prompt}</span>
-                        </Button>
-                      ))}
-                    </div>
+          {/* Left Sidebar - Generation Form */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-6">
+              <Card className="shadow-lg">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2 mb-6">
+                    <Sparkles className="h-5 w-5 text-blue-600" />
+                    <h2 className="text-lg font-semibold">Create Artwork</h2>
                   </div>
 
-                  {/* Aspect Ratio & Count */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="aspectRatio"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Aspect Ratio</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      
+                      {/* Prompt Input */}
+                      <FormField
+                        control={form.control}
+                        name="prompt"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center space-x-2">
+                              <Lightbulb className="h-4 w-4" />
+                              <span>Describe Your Vision</span>
+                            </FormLabel>
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {ASPECT_RATIOS.map((ratio) => (
-                                <SelectItem key={ratio.value} value={ratio.value}>
-                                  <div>
-                                    <div className="font-medium">{ratio.label}</div>
-                                    <div className="text-xs text-muted-foreground">{ratio.description}</div>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="numImages"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Number of Images</FormLabel>
-                          <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value.toString()}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="1">1 Image</SelectItem>
-                              <SelectItem value="2">2 Images</SelectItem>
-                              <SelectItem value="3">3 Images</SelectItem>
-                              <SelectItem value="4">4 Images</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Models Tab */}
-            <TabsContent value="models" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="h-5 w-5" />
-                    AI Model Selection
-                  </CardTitle>
-                  <CardDescription>
-                    Choose the AI model that best fits your creative needs
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="model"
-                    render={({ field }) => (
-                      <FormItem>
-                        {Object.entries(AI_MODELS).map(([category, models]) => (
-                          <div key={category} className="space-y-3">
-                            <h4 className="text-sm font-medium capitalize text-muted-foreground">
-                              {category} Models
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {models.map((model) => {
-                                const Icon = model.icon;
-                                const isSelected = field.value === model.id;
-                                
-                                return (
-                                  <Card
-                                    key={model.id}
-                                    className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                                      isSelected 
-                                        ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950/30" 
-                                        : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                                    }`}
-                                    onClick={() => field.onChange(model.id)}
-                                  >
-                                    <CardContent className="p-4">
-                                      <div className="flex items-start space-x-3">
-                                        <div className={`p-2 rounded-lg ${
-                                          isSelected ? "bg-blue-100 dark:bg-blue-900" : "bg-gray-100 dark:bg-gray-800"
-                                        }`}>
-                                          <Icon className={`h-4 w-4 ${
-                                            isSelected ? "text-blue-600 dark:text-blue-400" : "text-gray-600 dark:text-gray-400"
-                                          }`} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-center space-x-2 mb-1">
-                                            <h4 className="text-sm font-medium">{model.name}</h4>
-                                            {model.popular && (
-                                              <Badge variant="secondary" className="text-xs">
-                                                <Star className="h-3 w-3 mr-1" />
-                                                Popular
-                                              </Badge>
-                                            )}
-                                          </div>
-                                          <p className="text-xs text-muted-foreground mb-2">
-                                            {model.description}
-                                          </p>
-                                          <div className="flex flex-wrap gap-1">
-                                            {model.features.map((feature) => (
-                                              <Badge key={feature} variant="outline" className="text-xs">
-                                                {feature}
-                                              </Badge>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Style (LoRA) Tab */}
-            <TabsContent value="style" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Palette className="h-5 w-5" />
-                    Style Enhancers (LoRAs)
-                  </CardTitle>
-                  <CardDescription>
-                    Add artistic styles and enhancements to customize your images
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  
-                  {/* Selected LoRAs */}
-                  {selectedLoras.length > 0 && (
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium">Active Style Enhancers</h4>
-                      {selectedLoras.map((lora, index) => (
-                        <Card key={index} className="border-dashed">
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center space-x-2">
-                                <Badge variant="secondary">
-                                  {getLoraName(lora.model)}
-                                </Badge>
-                                <span className="text-xs text-muted-foreground">
-                                  Strength: {lora.weight.toFixed(1)}
-                                </span>
-                              </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeLora(index)}
-                                className="h-6 w-6 p-0"
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-xs">
-                                <span>Influence Strength</span>
-                                <span>{lora.weight.toFixed(1)}</span>
-                              </div>
-                              <Slider
-                                value={[lora.weight]}
-                                onValueChange={([weight]) => updateLoraWeight(index, weight)}
-                                max={2}
-                                min={0}
-                                step={0.1}
-                                className="w-full"
+                              <Textarea
+                                placeholder="A serene mountain lake at sunset with golden reflections, photorealistic, 8k..."
+                                className="min-h-[100px] resize-none"
+                                {...field}
                               />
-                              <div className="flex justify-between text-xs text-muted-foreground">
-                                <span>Subtle</span>
-                                <span>Strong</span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                      <Separator />
-                    </div>
-                  )}
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  {/* Available LoRAs */}
-                  {Object.entries(LORA_COLLECTION).map(([category, loras]) => (
-                    <div key={category} className="space-y-3">
-                      <h4 className="text-sm font-medium capitalize text-muted-foreground">
-                        {category} Enhancers
-                      </h4>
-                      <div className="grid grid-cols-1 gap-2">
-                        {loras.filter(lora => !selectedLoras.find(l => l.model === lora.id)).map((lora) => {
-                          const Icon = lora.icon;
+                      {/* Quick Prompt Suggestions */}
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          "Majestic dragon",
+                          "Cyberpunk city",
+                          "Fantasy castle",
+                          "Space station"
+                        ].map((suggestion) => (
+                          <Button
+                            key={suggestion}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addQuickPrompt(suggestion)}
+                            className="text-xs"
+                          >
+                            {suggestion}
+                          </Button>
+                        ))}
+                      </div>
+
+                      {/* Aspect Ratio */}
+                      <FormField
+                        control={form.control}
+                        name="aspectRatio"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Aspect Ratio</FormLabel>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="1:1">Square (1:1)</SelectItem>
+                                  <SelectItem value="4:3">Landscape (4:3)</SelectItem>
+                                  <SelectItem value="16:9">Widescreen (16:9)</SelectItem>
+                                  <SelectItem value="3:4">Portrait (3:4)</SelectItem>
+                                  <SelectItem value="9:16">Mobile (9:16)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Advanced Settings */}
+                      <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" className="flex items-center justify-between w-full p-0">
+                            <span className="flex items-center space-x-2">
+                              <Settings className="h-4 w-4" />
+                              <span>Advanced Settings</span>
+                            </span>
+                            {showAdvanced ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-4 pt-4">
                           
-                          return (
-                            <div
-                              key={lora.id}
-                              className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
-                              onClick={() => addLora(lora)}
-                            >
-                              <div className="flex items-center space-x-3">
-                                <div className="p-2 rounded-md bg-gray-100 dark:bg-gray-800">
-                                  <Icon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                                </div>
-                                <div>
-                                  <h4 className="text-sm font-medium">{lora.name}</h4>
-                                  <p className="text-xs text-muted-foreground">{lora.description}</p>
-                                  <div className="flex space-x-1 mt-1">
-                                    {lora.tags.map((tag) => (
-                                      <Badge key={tag} variant="outline" className="text-xs">
-                                        {tag}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                              <Button type="button" size="sm" variant="ghost" className="h-8 w-8 p-0">
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          );
-                        })}
+                          {/* Steps */}
+                          <FormField
+                            control={form.control}
+                            name="steps"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Steps: {field.value}</FormLabel>
+                                <FormControl>
+                                  <Slider
+                                    value={[field.value]}
+                                    onValueChange={(value) => field.onChange(value[0])}
+                                    max={50}
+                                    min={10}
+                                    step={5}
+                                    className="w-full"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* CFG Scale */}
+                          <FormField
+                            control={form.control}
+                            name="cfgScale"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Guidance Scale: {field.value}</FormLabel>
+                                <FormControl>
+                                  <Slider
+                                    value={[field.value]}
+                                    onValueChange={(value) => field.onChange(value[0])}
+                                    max={20}
+                                    min={1}
+                                    step={0.5}
+                                    className="w-full"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Negative Prompt */}
+                          <FormField
+                            control={form.control}
+                            name="negativePrompt"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Negative Prompt</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Things to avoid in the image..."
+                                    className="min-h-[60px] resize-none"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      {/* Generate Button */}
+                      <Button 
+                        type="submit" 
+                        className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        disabled={generateImagesMutation.isPending}
+                      >
+                        {generateImagesMutation.isPending ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>Creating Magic...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <Wand2 className="h-5 w-5" />
+                            <span>Generate Artwork</span>
+                          </div>
+                        )}
+                      </Button>
+
+                    </form>
+                  </Form>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Right Side - Image Gallery */}
+          <div className="lg:col-span-2">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold flex items-center space-x-2">
+                  <ImageIcon className="h-5 w-5" />
+                  <span>Your Gallery</span>
+                </h2>
+                <div className="text-sm text-muted-foreground">
+                  {existingImages.length} masterpieces created
+                </div>
+              </div>
+
+              {/* Images Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {existingImages.length > 0 ? (
+                  existingImages.map((image: any) => (
+                    <ImageCard
+                      key={image.id}
+                      image={{
+                        id: image.id,
+                        imageUrl: image.imageUrl,
+                        prompt: image.prompt,
+                        model: image.model,
+                        dimensions: { width: 512, height: 512 },
+                        createdAt: image.createdAt
+                      }}
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                    <div className="rounded-full bg-gray-100 dark:bg-gray-800 p-6 mb-4">
+                      <ImageIcon className="h-12 w-12 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                      Your gallery awaits
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-4 max-w-md">
+                      Start creating amazing AI artwork! Your generated images will appear here as beautiful cards that you can interact with.
+                    </p>
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <Sparkles className="h-4 w-4" />
+                      <span>Create your first masterpiece with the form on the left</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Loading State */}
+              {generateImagesMutation.isPending && (
+                <Card className="border-2 border-dashed border-blue-300 bg-blue-50/50 dark:bg-blue-950/20">
+                  <CardContent className="p-8 text-center">
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      <div>
+                        <h3 className="text-lg font-medium text-blue-900 dark:text-blue-100">
+                          Creating Your Masterpiece ✨
+                        </h3>
+                        <p className="text-blue-700 dark:text-blue-300 mt-1">
+                          Our AI is working its magic on your vision...
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
 
-            {/* Settings Tab */}
-            <TabsContent value="settings" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Settings className="h-5 w-5" />
-                    Generation Settings
-                  </CardTitle>
-                  <CardDescription>
-                    Fine-tune the generation process for optimal results
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  
-                  {/* Negative Prompt */}
-                  <FormField
-                    control={form.control}
-                    name="negativePrompt"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Negative Prompt</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="blur, distortion, low quality, deformed, ugly..."
-                            className="min-h-[80px] resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Generation Parameters */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="steps"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Steps ({field.value})</FormLabel>
-                          <FormControl>
-                            <div className="space-y-2">
-                              <Slider
-                                value={[field.value]}
-                                onValueChange={([value]) => field.onChange(value)}
-                                max={100}
-                                min={1}
-                                step={1}
-                              />
-                              <div className="flex justify-between text-xs text-muted-foreground">
-                                <span>Fast (1)</span>
-                                <span>High Quality (100)</span>
-                              </div>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="cfgScale"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>CFG Scale ({field.value})</FormLabel>
-                          <FormControl>
-                            <div className="space-y-2">
-                              <Slider
-                                value={[field.value]}
-                                onValueChange={([value]) => field.onChange(value)}
-                                max={20}
-                                min={1}
-                                step={0.5}
-                              />
-                              <div className="flex justify-between text-xs text-muted-foreground">
-                                <span>Creative (1)</span>
-                                <span>Precise (20)</span>
-                              </div>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Seed and Scheduler */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="seed"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Seed (Optional)</FormLabel>
-                          <div className="flex space-x-2">
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Random"
-                                {...field}
-                                onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                              />
-                            </FormControl>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={generateRandomSeed}
-                            >
-                              <Shuffle className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="scheduler"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2">
-                            Scheduler
-                            <Badge variant="outline" className="text-xs">
-                              {selectedModel.includes("flux") ? "FLUX" : "Stable Diffusion"}
-                            </Badge>
-                          </FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Choose scheduler..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="max-h-[400px]">
-                              {Object.entries(groupedSchedulers).map(([category, schedulers]) => (
-                                <div key={category}>
-                                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-b">
-                                    <div className="flex items-center gap-1">
-                                      <span>{SCHEDULER_CATEGORIES[category as keyof typeof SCHEDULER_CATEGORIES]?.icon}</span>
-                                      {category}
-                                    </div>
-                                  </div>
-                                  {schedulers.map((scheduler) => (
-                                    <SelectItem key={scheduler.value} value={scheduler.value} className="pl-4">
-                                      <div className="flex items-start justify-between w-full">
-                                        <div className="flex-1">
-                                          <div className="font-medium">{scheduler.label}</div>
-                                          <div className="text-xs text-muted-foreground line-clamp-1">
-                                            {scheduler.description}
-                                          </div>
-                                        </div>
-                                        <Badge 
-                                          variant="secondary" 
-                                          className={`ml-2 text-xs ${SCHEDULER_CATEGORIES[scheduler.category as keyof typeof SCHEDULER_CATEGORIES]?.color}`}
-                                        >
-                                          {scheduler.category}
-                                        </Badge>
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </div>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Different schedulers affect quality, speed, and style. Model type determines available options.
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-
-          {/* Generation Progress */}
-          {generateImagesMutation.isPending && (
-            <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="animate-spin">
-                    <Sparkles className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-blue-900 dark:text-blue-100">
-                      Creating Your Masterpiece...
-                    </h4>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      This usually takes 10-30 seconds depending on complexity
-                    </p>
-                  </div>
-                </div>
-                <Progress value={60} className="mt-4" />
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Generate Button */}
-          <Button 
-            type="submit" 
-            disabled={generateImagesMutation.isPending}
-            className="w-full h-16 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-          >
-            <Sparkles className="h-6 w-6 mr-3" />
-            {generateImagesMutation.isPending ? "Creating Magic..." : "Generate Images"}
-          </Button>
-        </form>
-      </Form>
+        </div>
+      </div>
     </div>
   );
 }
