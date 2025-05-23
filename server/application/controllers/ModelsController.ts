@@ -57,15 +57,8 @@ export class ModelsController {
 
       const models = await this.modelsHandler.handle(query);
       
-      res.json({
-        data: models,
-        meta: {
-          filter,
-          sortBy,
-          limit: parseInt(limit as string),
-          count: models.length
-        }
-      });
+      // Return data in format expected by frontend
+      res.json(models);
     } catch (error) {
       console.error('Error in getCatalog:', error);
       res.status(500).json({ 
@@ -99,14 +92,8 @@ export class ModelsController {
 
       const bookmarkedModels = await this.bookmarkedHandler.handle(query);
       
-      res.json({
-        data: bookmarkedModels,
-        meta: {
-          userId: parseInt(userId),
-          limit: parseInt(limit as string),
-          count: bookmarkedModels.length
-        }
-      });
+      // Return data in format expected by frontend
+      res.json(bookmarkedModels);
     } catch (error) {
       console.error(`Error fetching bookmarked models for user ${req.params.userId}:`, error);
       res.status(500).json({ 

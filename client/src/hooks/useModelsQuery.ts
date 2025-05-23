@@ -77,17 +77,18 @@ export function useModelsQuery({
       const result = await response.json();
       
       // Handle both new structured response and legacy direct array response
-      if (result.data && result.meta) {
+      if (result.data !== undefined) {
         return result;
       } else {
-        // Legacy response format
+        // Legacy response format - wrap in new structure
+        const dataArray = Array.isArray(result) ? result : [];
         return {
-          data: Array.isArray(result) ? result : [],
+          data: dataArray,
           meta: {
             filter,
             sortBy,
             limit,
-            count: Array.isArray(result) ? result.length : 0
+            count: dataArray.length
           }
         };
       }
