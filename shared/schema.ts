@@ -108,6 +108,13 @@ export const userBookmarks = pgTable("user_bookmarks", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const userLikes = pgTable("user_likes", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  modelId: integer("model_id").notNull().references(() => aiModels.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -150,6 +157,11 @@ export const insertUserBookmarkSchema = createInsertSchema(userBookmarks).omit({
   createdAt: true,
 });
 
+export const insertUserLikeSchema = createInsertSchema(userLikes).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertUserBehaviorProfileSchema = createInsertSchema(userBehaviorProfiles).omit({
   id: true,
   createdAt: true,
@@ -178,6 +190,8 @@ export type UserModelInteraction = typeof userModelInteractions.$inferSelect;
 export type InsertUserModelInteraction = z.infer<typeof insertUserModelInteractionSchema>;
 export type UserBookmark = typeof userBookmarks.$inferSelect;
 export type InsertUserBookmark = z.infer<typeof insertUserBookmarkSchema>;
+export type UserLike = typeof userLikes.$inferSelect;
+export type InsertUserLike = z.infer<typeof insertUserLikeSchema>;
 export type UserBehaviorProfile = typeof userBehaviorProfiles.$inferSelect;
 export type InsertUserBehaviorProfile = z.infer<typeof insertUserBehaviorProfileSchema>;
 export type UserCategoryAffinity = typeof userCategoryAffinities.$inferSelect;

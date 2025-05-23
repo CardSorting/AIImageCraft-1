@@ -1,4 +1,4 @@
-import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark } from "@shared/schema";
+import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, like, and, sql, count } from "drizzle-orm";
 
@@ -30,6 +30,11 @@ export interface IStorage {
   createUserBookmark(bookmark: InsertUserBookmark): Promise<UserBookmark>;
   removeUserBookmark(userId: number, modelId: number): Promise<boolean>;
   isModelBookmarked(userId: number, modelId: number): Promise<boolean>;
+  
+  // User like methods
+  createUserLike(like: InsertUserLike): Promise<UserLike>;
+  removeUserLike(userId: number, modelId: number): Promise<boolean>;
+  isModelLiked(userId: number, modelId: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
