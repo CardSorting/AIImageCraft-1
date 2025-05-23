@@ -100,27 +100,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Missing required fields: modelId, interactionType" });
       }
 
-      // Enhanced interaction tracking with our CQRS command handler
-      const { TrackUserInteractionCommand } = await import("./application/commands/TrackUserInteractionCommand");
-      const { TrackUserInteractionCommandHandler } = await import("./application/handlers/TrackUserInteractionCommandHandler");
-      
-      // Create command with Apple-style intelligent data
-      const command = new TrackUserInteractionCommand({
+      // Simple interaction tracking for immediate functionality
+      const interaction = await storage.createUserInteraction({
         userId: Number(userId),
         modelId: Number(modelId),
         interactionType,
-        engagementLevel: Number(engagementLevel),
-        sessionDuration,
-        deviceType,
-        referralSource,
-        timestamp: new Date()
+        engagementLevel: Number(engagementLevel)
       });
-      
-      // Execute command through our beautiful Clean Architecture
-      const handler = new TrackUserInteractionCommandHandler(storage);
-      const result = await handler.handle(command);
 
-      res.json(result);
+      res.json({ 
+        success: true, 
+        interactionId: interaction.id,
+        message: "Interaction tracked successfully"
+      });
     } catch (error) {
       console.error("Error tracking user interaction:", error);
       res.status(500).json({ error: "Failed to track interaction" });

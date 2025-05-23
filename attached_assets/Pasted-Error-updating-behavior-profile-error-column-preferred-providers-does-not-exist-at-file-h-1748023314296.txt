@@ -1,0 +1,560 @@
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+5:55:03 PM [express] GET /api/models 304 in 836ms :: [{"id":2,"modelId":"flux/schnell","name":"Flux …
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:55:03 PM [express] POST /api/interactions/track 500 in 389ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:55:03 PM [express] POST /api/interactions/track 500 in 496ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:55:04 PM [express] POST /api/interactions/track 500 in 599ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:55:04 PM [express] POST /api/interactions/track 500 in 612ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:55:04 PM [express] POST /api/interactions/track 500 in 632ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:55:04 PM [express] POST /api/interactions/track 500 in 705ms :: {"error":"Failed to track interact…
+5:55:04 PM [express] GET /api/models/for-you 500 in 59ms :: {"error":"Failed to fetch model"}
+Error updating behavior profile: error: column "preferred_styles" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '290',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_styles" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '290',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_styles" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '290',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_styles" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '290',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_styles" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '290',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_styles" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '290',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+5:59:11 PM [express] GET /api/models 304 in 2653ms :: [{"id":2,"modelId":"flux/schnell","name":"Flux…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:12 PM [express] POST /api/interactions/track 500 in 361ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:12 PM [express] POST /api/interactions/track 500 in 441ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:12 PM [express] POST /api/interactions/track 500 in 555ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:12 PM [express] POST /api/interactions/track 500 in 618ms :: {"error":"Failed to track interact…
+5:59:12 PM [express] GET /api/models/for-you 500 in 60ms :: {"error":"Failed to fetch model"}
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:14 PM [express] POST /api/interactions/track 500 in 2324ms :: {"error":"Failed to track interac…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:14 PM [express] POST /api/interactions/track 500 in 2385ms :: {"error":"Failed to track interac…
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:21 PM [express] POST /api/interactions/track 500 in 322ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:21 PM [express] POST /api/interactions/track 500 in 335ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:21 PM [express] POST /api/interactions/track 500 in 511ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:21 PM [express] POST /api/interactions/track 500 in 507ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:21 PM [express] POST /api/interactions/track 500 in 551ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:21 PM [express] POST /api/interactions/track 500 in 601ms :: {"error":"Failed to track interact…
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:59:23 PM [express] POST /api/interactions/track 500 in 343ms :: {"error":"Failed to track interact…
+Error updating behavior profile: error: column "quality_threshold" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 118,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '310',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
