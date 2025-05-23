@@ -79,17 +79,8 @@ export function DesktopNavigation({
             </div>
           </nav>
 
-          {/* Create Button, Credits and Sign In */}
+          {/* Credits and Sign In */}
           <div className="flex items-center space-x-4">
-            {/* Create Button */}
-            <Button 
-              onClick={handleCreateClick}
-              className="bg-gradient-to-r from-primary via-primary/95 to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground px-6 py-3 h-11 text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 rounded-2xl"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create
-            </Button>
-
             {/* Enhanced Credits Display */}
             <div className="hidden sm:flex items-center space-x-3 bg-gradient-to-r from-background/80 to-background/60 backdrop-blur-xl border border-border/50 rounded-2xl px-5 py-3 shadow-lg hover:shadow-xl transition-all duration-300 group">
               <div className="flex items-center space-x-2">
