@@ -123,14 +123,17 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
   const rarity = RARITY_CONFIGS[image.rarityTier as keyof typeof RARITY_CONFIGS] || RARITY_CONFIGS.COMMON;
   const IconComponent = rarity.icon;
 
+  const [showNewAnimation, setShowNewAnimation] = useState(isNewest);
+
   useEffect(() => {
-    if (isNewest && rarity.effects.sparkles) {
+    if (isNewest) {
+      // Stop the new card animation after 5 seconds
       const timer = setTimeout(() => {
-        // Celebration effect for rare cards
-      }, 1000);
+        setShowNewAnimation(false);
+      }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [isNewest, rarity.effects.sparkles]);
+  }, [isNewest]);
 
   const handleDownload = async (imageUrl: string, filename: string) => {
     try {
@@ -199,8 +202,8 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
       {/* Trading Card */}
       <div
         className={`relative group cursor-pointer transform transition-all duration-500 hover:scale-105 ${
-          isNewest ? 'animate-pulse' : ''
-        } ${rarity.effects.holographic ? 'animate-pulse' : ''}`}
+          showNewAnimation ? 'animate-pulse' : ''
+        }`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => setShowModal(true)}
@@ -341,7 +344,7 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
                 )}
 
                 {/* NEW Badge for Latest */}
-                {isNewest && (
+                {showNewAnimation && (
                   <div className="absolute top-3 right-3">
                     <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white animate-bounce shadow-lg">
                       ✨ NEW
