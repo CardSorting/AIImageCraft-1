@@ -366,6 +366,28 @@ function ModelCard({ model }: ModelCardProps) {
               </Badge>
             </div>
 
+            {/* Recommendation Insights - only show for For You tab */}
+            {model._recommendation && (
+              <div className="mb-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200/50 dark:border-blue-700/50">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                    Recommended for you
+                  </span>
+                  <div className="flex items-center space-x-1 ml-auto">
+                    {Array.from({ length: Math.round(model._recommendation.confidenceScore * 5) }).map((_, i) => (
+                      <div key={i} className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                    ))}
+                  </div>
+                </div>
+                {model._recommendation.reasons && model._recommendation.reasons.length > 0 && (
+                  <p className="text-xs text-blue-600 dark:text-blue-400 leading-relaxed">
+                    {model._recommendation.reasons[0].description}
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Tags */}
             {model.tags && model.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-3">

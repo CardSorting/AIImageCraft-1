@@ -401,12 +401,16 @@ export class IntelligentPersonalizationEngine implements IPersonalizationEngine 
     for (const rec of recommendations) {
       const existing = modelMap.get(rec.model.id);
       if (existing) {
-        // Combine scores and reasons
-        existing.relevanceScore = Math.max(existing.relevanceScore, rec.relevanceScore);
-        existing.recommendationReason = [
-          ...existing.recommendationReason,
-          ...rec.recommendationReason
-        ];
+        // Create new recommendation with combined scores and reasons
+        const combined: PersonalizedRecommendation = {
+          ...existing,
+          relevanceScore: Math.max(existing.relevanceScore, rec.relevanceScore),
+          recommendationReason: [
+            ...existing.recommendationReason,
+            ...rec.recommendationReason
+          ]
+        };
+        modelMap.set(rec.model.id, combined);
       } else {
         modelMap.set(rec.model.id, rec);
       }
