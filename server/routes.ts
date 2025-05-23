@@ -317,10 +317,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Model statistics endpoints using Clean Architecture
-  app.get("/api/models/:modelId/stats", (req, res) => statisticsController.getModelStatistics(req, res));
-  app.post("/api/models/:modelId/stats/like", (req, res) => statisticsController.handleLikeAction(req, res));
-  app.post("/api/models/:modelId/stats/bookmark", (req, res) => statisticsController.handleBookmarkAction(req, res));
+  // Model statistics endpoint using existing storage
+  app.get("/api/models/:modelId/stats", async (req, res) => {
+    try {
+      const modelId = Number(req.params.modelId);
+      
+      if (isNaN(modelId)) {
+        return res.status(400).json({ error: "Invalid model ID" });
+      }
+
+      // Use storage interface to get statistics from database
+      const likes = await storage.isModelLiked(1, modelId) ? 1 : 0;
+      const bookmarks = await storage.isModelBookmarked(1, modelId) ? 1 : 0;
+      
+      res.json({ 
+        modelId, 
+        likeCount: likes, 
+        bookmarkCount: bookmarks 
+      });
+    } catch (error) {
+      console.error("Error fetching model stats:", error);
+      res.status(500).json({ error: "Failed to fetch model statistics" });
+    }
+  });
 
   // Get user's bookmarked models
   app.get("/api/models/bookmarked/:userId", async (req, res) => {
