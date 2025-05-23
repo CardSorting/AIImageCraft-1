@@ -14,7 +14,11 @@ import {
   ArrowLeft,
   Play,
   Heart,
-  Share2
+  Share2,
+  MessageCircle,
+  Image,
+  Clock,
+  Bookmark
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,14 +36,19 @@ const categoryIcons = {
   "Artistic": Palette,
 } as const;
 
-const categories = [
+const sortOptions = [
+  { id: "newest", name: "Newest", icon: Sparkles },
+  { id: "highest_rated", name: "Highest Rated", icon: Star },
+  { id: "most_liked", name: "Most Liked", icon: Heart },
+  { id: "most_discussed", name: "Most Discussed", icon: MessageCircle },
+  { id: "most_images", name: "Most Images", icon: Image },
+  { id: "oldest", name: "Oldest", icon: Clock },
+];
+
+const mainTabs = [
+  { id: "for_you", name: "For You", icon: Sparkles },
   { id: "all", name: "All Models", icon: Brain },
-  { id: "featured", name: "Featured", icon: Star },
-  { id: "General", name: "General", icon: Brain },
-  { id: "Speed", name: "Speed", icon: Zap },
-  { id: "Latest", name: "Latest", icon: Sparkles },
-  { id: "Photorealistic", name: "Photo", icon: Camera },
-  { id: "Artistic", name: "Artistic", icon: Palette },
+  { id: "bookmarked", name: "Bookmarked", icon: Bookmark },
 ];
 
 export default function ModelsPage() {

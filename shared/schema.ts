@@ -36,6 +36,9 @@ export const aiModels = pgTable("ai_models", {
   featured: integer("featured").default(0), // 0 = false, 1 = true
   rating: integer("rating").default(50), // 1-100 rating
   downloads: integer("downloads").default(0),
+  likes: integer("likes").default(0),
+  discussions: integer("discussions").default(0),
+  imagesGenerated: integer("images_generated").default(0),
   tags: text("tags").array().default([]),
   capabilities: text("capabilities").array().default([]),
   pricing: text("pricing"), // JSON string for pricing tiers
@@ -43,6 +46,21 @@ export const aiModels = pgTable("ai_models", {
   gallery: text("gallery").array().default([]), // Array of example images
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const userModelInteractions = pgTable("user_model_interactions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  modelId: integer("model_id").notNull().references(() => aiModels.id),
+  interactionType: text("interaction_type").notNull(), // 'view', 'like', 'bookmark', 'generate'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const userBookmarks = pgTable("user_bookmarks", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  modelId: integer("model_id").notNull().references(() => aiModels.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -77,10 +95,24 @@ export const generateImageRequestSchema = z.object({
   scheduler: z.string().optional(),
 });
 
+export const insertUserModelInteractionSchema = createInsertSchema(userModelInteractions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserBookmarkSchema = createInsertSchema(userBookmarks).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
 export type InsertImage = z.infer<typeof insertImageSchema>;
 export type AIModel = typeof aiModels.$inferSelect;
 export type InsertAIModel = z.infer<typeof insertAIModelSchema>;
+export type UserModelInteraction = typeof userModelInteractions.$inferSelect;
+export type InsertUserModelInteraction = z.infer<typeof insertUserModelInteractionSchema>;
+export type UserBookmark = typeof userBookmarks.$inferSelect;
+export type InsertUserBookmark = z.infer<typeof insertUserBookmarkSchema>;
 export type GenerateImageRequest = z.infer<typeof generateImageRequestSchema>;

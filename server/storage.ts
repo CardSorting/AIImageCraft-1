@@ -1,6 +1,6 @@
-import { users, generatedImages, aiModels, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel } from "@shared/schema";
+import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, like, and } from "drizzle-orm";
+import { eq, desc, like, and, sql, count } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -15,13 +15,21 @@ export interface IStorage {
   
   // AI Model storage methods
   createAIModel(model: InsertAIModel): Promise<AIModel>;
-  getAIModels(limit?: number, category?: string): Promise<AIModel[]>;
+  getAIModels(limit?: number, sortBy?: string, category?: string): Promise<AIModel[]>;
   getAIModelById(id: number): Promise<AIModel | undefined>;
   getAIModelByModelId(modelId: string): Promise<AIModel | undefined>;
   updateAIModel(id: number, model: Partial<InsertAIModel>): Promise<AIModel | undefined>;
   deleteAIModel(id: number): Promise<boolean>;
   searchAIModels(query: string, limit?: number): Promise<AIModel[]>;
   getFeaturedAIModels(limit?: number): Promise<AIModel[]>;
+  getForYouModels(userId: number, limit?: number): Promise<AIModel[]>;
+  getBookmarkedModels(userId: number, limit?: number): Promise<AIModel[]>;
+  
+  // User interaction methods
+  createUserInteraction(interaction: InsertUserModelInteraction): Promise<UserModelInteraction>;
+  createUserBookmark(bookmark: InsertUserBookmark): Promise<UserBookmark>;
+  removeUserBookmark(userId: number, modelId: number): Promise<boolean>;
+  isModelBookmarked(userId: number, modelId: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -83,14 +91,38 @@ export class DatabaseStorage implements IStorage {
     return model;
   }
 
-  async getAIModels(limit: number = 50, category?: string): Promise<AIModel[]> {
+  async getAIModels(limit: number = 50, sortBy: string = 'newest', category?: string): Promise<AIModel[]> {
     let query = db.select().from(aiModels);
     
     if (category) {
       query = query.where(eq(aiModels.category, category));
     }
     
-    return query.orderBy(desc(aiModels.createdAt)).limit(limit);
+    // Advanced sorting based on user preference
+    switch (sortBy) {
+      case 'highest_rated':
+        query = query.orderBy(desc(aiModels.rating));
+        break;
+      case 'most_liked':
+        query = query.orderBy(desc(aiModels.likes));
+        break;
+      case 'most_discussed':
+        query = query.orderBy(desc(aiModels.discussions));
+        break;
+      case 'most_images':
+        query = query.orderBy(desc(aiModels.imagesGenerated));
+        break;
+      case 'newest':
+        query = query.orderBy(desc(aiModels.createdAt));
+        break;
+      case 'oldest':
+        query = query.orderBy(aiModels.createdAt);
+        break;
+      default:
+        query = query.orderBy(desc(aiModels.createdAt));
+    }
+    
+    return query.limit(limit);
   }
 
   async getAIModelById(id: number): Promise<AIModel | undefined> {
@@ -138,6 +170,114 @@ export class DatabaseStorage implements IStorage {
       .where(eq(aiModels.featured, 1))
       .orderBy(desc(aiModels.rating))
       .limit(limit);
+  }
+
+  // Advanced "For You" algorithm based on user interactions
+  async getForYouModels(userId: number, limit: number = 20): Promise<AIModel[]> {
+    // Get user's interaction history to understand preferences
+    const userInteractions = await db.select()
+      .from(userModelInteractions)
+      .where(eq(userModelInteractions.userId, userId))
+      .orderBy(desc(userModelInteractions.createdAt))
+      .limit(100);
+
+    if (userInteractions.length === 0) {
+      // New user - show featured and highly rated models
+      return db.select().from(aiModels)
+        .where(eq(aiModels.featured, 1))
+        .orderBy(desc(aiModels.rating))
+        .limit(limit);
+    }
+
+    // Extract categories and providers from user's history
+    const interactedModelIds = userInteractions.map(i => i.modelId);
+    const interactedModels = await db.select()
+      .from(aiModels)
+      .where(sql`${aiModels.id} = ANY(${interactedModelIds})`);
+
+    const preferredCategories = [...new Set(interactedModels.map(m => m.category))];
+    const preferredProviders = [...new Set(interactedModels.map(m => m.provider))];
+
+    // Recommend similar models the user hasn't interacted with
+    return db.select().from(aiModels)
+      .where(
+        and(
+          sql`${aiModels.category} = ANY(${preferredCategories}) OR ${aiModels.provider} = ANY(${preferredProviders})`,
+          sql`${aiModels.id} NOT IN (${interactedModelIds.join(',')})`
+        )
+      )
+      .orderBy(desc(aiModels.rating), desc(aiModels.likes))
+      .limit(limit);
+  }
+
+  async getBookmarkedModels(userId: number, limit: number = 50): Promise<AIModel[]> {
+    return db.select({
+      id: aiModels.id,
+      modelId: aiModels.modelId,
+      name: aiModels.name,
+      description: aiModels.description,
+      category: aiModels.category,
+      version: aiModels.version,
+      provider: aiModels.provider,
+      featured: aiModels.featured,
+      rating: aiModels.rating,
+      downloads: aiModels.downloads,
+      likes: aiModels.likes,
+      discussions: aiModels.discussions,
+      imagesGenerated: aiModels.imagesGenerated,
+      tags: aiModels.tags,
+      capabilities: aiModels.capabilities,
+      pricing: aiModels.pricing,
+      thumbnail: aiModels.thumbnail,
+      gallery: aiModels.gallery,
+      createdAt: aiModels.createdAt,
+      updatedAt: aiModels.updatedAt,
+    })
+    .from(aiModels)
+    .innerJoin(userBookmarks, eq(userBookmarks.modelId, aiModels.id))
+    .where(eq(userBookmarks.userId, userId))
+    .orderBy(desc(userBookmarks.createdAt))
+    .limit(limit);
+  }
+
+  // User interaction methods
+  async createUserInteraction(interaction: InsertUserModelInteraction): Promise<UserModelInteraction> {
+    const [newInteraction] = await db.insert(userModelInteractions)
+      .values(interaction)
+      .returning();
+    return newInteraction;
+  }
+
+  async createUserBookmark(bookmark: InsertUserBookmark): Promise<UserBookmark> {
+    const [newBookmark] = await db.insert(userBookmarks)
+      .values(bookmark)
+      .returning();
+    return newBookmark;
+  }
+
+  async removeUserBookmark(userId: number, modelId: number): Promise<boolean> {
+    try {
+      const result = await db.delete(userBookmarks)
+        .where(and(
+          eq(userBookmarks.userId, userId),
+          eq(userBookmarks.modelId, modelId)
+        ));
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error("Error removing bookmark:", error);
+      return false;
+    }
+  }
+
+  async isModelBookmarked(userId: number, modelId: number): Promise<boolean> {
+    const [bookmark] = await db.select()
+      .from(userBookmarks)
+      .where(and(
+        eq(userBookmarks.userId, userId),
+        eq(userBookmarks.modelId, modelId)
+      ))
+      .limit(1);
+    return !!bookmark;
   }
 }
 
