@@ -13,7 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Download, Sparkles, ChevronDown, ChevronRight, Sliders } from "lucide-react";
+import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Search, Plus, Share, User } from "lucide-react";
 
 interface ImageGenerationResponse {
   success: boolean;
@@ -115,29 +115,53 @@ export default function Home() {
   };
 
   return (
-    <div className="safe-area-top">
-      {/* Apple-style Hero Section */}
-      <section className="px-4 sm:px-6 lg:px-8 pt-8 pb-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Header with Apple-style branding */}
-          <div className="text-center mb-12 animate-fade-in">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-3xl shadow-2xl shadow-primary/20 mb-6 relative overflow-hidden">
-              <Sparkles className="text-primary-foreground w-10 h-10 relative z-10" />
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/20 rounded-3xl" />
+    <div className="min-h-screen bg-background">
+      {/* Apple-style Navigation Header */}
+      <header className="sticky top-0 z-50 glass-effect border-b border-border/30 safe-area-top">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo and Brand */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-md">
+                  <Sparkles className="text-primary-foreground w-4 h-4" />
+                </div>
+                <div className="hidden sm:block">
+                  <h1 className="text-lg font-bold text-foreground tracking-tight">AI Studio</h1>
+                </div>
+              </div>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 tracking-tight leading-tight">
-              <span className="bg-gradient-to-r from-foreground via-foreground/90 to-foreground/80 bg-clip-text text-transparent">
-                AI Studio
-              </span>
-            </h1>
-            <p className="text-xl sm:text-2xl text-muted-foreground mb-4 leading-relaxed font-medium">
-              Create stunning images with the power of AI
-            </p>
-            <p className="text-base text-muted-foreground/80 max-w-2xl mx-auto leading-relaxed">
-              Transform your imagination into breathtaking visuals using Google's advanced Imagen 4 technology
-            </p>
+
+            {/* Navigation Items - Desktop */}
+            <nav className="hidden md:flex items-center space-x-8">
+              <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors font-medium">
+                <Search className="h-4 w-4" />
+                <span>Search</span>
+              </button>
+              <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors font-medium">
+                <Plus className="h-4 w-4" />
+                <span>Create</span>
+              </button>
+              <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors font-medium">
+                <Share className="h-4 w-4" />
+                <span>Publish</span>
+              </button>
+            </nav>
+
+            {/* Sign In Button */}
+            <div className="flex items-center space-x-4">
+              <button className="btn-ios-primary px-6 py-2 h-10 text-sm font-semibold">
+                <User className="h-4 w-4 mr-2" />
+                Sign In
+              </button>
+            </div>
           </div>
-          
+        </div>
+      </header>
+
+      {/* Main Content Section */}
+      <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+        <div className="max-w-4xl mx-auto">
           {/* Premium Generation Interface */}
           <div className="relative group">
             {/* Background gradient overlay */}
@@ -147,8 +171,12 @@ export default function Home() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   {/* Enhanced Prompt Input with Apple Design */}
-                  <div className="space-y-3">
-                    <label className="block text-lg font-semibold text-foreground mb-2">
+                  <div className="space-y-4">
+                    <div className="text-center mb-6">
+                      <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Create with AI</h2>
+                      <p className="text-muted-foreground">Transform your ideas into stunning visuals</p>
+                    </div>
+                    <label className="block text-lg font-semibold text-foreground mb-3">
                       Describe Your Vision
                     </label>
                     <FormField
@@ -289,11 +317,11 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </main>
 
       {/* Apple-style Loading Experience */}
       {generateImagesMutation.isPending && (
-        <section className="px-4 sm:px-6 lg:px-8 mb-12 animate-fade-in">
+        <div className="px-4 sm:px-6 lg:px-8 mb-12 animate-fade-in">
           <div className="max-w-2xl mx-auto">
             <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-12 text-center shadow-2xl">
               {/* Animated gradient background */}
@@ -315,12 +343,12 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </div>
       )}
 
       {/* Premium Gallery Section */}
       {images.length > 0 && (
-        <section className="px-4 sm:px-6 lg:px-8 mb-12 animate-fade-in">
+        <div className="px-4 sm:px-6 lg:px-8 mb-12 animate-fade-in">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">Your Recent Creations</h2>
@@ -365,7 +393,7 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </section>
+        </div>
       )}
 
       {/* Enhanced iOS Modal */}
