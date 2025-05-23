@@ -5,6 +5,15 @@ export interface GenerateImageRequest {
   negativePrompt?: string;
   aspectRatio: AspectRatio;
   numImages: number;
+  model?: string;
+  loras?: Array<{
+    model: string;
+    weight: number;
+  }>;
+  steps?: number;
+  cfgScale?: number;
+  seed?: number;
+  scheduler?: string;
 }
 
 export interface GeneratedImageResult {

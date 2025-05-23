@@ -38,24 +38,34 @@ export class RunwareImageGenerationAdapter implements IImageGenerationService {
       
       const [width, height] = this.parseAspectRatio(request.aspectRatio);
       
-      const result = await this.runware.requestImages({
+      // Build request in exact Runware API format
+      const runwareRequest = {
+        taskType: "imageInference",
+        taskUUID: this.generateTaskUUID(),
         positivePrompt: request.prompt,
         negativePrompt: request.negativePrompt || "",
-        width: width,
+        model: request.model || "runware:100@1",
         height: height,
-        model: "runware:100@1",
+        width: width,
         numberResults: request.numImages,
         outputType: "URL",
         outputFormat: "PNG",
         checkNSFW: true,
-        onPartialImages: (images: any, error: any) => {
-          if (error) {
-            console.log(`[Runware] Partial generation error:`, error);
-          } else {
-            console.log(`[Runware] Received ${images.length} partial images`);
-          }
-        }
-      });
+        ...(request.loras && request.loras.length > 0 && {
+          lora: request.loras.map(lora => ({
+            model: lora.model,
+            weight: lora.weight
+          }))
+        }),
+        ...(request.steps && { steps: request.steps }),
+        ...(request.cfgScale && { CFGScale: request.cfgScale }),
+        ...(request.seed && { seed: request.seed }),
+        ...(request.scheduler && { scheduler: request.scheduler })
+      };
+
+      console.log(`[Runware] Request format:`, JSON.stringify(runwareRequest, null, 2));
+      
+      const result = await this.runware.requestImages(runwareRequest);
 
       if (!result || !Array.isArray(result) || result.length === 0) {
         throw new Error("No images generated from Runware service");
@@ -97,5 +107,13 @@ export class RunwareImageGenerationAdapter implements IImageGenerationService {
     };
 
     return aspectRatioMap[aspectRatio] || [512, 512];
+  }
+
+  private generateTaskUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
 }
