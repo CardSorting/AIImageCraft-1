@@ -160,17 +160,7 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Dynamic Cost Display */}
-                      <div className="flex items-center justify-center mb-6">
-                        <div className="flex items-center space-x-2 bg-primary/10 border border-primary/20 rounded-xl px-4 py-3">
-                          <span className="text-sm font-medium text-foreground">Generation Cost:</span>
-                          <div className="flex items-center space-x-1">
-                            <Coins className="h-4 w-4 text-primary" />
-                            <span className="text-lg font-bold text-primary">{currentCost}</span>
-                            <span className="text-sm text-muted-foreground">credits</span>
-                          </div>
-                        </div>
-                      </div>
+
 
                       {/* Credit Balance Check */}
                       {userCredits < currentCost && (
