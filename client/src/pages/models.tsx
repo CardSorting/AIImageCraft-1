@@ -337,15 +337,54 @@ function ModelCard({ model }: ModelCardProps) {
     setIsLiked(newLikedState);
     
     try {
-      // For now, simulate successful like functionality while backend routes are being resolved
-      // This ensures users can see the like feature working while we fix the routing
-      console.log(`Successfully toggled like for model ${model.id} to ${newLikedState}`);
+      // Use the working like status check pattern to implement toggle
+      // First check current status, then toggle it
+      const currentStatusResponse = await fetch(`/api/likes/1/${model.id}`, {
+        headers: { 'Accept': 'application/json' }
+      });
       
-      // Track the interaction for analytics
-      await trackInteraction('like', newLikedState ? 8 : 3);
-      
-      // Note: Like state will persist in the UI during this session
-      // Backend integration will be completed to persist across sessions
+      if (currentStatusResponse.ok) {
+        const currentStatus = await currentStatusResponse.json();
+        const shouldLike = !currentStatus.liked;
+        
+        // Make the toggle request to our backend using the working pattern
+        const action = shouldLike ? 'like' : 'unlike';
+        console.log(`${action}ing model ${model.id}`);
+        
+        // Persist to backend using the dedicated like endpoint
+        try {
+          const persistResponse = await fetch('/api/likes/persist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: 1,
+              modelId: model.id,
+              liked: shouldLike
+            })
+          });
+          
+          if (persistResponse.ok) {
+            const result = await persistResponse.json();
+            // Update the UI state to match what we persisted
+            setIsLiked(result.liked);
+            console.log(`Successfully ${action}d model ${model.id} and persisted to database`);
+          } else {
+            console.log(`UI updated but database persistence failed for ${action}`);
+            setIsLiked(shouldLike);
+          }
+          
+          // Track the interaction for analytics
+          await trackInteraction('like', shouldLike ? 8 : 3);
+          
+        } catch (persistError) {
+          console.log('Database persistence failed, but UI state updated:', persistError);
+          setIsLiked(shouldLike);
+          await trackInteraction('like', shouldLike ? 8 : 3);
+        }
+      } else {
+        // If status check fails, use optimistic update only
+        await trackInteraction('like', newLikedState ? 8 : 3);
+      }
     } catch (error) {
       console.error('Error handling like:', error);
       // If error occurs, revert the optimistic update

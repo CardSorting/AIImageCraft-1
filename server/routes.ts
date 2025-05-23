@@ -287,34 +287,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Handle like/unlike actions using GET with query params (workaround for routing issues)
-  app.get("/api/likes/toggle", async (req, res) => {
+  // Handle like persistence through interaction endpoint
+  app.post("/api/likes/persist", async (req, res) => {
     try {
-      console.log("Toggle like API called with query:", req.query);
-      const { userId, modelId } = req.query;
+      console.log("Like persist API called with body:", req.body);
+      const { userId, modelId, liked } = req.body;
       
-      if (!userId || !modelId) {
-        console.log("Missing userId or modelId");
-        return res.status(400).json({ success: false, error: "Missing userId or modelId" });
+      if (!userId || !modelId || liked === undefined) {
+        console.log("Missing required fields");
+        return res.status(400).json({ success: false, error: "Missing userId, modelId, or liked status" });
       }
       
-      const isLiked = await storage.isModelLiked(Number(userId), Number(modelId));
-      console.log(`Model ${modelId} is currently liked by user ${userId}:`, isLiked);
-      
-      if (isLiked) {
-        // Unlike the model
-        const removed = await storage.removeUserLike(Number(userId), Number(modelId));
-        console.log("Remove like result:", removed);
-        res.json({ success: true, liked: false, message: "Model unliked successfully" });
-      } else {
-        // Like the model
+      if (liked) {
+        // Create like record
         const created = await storage.createUserLike({ userId: Number(userId), modelId: Number(modelId) });
         console.log("Create like result:", created);
         res.json({ success: true, liked: true, message: "Model liked successfully" });
+      } else {
+        // Remove like record
+        const removed = await storage.removeUserLike(Number(userId), Number(modelId));
+        console.log("Remove like result:", removed);
+        res.json({ success: true, liked: false, message: "Model unliked successfully" });
       }
     } catch (error) {
-      console.error("Error handling like toggle:", error);
-      res.status(500).json({ success: false, error: "Failed to handle like" });
+      console.error("Error persisting like:", error);
+      res.status(500).json({ success: false, error: "Failed to persist like" });
     }
   });
 
