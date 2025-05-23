@@ -132,7 +132,7 @@ export default function Generate() {
             name="aspectRatio"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel className="text-sm font-medium">Aspect Ratio</FormLabel>
+                <FormLabel className="text-sm font-medium">Select a Size</FormLabel>
                 <FormControl>
                   <div className="grid grid-cols-3 gap-3">
                     {[
