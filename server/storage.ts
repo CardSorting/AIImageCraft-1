@@ -96,42 +96,55 @@ export class DatabaseStorage implements IStorage {
     return model;
   }
 
-  async getAIModels(limit: number = 50, sortBy: string = 'newest', category?: string): Promise<AIModel[]> {
-    let query = db.select({
-      ...aiModels,
-      likeCount: sql<number>`(SELECT COUNT(*) FROM ${userLikes} WHERE ${userLikes.modelId} = ${aiModels.id})`,
-      bookmarkCount: sql<number>`(SELECT COUNT(*) FROM ${userBookmarks} WHERE ${userBookmarks.modelId} = ${aiModels.id})`
-    }).from(aiModels);
+  async getAIModels(limit: number = 50, sortBy: string = 'newest', category?: string): Promise<any[]> {
+    // First get the basic models
+    let baseQuery = db.select().from(aiModels);
     
     if (category) {
-      query = query.where(eq(aiModels.category, category));
+      baseQuery = baseQuery.where(eq(aiModels.category, category));
     }
     
     // Advanced sorting based on user preference
     switch (sortBy) {
       case 'highest_rated':
-        query = query.orderBy(desc(aiModels.rating));
+        baseQuery = baseQuery.orderBy(desc(aiModels.rating));
         break;
       case 'most_liked':
-        query = query.orderBy(sql`(SELECT COUNT(*) FROM ${userLikes} WHERE ${userLikes.modelId} = ${aiModels.id}) DESC`);
+        baseQuery = baseQuery.orderBy(desc(aiModels.likes));
         break;
       case 'most_discussed':
-        query = query.orderBy(desc(aiModels.discussions));
+        baseQuery = baseQuery.orderBy(desc(aiModels.discussions));
         break;
       case 'most_images':
-        query = query.orderBy(desc(aiModels.imagesGenerated));
+        baseQuery = baseQuery.orderBy(desc(aiModels.imagesGenerated));
         break;
       case 'newest':
-        query = query.orderBy(desc(aiModels.createdAt));
+        baseQuery = baseQuery.orderBy(desc(aiModels.createdAt));
         break;
       case 'oldest':
-        query = query.orderBy(aiModels.createdAt);
+        baseQuery = baseQuery.orderBy(aiModels.createdAt);
         break;
       default:
-        query = query.orderBy(desc(aiModels.createdAt));
+        baseQuery = baseQuery.orderBy(desc(aiModels.createdAt));
     }
     
-    return query.limit(limit);
+    const models = await baseQuery.limit(limit);
+    
+    // Add counts to each model
+    const modelsWithCounts = await Promise.all(
+      models.map(async (model) => {
+        const [likeCountResult] = await db.select({ count: count() }).from(userLikes).where(eq(userLikes.modelId, model.id));
+        const [bookmarkCountResult] = await db.select({ count: count() }).from(userBookmarks).where(eq(userBookmarks.modelId, model.id));
+        
+        return {
+          ...model,
+          likeCount: likeCountResult?.count || 0,
+          bookmarkCount: bookmarkCountResult?.count || 0
+        };
+      })
+    );
+    
+    return modelsWithCounts;
   }
 
   async getAIModelById(id: number): Promise<AIModel | undefined> {
