@@ -157,13 +157,61 @@ const ASPECT_RATIOS = [
   { value: "3:4", label: "Portrait (3:4)", description: "Tall format" }
 ];
 
-const SCHEDULERS = [
-  { value: "euler", label: "Euler", description: "Balanced quality and speed" },
-  { value: "euler_ancestral", label: "Euler Ancestral", description: "More creative results" },
-  { value: "dpm_solver", label: "DPM Solver", description: "High quality, slower" },
-  { value: "ddim", label: "DDIM", description: "Deterministic results" },
-  { value: "plms", label: "PLMS", description: "Fast convergence" }
+// Enhanced scheduler collections based on Runware documentation
+const FLUX_SCHEDULERS = [
+  { value: "Euler", label: "Euler", description: "Basic Euler method implementation", category: "Standard" },
+  { value: "FlowMatchEulerDiscreteScheduler", label: "FlowMatch Euler", description: "Flow matching techniques with Euler precision", category: "Advanced" },
+  { value: "DPM++", label: "DPM++", description: "Basic DPM++ sampling method", category: "Standard" },
+  { value: "DPM++ SDE", label: "DPM++ SDE", description: "Stochastic differential equations for high quality", category: "High Quality" },
+  { value: "DPM++ 2M", label: "DPM++ 2M", description: "Enhanced DPM++ with second-order multistep", category: "Advanced" },
+  { value: "DPM++ 2M SDE", label: "DPM++ 2M SDE", description: "Second-order scheduler with SDE for robustness", category: "High Quality" },
+  { value: "DPM++ 3M", label: "DPM++ 3M", description: "Advanced DPM++ with third-order multistep", category: "Premium" },
+  { value: "Euler Beta", label: "Euler Beta", description: "Euler method with Beta noise scheduling", category: "Specialized" },
+  { value: "Euler Exponential", label: "Euler Exponential", description: "Euler with exponential noise scheduling", category: "Specialized" },
+  { value: "Euler Karras", label: "Euler Karras", description: "Euler method with Karras noise scheduling", category: "Popular" },
+  { value: "DPM++ Karras", label: "DPM++ Karras", description: "DPM++ with Karras noise scheduling", category: "Popular" },
+  { value: "DPM++ 2M Karras", label: "DPM++ 2M Karras", description: "Second-order multistep with Karras scheduling", category: "Recommended" },
+  { value: "DPM++ 2M SDE Karras", label: "DPM++ 2M SDE Karras", description: "Second-order SDE with Karras scheduling", category: "Premium" }
 ];
+
+const STABLE_DIFFUSION_SCHEDULERS = [
+  { value: "Default", label: "Model Default", description: "Uses the model's default scheduler", category: "Default" },
+  { value: "DDIM", label: "DDIM", description: "Direct DDIM sampling method", category: "Standard" },
+  { value: "DDIMScheduler", label: "DDIM Scheduler", description: "Accelerated denoising with fewer steps", category: "Fast" },
+  { value: "DDPMScheduler", label: "DDPM", description: "Standard diffusion process", category: "Standard" },
+  { value: "DPMSolverMultistepScheduler", label: "DPM-Solver Multi-step", description: "Multi-step solver for accuracy", category: "High Quality" },
+  { value: "DPM++", label: "DPM++", description: "Basic DPM++ sampling method", category: "Standard" },
+  { value: "DPM++ Karras", label: "DPM++ Karras", description: "DPM++ with Karras noise scheduling", category: "Popular" },
+  { value: "DPM++ 2M", label: "DPM++ 2M", description: "Enhanced DPM++ with 2nd-order method", category: "Advanced" },
+  { value: "DPM++ 2M Karras", label: "DPM++ 2M Karras", description: "Advanced Karras with second-order method", category: "Recommended" },
+  { value: "DPM++ 2M SDE Karras", label: "DPM++ 2M SDE Karras", description: "Superior denoising with SDE techniques", category: "Premium" },
+  { value: "DPM++ 3M Karras", label: "DPM++ 3M Karras", description: "Third-order DPM++ with Karras scheduling", category: "Premium" },
+  { value: "Euler", label: "Euler", description: "Basic Euler method implementation", category: "Standard" },
+  { value: "EulerDiscreteScheduler", label: "Euler Discrete", description: "Simple and effective denoising", category: "Standard" },
+  { value: "Euler Karras", label: "Euler Karras", description: "Euler with Karras noise scheduling", category: "Popular" },
+  { value: "Euler a", label: "Euler Ancestral", description: "Euler with ancestral sampling", category: "Creative" },
+  { value: "EulerAncestralDiscreteScheduler", label: "Euler Ancestral Discrete", description: "Better quality with ancestral sampling", category: "Creative" },
+  { value: "Heun", label: "Heun", description: "Basic Heun's method implementation", category: "Precision" },
+  { value: "HeunDiscreteScheduler", label: "Heun Discrete", description: "Precise and efficient denoising", category: "Precision" },
+  { value: "Heun Karras", label: "Heun Karras", description: "Heun's method with Karras scheduling", category: "Precision" },
+  { value: "LCMScheduler", label: "LCM", description: "Low-complexity for minimal resources", category: "Fast" },
+  { value: "LMSDiscreteScheduler", label: "LMS", description: "Linear multistep for balanced speed", category: "Balanced" },
+  { value: "LMS Karras", label: "LMS Karras", description: "Linear multistep with Karras scheduling", category: "Balanced" },
+  { value: "UniPCMultistepScheduler", label: "UniPC Multistep", description: "Universal multi-step for diverse applications", category: "Versatile" },
+  { value: "UniPC 2M Karras", label: "UniPC 2M Karras", description: "Second-order Universal PC with Karras", category: "Advanced" }
+];
+
+// Scheduler categories for better organization
+const SCHEDULER_CATEGORIES = {
+  "Recommended": { color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200", icon: "⭐" },
+  "Popular": { color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200", icon: "🔥" },
+  "Premium": { color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200", icon: "💎" },
+  "Fast": { color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200", icon: "⚡" },
+  "High Quality": { color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200", icon: "🎨" },
+  "Creative": { color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200", icon: "🎭" },
+  "Standard": { color: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200", icon: "📊" },
+  "Default": { color: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200", icon: "🔧" }
+};
 
 export default function Generate() {
   const [activeTab, setActiveTab] = useState("basic");
@@ -245,6 +293,25 @@ export default function Generate() {
     const seed = Math.floor(Math.random() * 1000000);
     form.setValue("seed", seed);
   };
+
+  // Get appropriate schedulers based on selected model
+  const getAvailableSchedulers = (modelId: string) => {
+    const isFluxModel = modelId.includes("flux") || modelId.includes("Flux");
+    return isFluxModel ? FLUX_SCHEDULERS : STABLE_DIFFUSION_SCHEDULERS;
+  };
+
+  const selectedModel = form.watch("model");
+  const availableSchedulers = getAvailableSchedulers(selectedModel);
+
+  // Group schedulers by category for better organization
+  const groupedSchedulers = availableSchedulers.reduce((groups, scheduler) => {
+    const category = scheduler.category;
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(scheduler);
+    return groups;
+  }, {} as Record<string, typeof availableSchedulers>);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -707,24 +774,52 @@ export default function Generate() {
                       name="scheduler"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Scheduler</FormLabel>
+                          <FormLabel className="flex items-center gap-2">
+                            Scheduler
+                            <Badge variant="outline" className="text-xs">
+                              {selectedModel.includes("flux") ? "FLUX" : "Stable Diffusion"}
+                            </Badge>
+                          </FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Default" />
+                                <SelectValue placeholder="Choose scheduler..." />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
-                              {SCHEDULERS.map((scheduler) => (
-                                <SelectItem key={scheduler.value} value={scheduler.value}>
-                                  <div>
-                                    <div className="font-medium">{scheduler.label}</div>
-                                    <div className="text-xs text-muted-foreground">{scheduler.description}</div>
+                            <SelectContent className="max-h-[400px]">
+                              {Object.entries(groupedSchedulers).map(([category, schedulers]) => (
+                                <div key={category}>
+                                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-b">
+                                    <div className="flex items-center gap-1">
+                                      <span>{SCHEDULER_CATEGORIES[category as keyof typeof SCHEDULER_CATEGORIES]?.icon}</span>
+                                      {category}
+                                    </div>
                                   </div>
-                                </SelectItem>
+                                  {schedulers.map((scheduler) => (
+                                    <SelectItem key={scheduler.value} value={scheduler.value} className="pl-4">
+                                      <div className="flex items-start justify-between w-full">
+                                        <div className="flex-1">
+                                          <div className="font-medium">{scheduler.label}</div>
+                                          <div className="text-xs text-muted-foreground line-clamp-1">
+                                            {scheduler.description}
+                                          </div>
+                                        </div>
+                                        <Badge 
+                                          variant="secondary" 
+                                          className={`ml-2 text-xs ${SCHEDULER_CATEGORIES[scheduler.category as keyof typeof SCHEDULER_CATEGORIES]?.color}`}
+                                        >
+                                          {scheduler.category}
+                                        </Badge>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </div>
                               ))}
                             </SelectContent>
                           </Select>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            Different schedulers affect quality, speed, and style. Model type determines available options.
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
