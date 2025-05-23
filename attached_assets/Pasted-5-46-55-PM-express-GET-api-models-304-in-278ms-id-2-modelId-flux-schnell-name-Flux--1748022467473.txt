@@ -1,0 +1,533 @@
+5:46:55 PM [express] GET /api/models 304 in 278ms :: [{"id":2,"modelId":"flux/schnell","name":"Flux …
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:56 PM [express] POST /api/interactions/track 500 in 337ms :: {"error":"Failed to track interact…
+5:46:56 PM [express] GET /api/models/for-you 500 in 61ms :: {"error":"Failed to fetch model"}
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:56 PM [express] POST /api/interactions/track 500 in 563ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:56 PM [express] POST /api/interactions/track 500 in 562ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:56 PM [express] POST /api/interactions/track 500 in 588ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:56 PM [express] POST /api/interactions/track 500 in 593ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:56 PM [express] POST /api/interactions/track 500 in 606ms :: {"error":"Failed to track interact…
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:57 PM [express] POST /api/interactions/track 500 in 132ms :: {"error":"Failed to track interact…
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:57 PM [express] POST /api/interactions/track 500 in 186ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:57 PM [express] POST /api/interactions/track 500 in 327ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:57 PM [express] POST /api/interactions/track 500 in 323ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:57 PM [express] POST /api/interactions/track 500 in 359ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:46:57 PM [express] POST /api/interactions/track 500 in 375ms :: {"error":"Failed to track interact…
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:47:00 PM [express] POST /api/interactions/track 500 in 327ms :: {"error":"Failed to track interact…
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:47:02 PM [express] POST /api/interactions/track 500 in 336ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:47:02 PM [express] POST /api/interactions/track 500 in 343ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:47:02 PM [express] POST /api/interactions/track 500 in 346ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:47:02 PM [express] POST /api/interactions/track 500 in 355ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:47:02 PM [express] POST /api/interactions/track 500 in 358ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+5:47:03 PM [express] POST /api/interactions/track 500 in 573ms :: {"error":"Failed to track interact…
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "preferred_providers" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '267',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
