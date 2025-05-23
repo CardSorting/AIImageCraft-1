@@ -185,75 +185,82 @@ export default function Home() {
                       {/* Generation Options - Responsive Layout */}
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                          <FormField
-                            control={form.control}
-                            name="aspectRatio"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-sm text-gray-600">Aspect Ratio:</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="w-[140px]">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="1:1">1:1 Square</SelectItem>
-                                    <SelectItem value="16:9">16:9 Landscape</SelectItem>
-                                    <SelectItem value="9:16">9:16 Portrait</SelectItem>
-                                    <SelectItem value="4:3">4:3 Standard</SelectItem>
-                                    <SelectItem value="3:4">3:4 Portrait</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <FormField
+                              control={form.control}
+                              name="aspectRatio"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">Aspect Ratio</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="apple-focus bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-lg text-sm">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="1:1">1:1 Square</SelectItem>
+                                      <SelectItem value="16:9">16:9 Landscape</SelectItem>
+                                      <SelectItem value="9:16">9:16 Portrait</SelectItem>
+                                      <SelectItem value="4:3">4:3 Standard</SelectItem>
+                                      <SelectItem value="3:4">3:4 Portrait</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                          <FormField
-                            control={form.control}
-                            name="numImages"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-sm text-gray-600">Images:</FormLabel>
-                                <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
-                                  <FormControl>
-                                    <SelectTrigger className="w-[80px]">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value="1">1</SelectItem>
-                                    <SelectItem value="2">2</SelectItem>
-                                    <SelectItem value="3">3</SelectItem>
-                                    <SelectItem value="4">4</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                            <FormField
+                              control={form.control}
+                              name="numImages"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">Images</FormLabel>
+                                  <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
+                                    <FormControl>
+                                      <SelectTrigger className="apple-focus bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-lg text-sm">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="1">1</SelectItem>
+                                      <SelectItem value="2">2</SelectItem>
+                                      <SelectItem value="3">3</SelectItem>
+                                      <SelectItem value="4">4</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
+                            <div className="col-span-2 sm:col-span-1">
+                              <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+                                <CollapsibleTrigger asChild>
+                                  <Button variant="outline" type="button" className="w-full apple-focus bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-sm font-medium">
+                                    <Sliders className="h-4 w-4 mr-2" />
+                                    Advanced
+                                    {showAdvanced ? <ChevronDown className="h-4 w-4 ml-2" /> : <ChevronRight className="h-4 w-4 ml-2" />}
+                                  </Button>
+                                </CollapsibleTrigger>
+                              </Collapsible>
+                            </div>
+                          </div>
+
+                          {/* Advanced Options */}
                           <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
-                            <CollapsibleTrigger asChild>
-                              <Button variant="outline" type="button">
-                                <Sliders className="h-4 w-4 mr-2" />
-                                Advanced
-                                {showAdvanced ? <ChevronDown className="h-4 w-4 ml-2" /> : <ChevronRight className="h-4 w-4 ml-2" />}
-                              </Button>
-                            </CollapsibleTrigger>
-                            
-                            {/* Advanced Options */}
                             <CollapsibleContent className="space-y-4 mt-4">
                               <FormField
                                 control={form.control}
                                 name="negativePrompt"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Negative Prompt (Optional)</FormLabel>
+                                    <FormLabel className="text-sm text-gray-600 dark:text-gray-400 font-medium">Negative Prompt (Optional)</FormLabel>
                                     <FormControl>
                                       <Input
                                         placeholder="What you don't want to see in the image..."
+                                        className="apple-focus bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-lg"
                                         {...field}
                                       />
                                     </FormControl>
@@ -265,14 +272,17 @@ export default function Home() {
                           </Collapsible>
                         </div>
                         
-                        <Button 
-                          type="submit" 
-                          disabled={generateImagesMutation.isPending}
-                          className="bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white px-8 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center space-x-2 shadow-lg hover:shadow-xl"
-                        >
-                          <Sparkles className="h-4 w-4" />
-                          <span>{generateImagesMutation.isPending ? "Generating..." : "Generate Images"}</span>
-                        </Button>
+                        {/* Apple-style Generate Button */}
+                        <div className="flex justify-center sm:justify-end">
+                          <Button 
+                            type="submit" 
+                            disabled={generateImagesMutation.isPending}
+                            className="w-full sm:w-auto bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl font-semibold transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+                          >
+                            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <span className="text-sm sm:text-base">{generateImagesMutation.isPending ? "Generating..." : "Generate Images"}</span>
+                          </Button>
+                        </div>
                       </div>
                     </form>
                   </Form>
@@ -300,29 +310,29 @@ export default function Home() {
           </section>
         )}
 
-        {/* Image Gallery */}
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-2xl font-semibold text-[hsl(var(--near-black))]">Recent Generations</h3>
+        {/* Image Gallery - Apple-style Grid */}
+        <section className="mb-8 sm:mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-3">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-[hsl(var(--near-black))] dark:text-white tracking-tight">Recent Generations</h3>
             <div className="flex items-center space-x-3">
-              <span className="text-gray-500 text-sm">{images.length} images</span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">{images.length} images</span>
             </div>
           </div>
 
           {images.length === 0 && !imagesLoading ? (
-            <div className="text-center py-20">
-              <div className="max-w-md mx-auto">
-                <div className="w-20 h-20 bg-gradient-to-br from-[hsl(var(--primary))]/20 to-[hsl(var(--accent))]/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Sparkles className="text-[hsl(var(--primary))] text-2xl" />
+            <div className="text-center py-12 sm:py-20">
+              <div className="max-w-md mx-auto px-4">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[hsl(var(--primary))]/20 to-[hsl(var(--accent))]/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                  <Sparkles className="text-[hsl(var(--primary))] w-8 h-8 sm:w-10 sm:h-10" />
                 </div>
-                <h3 className="text-xl font-medium text-[hsl(var(--near-black))] mb-3">No images generated yet</h3>
-                <p className="text-gray-600 mb-6">Start by describing the image you want to create in the prompt above.</p>
+                <h3 className="text-lg sm:text-xl font-semibold text-[hsl(var(--near-black))] dark:text-white mb-3 tracking-tight">No images generated yet</h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm sm:text-base leading-relaxed">Start by describing the image you want to create in the prompt above.</p>
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {images.map((image) => (
-                <Card key={image.id} className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+                <Card key={image.id} className="group relative bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-xl dark:shadow-gray-900/20 transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700">
                   <div className="relative">
                     <img 
                       src={image.imageUrl} 
@@ -330,9 +340,9 @@ export default function Home() {
                       className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <p className="text-white text-sm mb-3 line-clamp-2">{image.prompt}</p>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
+                        <p className="text-white text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2 leading-relaxed">{image.prompt}</p>
                         <div className="flex items-center justify-between">
                           <span className="text-white/80 text-xs">{formatTimeAgo(new Date(image.createdAt))}</span>
                           <div className="flex space-x-2">
