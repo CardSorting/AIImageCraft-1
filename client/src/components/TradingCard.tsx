@@ -270,7 +270,14 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
               </div>
 
               {/* Image Display */}
-              <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
+              <div 
+                className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 overflow-hidden"
+                style={{
+                  backgroundImage: `url(${image.imageUrl})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
+              >
                 <img
                   src={image.imageUrl}
                   alt={image.prompt}

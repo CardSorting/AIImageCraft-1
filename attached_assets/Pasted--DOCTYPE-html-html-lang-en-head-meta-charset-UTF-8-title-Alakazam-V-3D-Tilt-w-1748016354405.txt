@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alakazam V - 3D Tilt with Gyroscope</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile viewport -->
+    <style>
+        /* Mobile-first styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #222;
+            overflow-x: hidden;
+        }
+        .card-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Use min-height for better responsiveness */
+            padding: 20px; /* Some padding for small screens */
+            box-sizing: border-box;
+        }
+        .mtg-card {
+            width: 80vw; /* Responsive width */
+            max-width: 300px; /* Max width for larger screens */
+            height: auto;
+            aspect-ratio: 2 / 3; /* Maintain aspect ratio */
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            background-image: url('https://f005.backblazeb2.com/file/collecticon/Alakazam.png');
+            background-size: cover;
+            background-position: center;
+            transform-style: preserve-3d;
+            will-change: transform;
+            transition: transform 0.1s ease-out;
+        }
+        .shine-effect {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                circle at 50% 50%,
+                rgba(255, 255, 255, 0.8) 0%,
+                rgba(255, 255, 255, 0.5) 25%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0.1) 75%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            mix-blend-mode: soft-light;
+        }
+        .rainbow-shine-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .rainbow-shine-effect {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                circle at 50% 50%,
+                rgba(255, 0, 0, 0.3),
+                rgba(255, 165, 0, 0.3),
+                rgba(255, 255, 0, 0.3),
+                rgba(0, 255, 0, 0.3),
+                rgba(0, 0, 255, 0.3),
+                rgba(75, 0, 130, 0.3),
+                rgba(238, 130, 238, 0.3)
+            );
+            opacity: 0;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            mix-blend-mode: color-dodge;
+            filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <!-- Card element with tilt effect -->
+        <div class="mtg-card" id="mtgCard">
+            <div class="shine-effect"></div>
+            <div class="rainbow-shine-container">
+                <div class="rainbow-shine-effect"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MTGCard3DTiltEffect {
+            constructor(cardElement) {
+                this.card = cardElement;
+                if (!this.card) throw new Error('No card element provided');
+
+                this.shine = this.card.querySelector('.shine-effect');
+                this.rainbowShine = this.card.querySelector('.rainbow-shine-effect');
+
+                this.settings = {
+                    tiltEffectMaxRotation: 15, // degrees
+                    tiltEffectPerspective: 800, // pixels
+                    tiltEffectScale: 1.05,
+                    shineMovementRange: 100,
+                    rainbowShineMovementRange: 50
+                };
+
+                this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                this.gyroAvailable = false;
+
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+
+                if (this.isMobile) {
+                    this.setupGyro();
+                } else {
+                    this.setupMouseEvents();
+                }
+            }
+
+            setupGyro() {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    // iOS 13+ devices require permission
+                    DeviceOrientationEvent.requestPermission()
+                        .then(response => {
+                            if (response === 'granted') {
+                                this.gyroAvailable = true;
+                                window.addEventListener('deviceorientation', this.handleGyro.bind(this));
+                            } else {
+                                // Permission denied, fallback to touch events
+                                this.setupTouchEvents();
+                            }
+                        })
+                        .catch(() => {
+                            // Error requesting permission, fallback to touch events
+                            this.setupTouchEvents();
+                        });
+                } else if (typeof DeviceOrientationEvent !== 'undefined') {
+                    // Non-iOS devices
+                    this.gyroAvailable = true;
+                    window.addEventListener('deviceorientation', this.handleGyro.bind(this));
+                } else {
+                    // Device orientation not supported
+                    this.setupTouchEvents();
+                }
+            }
+
+            setupEventListeners() {
+                // Reset tilt when the page is hidden (e.g., when switching tabs)
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        this.resetTilt();
+                    }
+                });
+            }
+
+            setupMouseEvents() {
+                // Desktop devices
+                this.card.addEventListener('mouseenter', () => this.setTransition(false));
+                this.card.addEventListener('mousemove', (e) => this.handleTilt(e));
+                this.card.addEventListener('mouseleave', () => this.resetTilt());
+            }
+
+            setupTouchEvents() {
+                // Fallback touch events
+                this.card.addEventListener('touchstart', () => this.setTransition(false));
+                this.card.addEventListener('touchmove', (e) => this.handleTilt(e));
+                this.card.addEventListener('touchend', () => this.resetTilt());
+            }
+
+            setTransition(active) {
+                const transition = active ? 'all 0.5s ease-out' : 'none';
+                this.card.style.transition = transition;
+                this.shine.style.transition = transition;
+                this.rainbowShine.style.transition = transition;
+            }
+
+            handleTilt(e) {
+                e.preventDefault(); // Prevent scrolling on touch devices
+
+                const event = e.touches ? e.touches[0] : e;
+                const { left, top, width, height } = this.card.getBoundingClientRect();
+                const x = event.clientX - left - width / 2;
+                const y = event.clientY - top - height / 2;
+
+                const angleX = (y / (height / 2)) * this.settings.tiltEffectMaxRotation;
+                const angleY = (-x / (width / 2)) * this.settings.tiltEffectMaxRotation;
+
+                this.updateTransform(angleX, angleY);
+            }
+
+            handleGyro(event) {
+                const { beta, gamma } = event; // beta: front to back tilt, gamma: left to right tilt
+
+                if (beta === null || gamma === null) {
+                    // Gyroscope data not available
+                    return;
+                }
+
+                // Clamp values to [-90,90]
+                const clampedBeta = Math.max(-90, Math.min(beta, 90));
+                const clampedGamma = Math.max(-45, Math.min(gamma, 45)); // Limiting gamma to avoid extreme tilts
+
+                const angleX = (clampedBeta / 90) * this.settings.tiltEffectMaxRotation;
+                const angleY = (clampedGamma / 45) * this.settings.tiltEffectMaxRotation;
+
+                this.updateTransform(angleX, angleY);
+            }
+
+            updateTransform(angleX, angleY) {
+                this.card.style.transform = `
+                    perspective(${this.settings.tiltEffectPerspective}px)
+                    rotateX(${angleX}deg)
+                    rotateY(${angleY}deg)
+                    scale3d(${this.settings.tiltEffectScale}, ${this.settings.tiltEffectScale}, ${this.settings.tiltEffectScale})
+                `;
+
+                const angleXNormalized = angleX / this.settings.tiltEffectMaxRotation;
+                const angleYNormalized = angleY / this.settings.tiltEffectMaxRotation;
+
+                this.updateShineEffect(this.shine, angleXNormalized, angleYNormalized, this.settings.shineMovementRange);
+                this.updateShineEffect(this.rainbowShine, angleXNormalized, angleYNormalized, this.settings.rainbowShineMovementRange);
+            }
+
+            updateShineEffect(element, angleX, angleY, range) {
+                const x = -angleY * range;
+                const y = -angleX * range;
+                element.style.transform = `translate(${x}%, ${y}%)`;
+                element.style.opacity = '1';
+            }
+
+            resetTilt() {
+                this.setTransition(true);
+                this.card.style.transform = `
+                    perspective(${this.settings.tiltEffectPerspective}px)
+                    rotateX(0deg)
+                    rotateY(0deg)
+                    scale3d(1, 1, 1)
+                `;
+                this.resetShineEffect(this.shine);
+                this.resetShineEffect(this.rainbowShine);
+            }
+
+            resetShineEffect(element) {
+                element.style.transform = 'translate(0%, 0%)';
+                element.style.opacity = '0';
+            }
+        }
+
+        // Initialize the 3D tilt effect on the card element
+        document.addEventListener('DOMContentLoaded', () => {
+            const cardElement = document.getElementById('mtgCard');
+            new MTGCard3DTiltEffect(cardElement);
+        });
+    </script>
+</body>
+</html>
