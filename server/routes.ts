@@ -210,9 +210,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }, {} as Record<string, number>);
 
     return Object.entries(typeCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([,a], [,b]) => (b as number) - (a as number))
       .slice(0, 3)
-      .map(([type, count]) => ({ type, count }));
+      .map(([type, count]) => ({ type, count: count as number }));
   }
 
   const httpServer = createServer(app);
