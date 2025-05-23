@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { TradingCard } from "@/components/TradingCard";
 
 export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
@@ -117,37 +118,34 @@ export default function Gallery() {
 
       {/* Gallery Grid */}
       {!isLoading && filteredImages.length > 0 && (
-        <div className={
-          viewMode === "grid" 
-            ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-            : "space-y-4"
-        }>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredImages.map((image) => (
+            <TradingCard
+              key={image.id}
+              image={{
+                id: image.id.toString(),
+                imageUrl: image.imageUrl,
+                prompt: image.prompt,
+                model: 'Runware',
+                dimensions: { width: 512, height: 512 },
+                createdAt: image.createdAt,
+                rarityTier: (image as any).rarityTier || 'COMMON',
+                rarityScore: (image as any).rarityScore || 50,
+                rarityStars: (image as any).rarityStars || 1,
+                rarityLetter: (image as any).rarityLetter || 'S',
+              }}
+              isNewest={false}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* List View (keeping for completeness but hidden in favor of trading cards) */}
+      {false && (
+        <div className="space-y-4">
           {filteredImages.map((image) => (
             <div key={image.id} className="card-ios group hover:scale-[1.02] transition-transform duration-200">
-              {viewMode === "grid" ? (
-                <>
-                  <div className="aspect-square overflow-hidden rounded-t-2xl">
-                    <img 
-                      src={image.imageUrl} 
-                      alt={image.prompt}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
-                      onClick={() => openImageModal(image)}
-                    />
-                  </div>
-                  <div className="p-3">
-                    <p className="text-xs text-foreground line-clamp-2 mb-2">{image.prompt}</p>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{formatTimeAgo(new Date(image.createdAt))}</span>
-                      <button 
-                        onClick={() => downloadImage(image.imageUrl, image.fileName || undefined)}
-                        className="btn-ios-ghost p-1 haptic-light"
-                      >
-                        <Download className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
+              {viewMode === "list" && (
                 <div className="flex items-center space-x-4 p-4">
                   <div className="w-16 h-16 overflow-hidden rounded-xl flex-shrink-0">
                     <img 
