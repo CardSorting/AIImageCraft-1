@@ -204,52 +204,98 @@ export default function Home() {
                     />
                   </div>
 
-                  {/* Premium Control Panel */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Visual Aspect Ratio Selection */}
+                  <div className="mb-8">
                     <FormField
                       control={form.control}
                       name="aspectRatio"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-base font-semibold text-foreground mb-3 block">Aspect Ratio</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="h-14 px-6 text-base bg-background/50 border-2 border-border/50 rounded-2xl transition-all duration-300 hover:border-primary/30 focus:border-primary/50 focus:bg-background/80">
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="rounded-2xl border-2 bg-background/95 backdrop-blur-xl">
-                              <SelectItem value="1:1" className="h-12 px-4 rounded-xl">1:1 Square</SelectItem>
-                              <SelectItem value="16:9" className="h-12 px-4 rounded-xl">16:9 Landscape</SelectItem>
-                              <SelectItem value="9:16" className="h-12 px-4 rounded-xl">9:16 Portrait</SelectItem>
-                              <SelectItem value="4:3" className="h-12 px-4 rounded-xl">4:3 Standard</SelectItem>
-                              <SelectItem value="3:4" className="h-12 px-4 rounded-xl">3:4 Portrait</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormLabel className="text-lg font-semibold text-foreground mb-4 block">Choose Aspect Ratio</FormLabel>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                            {[
+                              { value: "1:1", label: "Square", icon: Square, description: "1:1", example: "Social posts" },
+                              { value: "16:9", label: "Landscape", icon: Monitor, description: "16:9", example: "Widescreen" },
+                              { value: "9:16", label: "Portrait", icon: Smartphone, description: "9:16", example: "Mobile stories" },
+                              { value: "4:3", label: "Classic", icon: RectangleHorizontal, description: "4:3", example: "Traditional" },
+                              { value: "3:4", label: "Photo", icon: RectangleVertical, description: "3:4", example: "Portrait photo" }
+                            ].map((option) => {
+                              const Icon = option.icon;
+                              const isSelected = field.value === option.value;
+                              return (
+                                <div
+                                  key={option.value}
+                                  onClick={() => field.onChange(option.value)}
+                                  className={`
+                                    relative cursor-pointer rounded-2xl border-2 p-4 transition-all duration-300 hover:scale-105 hover:shadow-lg
+                                    ${isSelected 
+                                      ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20' 
+                                      : 'border-border/50 bg-card/50 hover:border-primary/50 hover:bg-primary/5'
+                                    }
+                                  `}
+                                >
+                                  <div className="flex flex-col items-center space-y-3">
+                                    <Icon className={`h-8 w-8 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                                    <div className="text-center">
+                                      <div className={`text-sm font-semibold ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+                                        {option.label}
+                                      </div>
+                                      <div className="text-xs text-muted-foreground">
+                                        {option.description}
+                                      </div>
+                                      <div className="text-xs text-muted-foreground/70 mt-1">
+                                        {option.example}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {isSelected && (
+                                    <div className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                                      <div className="h-2.5 w-2.5 rounded-full bg-white" />
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                  </div>
 
+                  {/* Image Count and Advanced Options */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
                       name="numImages"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-base font-semibold text-foreground mb-3 block">Image Count</FormLabel>
-                          <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={String(field.value)}>
-                            <FormControl>
-                              <SelectTrigger className="h-14 px-6 text-base bg-background/50 border-2 border-border/50 rounded-2xl transition-all duration-300 hover:border-primary/30 focus:border-primary/50 focus:bg-background/80">
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="rounded-2xl border-2 bg-background/95 backdrop-blur-xl">
-                              <SelectItem value="1" className="h-12 px-4 rounded-xl">1 Image</SelectItem>
-                              <SelectItem value="2" className="h-12 px-4 rounded-xl">2 Images</SelectItem>
-                              <SelectItem value="3" className="h-12 px-4 rounded-xl">3 Images</SelectItem>
-                              <SelectItem value="4" className="h-12 px-4 rounded-xl">4 Images</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormLabel className="text-base font-semibold text-foreground mb-3 block">Number of Images</FormLabel>
+                          <div className="grid grid-cols-4 gap-2">
+                            {[1, 2, 3, 4].map((num) => {
+                              const isSelected = field.value === num;
+                              return (
+                                <div
+                                  key={num}
+                                  onClick={() => field.onChange(num)}
+                                  className={`
+                                    cursor-pointer rounded-xl border-2 p-4 text-center transition-all duration-300 hover:scale-105
+                                    ${isSelected 
+                                      ? 'border-primary bg-primary/10 text-primary shadow-lg' 
+                                      : 'border-border/50 bg-card/50 hover:border-primary/50 hover:bg-primary/5'
+                                    }
+                                  `}
+                                >
+                                  <div className={`text-2xl font-bold ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+                                    {num}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground mt-1">
+                                    {num === 1 ? 'image' : 'images'}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
