@@ -257,6 +257,8 @@ interface ModelCardProps {
 function ModelCard({ model }: ModelCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [bookmarkCount, setBookmarkCount] = useState(0);
   const [viewStartTime] = useState(Date.now());
   
   const categoryIcon = categoryIcons[model.category as keyof typeof categoryIcons] || Brain;
@@ -375,6 +377,13 @@ function ModelCard({ model }: ModelCardProps) {
               setIsLiked(shouldLike);
               console.log(`${action}d model ${model.id} - database updated successfully`);
             }
+            
+            // Update the like count based on the action
+            if (shouldLike) {
+              setLikeCount(prev => prev + 1);
+            } else {
+              setLikeCount(prev => Math.max(0, prev - 1));
+            }
           } else {
             console.log(`Database persistence failed for ${action} - using UI state only`);
             setIsLiked(shouldLike);
@@ -424,6 +433,14 @@ function ModelCard({ model }: ModelCardProps) {
       if (data.success) {
         // Confirm the state from server response
         setIsBookmarked(data.bookmarked);
+        
+        // Update the bookmark count based on the action
+        if (data.bookmarked) {
+          setBookmarkCount(prev => prev + 1);
+        } else {
+          setBookmarkCount(prev => Math.max(0, prev - 1));
+        }
+        
         await trackInteraction('bookmark', data.bookmarked ? 9 : 4);
       } else {
         // Revert on failure
@@ -463,7 +480,7 @@ function ModelCard({ model }: ModelCardProps) {
                 onClick={handleLike}
               >
                 <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-                <span className="text-xs">{model.likeCount || 0}</span>
+                <span className="text-xs">{likeCount}</span>
               </Button>
               <Button
                 size="sm"
@@ -472,7 +489,7 @@ function ModelCard({ model }: ModelCardProps) {
                 onClick={handleBookmark}
               >
                 <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-blue-500 text-blue-500' : ''}`} />
-                <span className="text-xs">{model.bookmarkCount || 0}</span>
+                <span className="text-xs">{bookmarkCount}</span>
               </Button>
             </div>
 
