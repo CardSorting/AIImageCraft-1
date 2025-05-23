@@ -307,10 +307,17 @@ function ModelCard({ model }: ModelCardProps) {
     trackInteraction('view', 6);
     
     // Check if model is bookmarked
-    fetch(`/api/bookmarks/1/${model.id}`)
-      .then(res => res.json())
-      .then(data => setIsBookmarked(data.bookmarked))
-      .catch(() => setIsBookmarked(false));
+    const loadBookmarkStatus = async () => {
+      try {
+        const response = await fetch(`/api/bookmarks/1/${model.id}`);
+        const data = await response.json();
+        setIsBookmarked(data.bookmarked || false);
+      } catch (error) {
+        setIsBookmarked(false);
+      }
+    };
+    
+    loadBookmarkStatus();
   }, [model.id]);
 
   // Handle like functionality
@@ -322,12 +329,16 @@ function ModelCard({ model }: ModelCardProps) {
     await trackInteraction('like', isLiked ? 3 : 8);
   };
 
-  // Handle bookmark functionality
+  // Handle bookmark functionality with immediate visual feedback
   const handleBookmark = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     try {
+      // Optimistic update for immediate visual feedback
+      const newBookmarkState = !isBookmarked;
+      setIsBookmarked(newBookmarkState);
+      
       const response = await fetch('/api/bookmarks', {
         method: 'POST',
         headers: {
@@ -341,10 +352,16 @@ function ModelCard({ model }: ModelCardProps) {
       
       const data = await response.json();
       if (data.success) {
+        // Confirm the state from server response
         setIsBookmarked(data.bookmarked);
         await trackInteraction('bookmark', data.bookmarked ? 9 : 4);
+      } else {
+        // Revert on failure
+        setIsBookmarked(!newBookmarkState);
       }
     } catch (error) {
+      // Revert on error
+      setIsBookmarked(!isBookmarked);
       console.log('Bookmark functionality temporarily unavailable');
     }
   };
