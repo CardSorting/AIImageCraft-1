@@ -134,17 +134,89 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
 
-      {/* Clean Create Interface */}
-      <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12 safe-area-top">
-        <div className="max-w-4xl mx-auto">
-          {/* Premium Generation Interface */}
-          <div className="relative group">
-            {/* Background gradient overlay */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-3xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-500" />
-            
-            <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-2xl shadow-black/5 dark:shadow-black/20">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      {/* Enhanced Loading State - Hides Form Completely */}
+      {generateImagesMutation.isPending ? (
+        <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12 safe-area-top">
+          <div className="max-w-4xl mx-auto">
+            {/* Full-Screen Loading Experience */}
+            <div className="relative group animate-fade-in">
+              {/* Animated gradient background */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/20 to-primary/30 rounded-3xl blur-lg opacity-100 animate-pulse" />
+              
+              <div className="relative bg-card/90 backdrop-blur-xl border border-border/50 rounded-3xl p-12 shadow-2xl text-center min-h-[600px] flex flex-col items-center justify-center">
+                {/* Large animated icon */}
+                <div className="relative mb-8">
+                  <div className="w-32 h-32 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center shadow-2xl relative overflow-hidden animate-pulse">
+                    <Sparkles className="text-primary-foreground w-16 h-16" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-white/10 rounded-full" />
+                  </div>
+                  {/* Orbiting dots */}
+                  <div className="absolute inset-0 animate-spin">
+                    <div className="w-4 h-4 bg-primary rounded-full absolute -top-2 left-1/2 transform -translate-x-1/2"></div>
+                    <div className="w-3 h-3 bg-primary/70 rounded-full absolute top-1/2 -right-2 transform -translate-y-1/2"></div>
+                    <div className="w-4 h-4 bg-primary rounded-full absolute -bottom-2 left-1/2 transform -translate-x-1/2"></div>
+                    <div className="w-3 h-3 bg-primary/70 rounded-full absolute top-1/2 -left-2 transform -translate-y-1/2"></div>
+                  </div>
+                </div>
+                
+                {/* Dynamic loading messages */}
+                <div className="space-y-4 mb-8">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Creating Your Masterpiece</h2>
+                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                    Our AI is carefully crafting {numImages === 1 ? 'your image' : `${numImages} images`} with attention to every detail...
+                  </p>
+                </div>
+
+                {/* Enhanced progress indicator */}
+                <div className="w-full max-w-md space-y-4">
+                  <div className="bg-background/50 rounded-full h-3 overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-primary via-primary/80 to-primary rounded-full animate-pulse w-full opacity-80"></div>
+                  </div>
+                  <div className="text-sm text-muted-foreground animate-pulse">
+                    Generating {aspectRatio} {numImages === 1 ? 'image' : 'images'}...
+                  </div>
+                </div>
+
+                {/* Generation details */}
+                <div className="mt-8 bg-background/30 rounded-2xl p-6 border border-border/30 max-w-lg">
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Format:</span>
+                      <span className="font-medium">{aspectRatio}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Count:</span>
+                      <span className="font-medium">{numImages} {numImages === 1 ? 'image' : 'images'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Credits Used:</span>
+                      <span className="font-medium text-primary">{currentCost}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tip section */}
+                <div className="mt-8 text-center">
+                  <p className="text-sm text-muted-foreground/80">
+                    ✨ This usually takes 10-30 seconds depending on complexity
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      ) : (
+        /* Normal Create Interface - Only shown when NOT loading */
+        <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12 safe-area-top">
+          <div className="max-w-4xl mx-auto">
+            {/* Premium Generation Interface */}
+            <div className="relative group">
+              {/* Background gradient overlay */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-3xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-2xl shadow-black/5 dark:shadow-black/20">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   {/* Enhanced Prompt Input with Apple Design */}
                   <div className="space-y-4">
                     <div className="text-center mb-8">
@@ -375,39 +447,13 @@ export default function Home() {
                         </div>
                       </div>
                     </Button>
-                  </div>
-                </form>
-              </Form>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      {/* Apple-style Loading Experience */}
-      {generateImagesMutation.isPending && (
-        <div className="px-4 sm:px-6 lg:px-8 mb-12 animate-fade-in">
-          <div className="max-w-2xl mx-auto">
-            <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-12 text-center shadow-2xl">
-              {/* Animated gradient background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 rounded-3xl animate-pulse" />
-              
-              <div className="relative">
-                <div className="w-24 h-24 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl relative overflow-hidden">
-                  <Sparkles className="text-primary-foreground w-12 h-12 animate-pulse" />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-white/10 rounded-full" />
-                </div>
-                
-                <h3 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">Creating Your Masterpiece</h3>
-                <p className="text-lg text-muted-foreground mb-8 leading-relaxed">Our AI is painting your vision into reality...</p>
-                
-                <div className="space-y-4">
-                  <Progress value={undefined} className="w-full h-3 rounded-full" />
-                  <p className="text-sm text-muted-foreground/80">This usually takes 30-60 seconds</p>
-                </div>
+                    </div>
+                  </form>
+                </Form>
               </div>
             </div>
           </div>
-        </div>
+        </main>
       )}
 
       {/* Premium Gallery Section */}
