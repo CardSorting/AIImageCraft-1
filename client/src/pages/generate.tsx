@@ -90,6 +90,10 @@ export default function Generate() {
   });
 
   const availableModels = modelsResponse?.data || [];
+  
+  // Get the currently selected model info
+  const selectedModel = availableModels.find((model: any) => model.modelId === form.watch('model'));
+  const currentModelName = selectedModel?.name || 'Juggernaut Pro Flux';
 
   const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
     mutationFn: async (data) => {
@@ -129,6 +133,15 @@ export default function Generate() {
   const renderMobileCreateForm = () => (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Selected Model Display */}
+        <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+          <div className="flex items-center space-x-2">
+            <Brain className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Selected Model:</span>
+            <span className="text-sm text-blue-700 dark:text-blue-300">{currentModelName}</span>
+          </div>
+        </div>
+
         {/* Prompt Input - Mobile Optimized */}
         <FormField
           control={form.control}
@@ -1141,6 +1154,15 @@ export default function Generate() {
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                       
+                      {/* Selected Model Display */}
+                      <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                        <div className="flex items-center space-x-2">
+                          <Brain className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Selected Model:</span>
+                          <span className="text-sm text-blue-700 dark:text-blue-300">{currentModelName}</span>
+                        </div>
+                      </div>
+
                       {/* Prompt Input */}
                       <FormField
                         control={form.control}
