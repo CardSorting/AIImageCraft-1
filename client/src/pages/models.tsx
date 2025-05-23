@@ -71,13 +71,11 @@ export default function ModelsPage() {
   const { data: searchResults = [] } = useModelsSearchQuery(searchQuery);
 
   // Extract models from response (handles both new structured and legacy format)
-  const models = modelsResponse?.data || modelsResponse || [];
+  const models = modelsResponse?.data || [];
   const displayModels = searchQuery.length > 2 ? searchResults : models;
   
-  // Debug logging to check data structure
-  console.log('Models response:', modelsResponse);
-  console.log('Models array:', models);
-  console.log('Display models:', displayModels);
+  // Ensure displayModels is always an array
+  const safeDisplayModels = Array.isArray(displayModels) ? displayModels : [];
 
   const formatDownloads = (downloads: number) => {
     if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1)}M`;
@@ -215,13 +213,13 @@ export default function ModelsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {displayModels.map((model: AIModel) => (
+              {safeDisplayModels.map((model: AIModel) => (
                 <ModelCard key={model.id} model={model} />
               ))}
             </div>
           )}
 
-          {displayModels.length === 0 && !isLoading && (
+          {safeDisplayModels.length === 0 && !isLoading && (
             <div className="text-center py-12">
               {selectedTab === "bookmarked" ? (
                 <>

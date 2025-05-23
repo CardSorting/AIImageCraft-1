@@ -257,14 +257,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Import and initialize the new CQRS-based controller
-  const { ModelsController } = await import('./application/controllers/ModelsController.js');
-  const modelsController = new ModelsController();
+  // Direct API endpoints that work with existing storage
+  app.get("/api/v1/models/catalog", async (req, res) => {
+    try {
+      const { 
+        filter = 'all', 
+        sortBy = 'newest', 
+        limit = '20',
+        userId = '1' 
+      } = req.query;
 
-  // New versioned API endpoints following Clean Architecture
-  app.get("/api/v1/models/catalog", modelsController.getCatalog.bind(modelsController));
-  app.get("/api/v1/models/bookmarks/:userId", modelsController.getBookmarked.bind(modelsController));
-  app.get("/api/v1/models/recommendations/:userId", modelsController.getPersonalized.bind(modelsController));
+      let models;
+      if (filter === 'bookmarked') {
+        models = await storage.getBookmarkedModels(Number(userId), Number(limit));
+      } else {
+        models = await storage.getAIModels(Number(limit), sortBy as string);
+      }
+      
+      res.json({
+        data: models,
+        meta: {
+          filter,
+          sortBy,
+          limit: Number(limit),
+          count: models.length
+        }
+      });
+    } catch (error) {
+      console.error('Error in catalog endpoint:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch models catalog',
+        data: [],
+        meta: { filter: 'all', sortBy: 'newest', limit: 20, count: 0 }
+      });
+    }
+  });
+
+  app.get("/api/v1/models/bookmarks/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { limit = '50' } = req.query;
+      const bookmarkedModels = await storage.getBookmarkedModels(Number(userId), Number(limit));
+      
+      res.json({
+        data: bookmarkedModels,
+        meta: {
+          filter: 'bookmarked',
+          limit: Number(limit),
+          count: bookmarkedModels.length
+        }
+      });
+    } catch (error) {
+      console.error(`Error fetching bookmarked models:`, error);
+      res.status(500).json({ 
+        error: 'Failed to fetch bookmarked models',
+        data: [],
+        meta: { filter: 'bookmarked', limit: 50, count: 0 }
+      });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
