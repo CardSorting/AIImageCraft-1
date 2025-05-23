@@ -287,15 +287,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Toggle like using GET request (workaround for POST issues)
-  app.get("/api/likes/:userId/:modelId/toggle", async (req, res) => {
+  // Handle like/unlike actions using POST (same pattern as bookmarks)
+  app.post("/api/likes/toggle", async (req, res) => {
     try {
-      console.log("Toggle like API called with userId:", req.params.userId, "modelId:", req.params.modelId);
-      const { userId, modelId } = req.params;
+      console.log("Toggle like API called with body:", req.body);
+      const { userId, modelId } = req.body;
       
       if (!userId || !modelId) {
         console.log("Missing userId or modelId");
-        return res.status(400).json({ error: "Missing userId or modelId" });
+        return res.status(400).json({ success: false, error: "Missing userId or modelId" });
       }
       
       const isLiked = await storage.isModelLiked(Number(userId), Number(modelId));
@@ -314,7 +314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error) {
       console.error("Error handling like toggle:", error);
-      res.status(500).json({ error: "Failed to handle like" });
+      res.status(500).json({ success: false, error: "Failed to handle like" });
     }
   });
 
