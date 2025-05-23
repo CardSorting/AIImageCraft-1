@@ -25,6 +25,26 @@ export const generatedImages = pgTable("generated_images", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const aiModels = pgTable("ai_models", {
+  id: serial("id").primaryKey(),
+  modelId: text("model_id").notNull().unique(), // e.g., "rundiffusion:130@100"
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  version: text("version").notNull(),
+  provider: text("provider").notNull(), // runware, stability, etc.
+  featured: integer("featured").default(0), // 0 = false, 1 = true
+  rating: integer("rating").default(50), // 1-100 rating
+  downloads: integer("downloads").default(0),
+  tags: text("tags").array().default([]),
+  capabilities: text("capabilities").array().default([]),
+  pricing: text("pricing"), // JSON string for pricing tiers
+  thumbnail: text("thumbnail"), // Model preview image
+  gallery: text("gallery").array().default([]), // Array of example images
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -33,6 +53,12 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertImageSchema = createInsertSchema(generatedImages).omit({
   id: true,
   createdAt: true,
+});
+
+export const insertAIModelSchema = createInsertSchema(aiModels).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const generateImageRequestSchema = z.object({
@@ -55,4 +81,6 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
 export type InsertImage = z.infer<typeof insertImageSchema>;
+export type AIModel = typeof aiModels.$inferSelect;
+export type InsertAIModel = z.infer<typeof insertAIModelSchema>;
 export type GenerateImageRequest = z.infer<typeof generateImageRequestSchema>;
