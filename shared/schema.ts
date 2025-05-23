@@ -17,6 +17,11 @@ export const generatedImages = pgTable("generated_images", {
   fileName: text("file_name"),
   fileSize: integer("file_size"),
   seed: bigint("seed", { mode: "number" }),
+  // Card Rarity System
+  rarityTier: text("rarity_tier").notNull().default("COMMON"),
+  rarityScore: integer("rarity_score").notNull().default(50),
+  rarityStars: integer("rarity_stars").notNull().default(1),
+  rarityLetter: text("rarity_letter").notNull().default("C"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
