@@ -8,7 +8,7 @@ export interface ImageGenerationProps {
   imageUrl: string;
   fileName?: string | null;
   fileSize?: number | null;
-  seed?: string | null;
+  seed?: number | null;
   createdAt?: Date;
 }
 
@@ -54,7 +54,7 @@ export class ImageGeneration {
   get imageUrl(): string { return this.props.imageUrl; }
   get fileName(): string | null { return this.props.fileName; }
   get fileSize(): number | null { return this.props.fileSize; }
-  get seed(): string | null { return this.props.seed; }
+  get seed(): number | null { return this.props.seed; }
   get createdAt(): Date { return this.props.createdAt; }
 
   // Domain methods

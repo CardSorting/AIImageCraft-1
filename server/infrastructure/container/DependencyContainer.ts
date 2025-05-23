@@ -1,11 +1,9 @@
 import { DatabaseImageGenerationRepository } from '../repositories/DatabaseImageGenerationRepository';
 import { FalAiImageGenerationService } from '../services/FalAiImageGenerationService';
-import { CloudflareR2StorageService } from '../services/CloudflareR2StorageService';
 import { GenerateImagesCommandHandler } from '../../application/handlers/GenerateImagesCommandHandler';
 import { GetImagesQueryHandler } from '../../application/handlers/GetImagesQueryHandler';
 import { IImageGenerationRepository } from '../../domain/repositories/IImageGenerationRepository';
 import { IImageGenerationService } from '../../domain/services/IImageGenerationService';
-import { ICloudStorageService } from '../../domain/services/ICloudStorageService';
 
 export class DependencyContainer {
   private static instance: DependencyContainer;
@@ -15,7 +13,6 @@ export class DependencyContainer {
   
   // Services
   private _imageGenerationService: IImageGenerationService;
-  private _cloudStorageService: ICloudStorageService;
   
   // Handlers
   private _generateImagesCommandHandler: GenerateImagesCommandHandler;
@@ -25,13 +22,11 @@ export class DependencyContainer {
     // Initialize dependencies following dependency inversion principle
     this._imageRepository = new DatabaseImageGenerationRepository();
     this._imageGenerationService = new FalAiImageGenerationService();
-    this._cloudStorageService = new CloudflareR2StorageService();
     
     // Initialize handlers with injected dependencies
     this._generateImagesCommandHandler = new GenerateImagesCommandHandler(
       this._imageGenerationService,
-      this._imageRepository,
-      this._cloudStorageService
+      this._imageRepository
     );
     
     this._getImagesQueryHandler = new GetImagesQueryHandler(
@@ -53,10 +48,6 @@ export class DependencyContainer {
 
   public get imageGenerationService(): IImageGenerationService {
     return this._imageGenerationService;
-  }
-
-  public get cloudStorageService(): ICloudStorageService {
-    return this._cloudStorageService;
   }
 
   public get generateImagesCommandHandler(): GenerateImagesCommandHandler {
