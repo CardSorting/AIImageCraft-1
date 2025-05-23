@@ -1,6 +1,6 @@
 import { DatabaseImageGenerationRepository } from '../repositories/DatabaseImageGenerationRepository';
 import { FalAiImageGenerationService } from '../services/FalAiImageGenerationService';
-import { EnhancedBackblazeB2Service } from '../services/EnhancedBackblazeB2Service';
+import { CloudflareR2StorageService } from '../services/CloudflareR2StorageService';
 import { GenerateImagesCommandHandler } from '../../application/handlers/GenerateImagesCommandHandler';
 import { GetImagesQueryHandler } from '../../application/handlers/GetImagesQueryHandler';
 import { IImageGenerationRepository } from '../../domain/repositories/IImageGenerationRepository';
@@ -25,7 +25,7 @@ export class DependencyContainer {
     // Initialize dependencies following dependency inversion principle
     this._imageRepository = new DatabaseImageGenerationRepository();
     this._imageGenerationService = new FalAiImageGenerationService();
-    this._cloudStorageService = new EnhancedBackblazeB2Service();
+    this._cloudStorageService = new CloudflareR2StorageService();
     
     // Initialize handlers with injected dependencies
     this._generateImagesCommandHandler = new GenerateImagesCommandHandler(

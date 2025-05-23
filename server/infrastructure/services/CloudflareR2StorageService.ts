@@ -1,45 +1,45 @@
 /**
- * Enhanced Backblaze B2 Storage Service
- * Beautiful, robust cloud storage with comprehensive logging
- * Following Apple's design philosophy: Simple, elegant, reliable
+ * Cloudflare R2 Storage Service
+ * Beautiful, fast cloud storage with Apple-style elegance
  */
 
-// @ts-ignore
-const B2 = require('backblaze-b2');
+import { S3Client, PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { ICloudStorageService, StorageConfiguration, StorageHealthCheck, StorageUploadResult, StorageUploadRequest } from '../../domain/services/ICloudStorageService';
 
-export class EnhancedBackblazeB2Service implements ICloudStorageService {
-  private b2: any;
+export class CloudflareR2StorageService implements ICloudStorageService {
+  private s3Client: S3Client;
   private bucketName: string;
-  private bucketId: string;
-  private isAuthorized = false;
-  private authPromise: Promise<void> | null = null;
+  private accountId: string;
 
   constructor() {
-    this.bucketName = process.env.B2_BUCKET_NAME || '';
-    this.bucketId = process.env.B2_BUCKET_ID || '';
+    this.bucketName = process.env.CLOUDFLARE_R2_BUCKET_NAME || '';
+    this.accountId = process.env.CLOUDFLARE_R2_ACCOUNT_ID || '';
     
-    this.b2 = new B2({
-      applicationKeyId: process.env.B2_APPLICATION_KEY_ID || '',
-      applicationKey: process.env.B2_APPLICATION_KEY || '',
+    this.s3Client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${this.accountId}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || '',
+      },
     });
 
-    this.log('INIT', '🔧 Initializing B2 service', {
+    this.log('INIT', '🚀 Initializing Cloudflare R2 service', {
       bucketName: this.bucketName,
-      bucketId: this.bucketId,
-      hasKeyId: !!process.env.B2_APPLICATION_KEY_ID,
-      hasKey: !!process.env.B2_APPLICATION_KEY
+      accountId: this.accountId,
+      hasAccessKey: !!process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+      hasSecretKey: !!process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY
     });
   }
 
   private log(operation: string, message: string, data?: Record<string, any>): void {
     const timestamp = new Date().toISOString();
-    console.log(`🔵 [B2-STORAGE] ${timestamp} - ${operation}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
+    console.log(`🔵 [R2-STORAGE] ${timestamp} - ${operation}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
   }
 
   private logError(operation: string, message: string, error?: any, data?: Record<string, any>): void {
     const timestamp = new Date().toISOString();
-    console.error(`🔴 [B2-STORAGE] ${timestamp} - ${operation}: ${message}`, JSON.stringify({
+    console.error(`🔴 [R2-STORAGE] ${timestamp} - ${operation}: ${message}`, JSON.stringify({
       ...data,
       error: error?.message || error,
       stack: error?.stack
@@ -49,7 +49,7 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
   private logSuccess(operation: string, message: string, startTime: number, data?: Record<string, any>): void {
     const duration = Date.now() - startTime;
     const timestamp = new Date().toISOString();
-    console.log(`✅ [B2-STORAGE] ${timestamp} - ${operation}: ${message}`, JSON.stringify({
+    console.log(`✅ [R2-STORAGE] ${timestamp} - ${operation}: ${message}`, JSON.stringify({
       ...data,
       duration: `${duration}ms`
     }, null, 2));
@@ -57,18 +57,18 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
 
   async getConfiguration(): Promise<StorageConfiguration> {
     const startTime = Date.now();
-    this.log('CONFIG', '🔍 Checking B2 configuration');
+    this.log('CONFIG', '🔍 Checking R2 configuration');
 
     const isConfigured = !!(
-      process.env.B2_APPLICATION_KEY_ID &&
-      process.env.B2_APPLICATION_KEY &&
+      process.env.CLOUDFLARE_R2_ACCESS_KEY_ID &&
+      process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY &&
       this.bucketName &&
-      this.bucketId
+      this.accountId
     );
 
     const config: StorageConfiguration = {
       isConfigured,
-      provider: 'Backblaze B2',
+      provider: 'Cloudflare R2',
       bucketName: this.bucketName
     };
 
@@ -78,7 +78,7 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
 
   async healthCheck(): Promise<StorageHealthCheck> {
     const startTime = Date.now();
-    this.log('HEALTH', '🏥 Starting B2 health check');
+    this.log('HEALTH', '🏥 Starting R2 health check');
 
     try {
       // Check configuration first
@@ -86,7 +86,7 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
       if (!config.isConfigured) {
         const result: StorageHealthCheck = {
           isHealthy: false,
-          message: 'B2 service is not properly configured',
+          message: 'R2 service is not properly configured',
           timestamp: new Date(),
           details: config
         };
@@ -94,16 +94,27 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
         return result;
       }
 
-      // Test authorization
-      await this.ensureAuthorized();
+      // Test bucket access with a simple head request
+      const testKey = `health-check-${Date.now()}.txt`;
+      try {
+        await this.s3Client.send(new HeadObjectCommand({
+          Bucket: this.bucketName,
+          Key: testKey
+        }));
+      } catch (error: any) {
+        // 404 is expected for non-existent file, which means bucket access works
+        if (error.name !== 'NotFound') {
+          throw error;
+        }
+      }
       
       const result: StorageHealthCheck = {
         isHealthy: true,
-        message: 'B2 service is healthy and authorized',
+        message: 'R2 service is healthy and accessible',
         timestamp: new Date(),
         details: {
           bucketName: this.bucketName,
-          authenticated: this.isAuthorized
+          endpoint: `https://${this.accountId}.r2.cloudflarestorage.com`
         }
       };
 
@@ -113,46 +124,13 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
     } catch (error: any) {
       const result: StorageHealthCheck = {
         isHealthy: false,
-        message: `B2 health check failed: ${error.message}`,
+        message: `R2 health check failed: ${error.message}`,
         timestamp: new Date(),
         details: { error: error.message }
       };
       
       this.logError('HEALTH', 'Health check failed', error, result);
       return result;
-    }
-  }
-
-  private async ensureAuthorized(): Promise<void> {
-    if (this.isAuthorized) return;
-    
-    if (this.authPromise) {
-      return this.authPromise;
-    }
-
-    this.authPromise = this.authorize();
-    return this.authPromise;
-  }
-
-  private async authorize(): Promise<void> {
-    const startTime = Date.now();
-    this.log('AUTH', '🔐 Starting B2 authorization');
-
-    try {
-      await this.b2.authorize();
-      this.isAuthorized = true;
-      this.authPromise = null;
-      
-      this.logSuccess('AUTH', 'B2 authorization successful', startTime, {
-        bucketName: this.bucketName
-      });
-    } catch (error: any) {
-      this.authPromise = null;
-      this.logError('AUTH', 'B2 authorization failed', error, {
-        bucketName: this.bucketName,
-        hasCredentials: !!(process.env.B2_APPLICATION_KEY_ID && process.env.B2_APPLICATION_KEY)
-      });
-      throw new Error(`B2 authorization failed: ${error.message}`);
     }
   }
 
@@ -167,8 +145,6 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
     });
 
     try {
-      await this.ensureAuthorized();
-
       // Download image from source
       this.log('DOWNLOAD_UPLOAD', '📥 Downloading image from source', {
         uploadId,
@@ -195,8 +171,8 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
       const extension = this.getFileExtension(contentType);
       const fileName = request.fileName || `generated-${timestamp}-${randomString}${extension}`;
 
-      // Upload to B2
-      this.log('DOWNLOAD_UPLOAD', '☁️ Uploading to B2', {
+      // Upload to R2
+      this.log('DOWNLOAD_UPLOAD', '☁️ Uploading to R2', {
         uploadId,
         fileName,
         fileSize: buffer.length
@@ -235,7 +211,7 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
     const uploadId = `buffer_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const startTime = Date.now();
     
-    this.log('UPLOAD', '☁️ Starting buffer upload to B2', {
+    this.log('UPLOAD', '☁️ Starting buffer upload to R2', {
       uploadId,
       fileName,
       fileSize: buffer.length,
@@ -243,30 +219,16 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
     });
 
     try {
-      await this.ensureAuthorized();
-
-      // Get upload URL
-      this.log('UPLOAD', '🔗 Getting B2 upload URL', { uploadId });
-      const uploadUrlResponse = await this.b2.getUploadUrl({
-        bucketId: this.bucketId,
+      // Upload to R2
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: fileName,
+        Body: buffer,
+        ContentType: contentType,
+        CacheControl: 'public, max-age=31536000', // 1 year cache
       });
 
-      // Upload the file
-      this.log('UPLOAD', '📤 Uploading file to B2', {
-        uploadId,
-        fileName,
-        uploadUrl: uploadUrlResponse.data.uploadUrl
-      });
-
-      const uploadResponse = await this.b2.uploadFile({
-        uploadUrl: uploadUrlResponse.data.uploadUrl,
-        uploadAuthToken: uploadUrlResponse.data.authorizationToken,
-        fileName: fileName,
-        data: buffer,
-        info: {
-          'Content-Type': contentType,
-        },
-      });
+      await this.s3Client.send(command);
 
       const publicUrl = this.getPublicUrl(fileName);
       const result: StorageUploadResult = {
@@ -293,7 +255,7 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
   }
 
   getPublicUrl(fileName: string): string {
-    const url = `https://f005.backblazeb2.com/file/${this.bucketName}/${fileName}`;
+    const url = `https://${this.bucketName}.${this.accountId}.r2.cloudflarestorage.com/${fileName}`;
     this.log('URL', '🔗 Generated public URL', {
       fileName,
       url
@@ -306,26 +268,12 @@ export class EnhancedBackblazeB2Service implements ICloudStorageService {
     this.log('DELETE', '🗑️ Starting file deletion', { fileName });
 
     try {
-      await this.ensureAuthorized();
-
-      // Find the file version
-      const listResponse = await this.b2.listFileVersions({
-        bucketId: this.bucketId,
-        startFileName: fileName,
-        maxFileCount: 1,
+      const command = new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: fileName
       });
 
-      const file = listResponse.data.files.find((f: any) => f.fileName === fileName);
-      if (!file) {
-        this.log('DELETE', '⚠️ File not found for deletion', { fileName });
-        return false;
-      }
-
-      // Delete the file
-      await this.b2.deleteFileVersion({
-        fileId: file.fileId,
-        fileName: fileName,
-      });
+      await this.s3Client.send(command);
 
       this.logSuccess('DELETE', 'File deleted successfully', startTime, { fileName });
       return true;

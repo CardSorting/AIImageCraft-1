@@ -67,72 +67,20 @@ export class GenerateImagesCommandHandler {
   }
 
   /**
-   * Store image to B2 in background with comprehensive logging
+   * Store image to Cloudflare R2 in background with comprehensive logging
    */
   private async storeToB2InBackground(falUrl: string, imageId: number, fileName?: string): Promise<void> {
-    console.log(`🔍 [B2-DEBUG] Starting B2 storage for image ${imageId}`);
-    console.log(`🔍 [B2-DEBUG] FAL URL: ${falUrl}`);
-    console.log(`🔍 [B2-DEBUG] File name: ${fileName}`);
+    console.log(`🔍 [R2-DEBUG] Starting Cloudflare R2 storage for image ${imageId}`);
+    console.log(`🔍 [R2-DEBUG] FAL URL: ${falUrl}`);
+    console.log(`🔍 [R2-DEBUG] File name: ${fileName}`);
     
     try {
-      // @ts-ignore
-      const B2 = require('backblaze-b2');
-      
-      console.log(`🔐 [B2-DEBUG] Initializing B2 client for image ${imageId}`);
-      const b2 = new B2({
-        applicationKeyId: process.env.B2_APPLICATION_KEY_ID || '',
-        applicationKey: process.env.B2_APPLICATION_KEY || '',
-      });
-
-      console.log(`🔐 [B2-DEBUG] Attempting B2 authorization for image ${imageId}`);
-      await b2.authorize();
-      console.log(`✅ [B2-DEBUG] B2 authorization successful for image ${imageId}`);
-
-      // Download image from FAL
-      console.log(`📥 [B2-DEBUG] Downloading image from FAL for image ${imageId}`);
-      const response = await fetch(falUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to download: ${response.status} ${response.statusText}`);
-      }
-
-      const buffer = Buffer.from(await response.arrayBuffer());
-      const contentType = response.headers.get('content-type') || 'image/png';
-      console.log(`✅ [B2-DEBUG] Downloaded ${buffer.length} bytes for image ${imageId}`);
-
-      // Generate filename
-      const timestamp = Date.now();
-      const randomString = Math.random().toString(36).substring(2, 8);
-      const extension = contentType.includes('png') ? '.png' : '.jpg';
-      const finalFileName = fileName || `generated-${timestamp}-${randomString}${extension}`;
-
-      // Upload to B2
-      console.log(`☁️ [B2-DEBUG] Getting B2 upload URL for image ${imageId}`);
-      const uploadUrlResponse = await b2.getUploadUrl({
-        bucketId: process.env.B2_BUCKET_ID,
-      });
-
-      console.log(`📤 [B2-DEBUG] Uploading to B2 for image ${imageId}`);
-      await b2.uploadFile({
-        uploadUrl: uploadUrlResponse.data.uploadUrl,
-        uploadAuthToken: uploadUrlResponse.data.authorizationToken,
-        fileName: finalFileName,
-        data: buffer,
-        info: { 'Content-Type': contentType },
-      });
-
-      // Update database with B2 URL
-      const publicUrl = `https://f005.backblazeb2.com/file/${process.env.B2_BUCKET_NAME}/${finalFileName}`;
-      console.log(`🔄 [B2-DEBUG] Updating database with B2 URL for image ${imageId}`);
-      
-      const image = await this.imageRepository.findById(imageId);
-      if (image) {
-        image.updateImageUrl(publicUrl);
-        await this.imageRepository.save(image);
-        console.log(`🎉 [B2-DEBUG] Successfully stored image ${imageId} to B2: ${finalFileName}`);
-      }
-
+      // Use the cloud storage service directly
+      const cloudCommand = new StoreImageToCloudCommand(falUrl, imageId, fileName);
+      await this.cloudStorageHandler.handle(cloudCommand);
+      console.log(`✅ [R2-DEBUG] Successfully completed R2 storage for image ${imageId}`);
     } catch (error: any) {
-      console.error(`❌ [B2-DEBUG] B2 storage failed for image ${imageId}:`, {
+      console.error(`❌ [R2-DEBUG] R2 storage failed for image ${imageId}:`, {
         error: error.message,
         stack: error.stack,
         falUrl,
