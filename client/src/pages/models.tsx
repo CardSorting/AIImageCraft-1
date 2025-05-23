@@ -53,7 +53,7 @@ const mainTabs = [
 
 export default function ModelsPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTab, setSelectedTab] = useState("for_you");
+  const [selectedTab, setSelectedTab] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [showSortMenu, setShowSortMenu] = useState(false);
 

@@ -73,58 +73,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Intelligent "For You" personalized recommendations endpoint
   app.get("/api/models/for-you", async (req, res) => {
     try {
-      const { 
-        userId = 1, // Demo user ID - in production this would come from auth
-        limit = 20,
-        excludeIds,
-        sessionDuration,
-        currentCategory
-      } = req.query;
-
-      // Import the personalization system
-      const { IntelligentPersonalizationEngine } = await import("./infrastructure/services/IntelligentPersonalizationEngine");
-      const { GetPersonalizedRecommendationsQueryHandler } = await import("./application/handlers/GetPersonalizedRecommendationsQueryHandler");
-      const { GetPersonalizedRecommendationsQuery } = await import("./application/commands/GetPersonalizedRecommendationsQuery");
-
-      // Initialize the intelligent recommendation system
-      const personalizationEngine = new IntelligentPersonalizationEngine();
-      const queryHandler = new GetPersonalizedRecommendationsQueryHandler(personalizationEngine);
-
-      // Create the query with session context
-      const query = new GetPersonalizedRecommendationsQuery(
-        Number(userId),
-        Number(limit),
-        excludeIds ? excludeIds.toString().split(',').map(Number) : [],
-        true, // include reasons
-        {
-          sessionDuration: sessionDuration ? Number(sessionDuration) : undefined,
-          currentCategory: currentCategory?.toString(),
-          pagesViewed: ['/models'],
-          modelsViewed: [],
-          searchQueries: []
-        }
-      );
-
-      // Generate intelligent recommendations
-      const response = await queryHandler.handle(query);
-
-      // Transform to match the expected format
-      const forYouModels = response.recommendations.map(rec => ({
-        ...rec.model,
-        _recommendation: {
-          relevanceScore: rec.relevanceScore,
-          confidenceScore: rec.confidenceScore,
-          reasons: rec.recommendationReason,
-          diversityFactor: rec.diversityFactor
-        }
-      }));
-
-      res.json(forYouModels);
+      const { limit = 20 } = req.query;
+      // Start with featured models for reliable functionality
+      const models = await storage.getFeaturedAIModels(Number(limit));
+      res.json(models);
     } catch (error) {
-      console.error("Error generating For You recommendations:", error);
-      // Fallback to featured models
-      const fallbackModels = await storage.getFeaturedAIModels(Number(req.query.limit) || 20);
-      res.json(fallbackModels);
+      console.error("Error fetching For You models:", error);
+      res.status(500).json({ error: "Failed to fetch models" });
     }
   });
 
@@ -135,42 +90,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId = 1, 
         modelId, 
         interactionType, 
-        engagementLevel = 5,
-        sessionDuration,
-        deviceType,
-        referralSource = 'direct'
+        engagementLevel = 5
       } = req.body;
 
       if (!modelId || !interactionType) {
         return res.status(400).json({ error: "Missing required fields: modelId, interactionType" });
       }
 
-      // Import behavior repository
-      const { UserBehaviorRepository } = await import("./infrastructure/repositories/UserBehaviorRepository");
-      const behaviorRepo = new UserBehaviorRepository();
-
-      // Record the interaction
-      const interaction = await behaviorRepo.recordInteraction({
+      // Simple interaction tracking
+      const interaction = await storage.createUserInteraction({
         userId: Number(userId),
         modelId: Number(modelId),
         interactionType,
-        engagementLevel: Number(engagementLevel),
-        sessionDuration: sessionDuration ? Number(sessionDuration) : undefined,
-        deviceType,
-        referralSource
+        engagementLevel: Number(engagementLevel)
       });
-
-      // Get the model for affinity updates
-      const model = await storage.getAIModelById(Number(modelId));
-      if (model) {
-        // Update category and provider affinities based on interaction
-        const affinityBoost = this.calculateAffinityBoost(interactionType, Number(engagementLevel));
-        
-        await Promise.all([
-          behaviorRepo.updateCategoryAffinity(Number(userId), model.category, affinityBoost),
-          behaviorRepo.updateProviderAffinity(Number(userId), model.provider, affinityBoost, model.rating || undefined)
-        ]);
-      }
 
       res.json({ 
         success: true, 
