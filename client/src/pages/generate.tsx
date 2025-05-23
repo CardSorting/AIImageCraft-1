@@ -19,7 +19,7 @@ import {
   Brain, Zap, Star, Plus, X, Settings, Lightbulb, ImageIcon, 
   Shuffle, Copy, Download, Share, Eye
 } from "lucide-react";
-import { ImageCard } from "@/components/ImageCard";
+import { TradingCard } from "@/components/TradingCard";
 import { generateImageRequestSchema, type GenerateImageRequest } from "@shared/schema";
 import { apiRequest, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -489,7 +489,7 @@ export default function Generate() {
                   existingImages
                     .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .map((image: any, index: number) => (
-                    <ImageCard
+                    <TradingCard
                       key={image.id}
                       image={{
                         id: image.id,
@@ -497,7 +497,11 @@ export default function Generate() {
                         prompt: image.prompt,
                         model: image.model,
                         dimensions: { width: 512, height: 512 },
-                        createdAt: image.createdAt
+                        createdAt: image.createdAt,
+                        rarityTier: image.rarityTier || 'COMMON',
+                        rarityScore: image.rarityScore || 50,
+                        rarityStars: image.rarityStars || 1,
+                        rarityLetter: image.rarityLetter || 'C',
                       }}
                       isNewest={index === 0}
                     />
