@@ -62,9 +62,8 @@ export default function ModelsPage() {
     queryKey: ["/api/models", selectedTab, sortBy],
     queryFn: () => {
       if (selectedTab === "for_you") {
-        // For demonstration, using featured models as "For You" 
-        // In production, this would use user ID from auth context
-        return fetch("/api/models/featured").then(res => res.json());
+        // Use intelligent personalized recommendations
+        return fetch("/api/models/for-you?userId=1&limit=20").then(res => res.json());
       }
       if (selectedTab === "bookmarked") {
         // For demonstration, returning empty array
@@ -261,7 +260,7 @@ export default function ModelsPage() {
 }
 
 interface ModelCardProps {
-  model: AIModel;
+  model: AIModel & { _recommendation?: any };
 }
 
 function ModelCard({ model }: ModelCardProps) {
@@ -269,6 +268,12 @@ function ModelCard({ model }: ModelCardProps) {
   
   const categoryIcon = categoryIcons[model.category as keyof typeof categoryIcons] || Brain;
   const Icon = categoryIcon;
+  
+  const formatDownloads = (downloads: number) => {
+    if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1)}M`;
+    if (downloads >= 1000) return `${(downloads / 1000).toFixed(1)}K`;
+    return downloads.toString();
+  };
 
   return (
     <Link href={`/models/${model.id}`}>

@@ -70,6 +70,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Intelligent "For You" personalized recommendations endpoint
+  app.get("/api/models/for-you", async (req, res) => {
+    try {
+      const { 
+        userId = 1, // Demo user ID - in production this would come from auth
+        limit = 20,
+        excludeIds,
+        sessionDuration,
+        currentCategory
+      } = req.query;
+
+      // Import the personalization system
+      const { IntelligentPersonalizationEngine } = await import("./infrastructure/services/IntelligentPersonalizationEngine");
+      const { GetPersonalizedRecommendationsQueryHandler } = await import("./application/handlers/GetPersonalizedRecommendationsQueryHandler");
+      const { GetPersonalizedRecommendationsQuery } = await import("./application/commands/GetPersonalizedRecommendationsQuery");
+
+      // Initialize the intelligent recommendation system
+      const personalizationEngine = new IntelligentPersonalizationEngine();
+      const queryHandler = new GetPersonalizedRecommendationsQueryHandler(personalizationEngine);
+
+      // Create the query with session context
+      const query = new GetPersonalizedRecommendationsQuery(
+        Number(userId),
+        Number(limit),
+        excludeIds ? excludeIds.toString().split(',').map(Number) : [],
+        true, // include reasons
+        {
+          sessionDuration: sessionDuration ? Number(sessionDuration) : undefined,
+          currentCategory: currentCategory?.toString(),
+          pagesViewed: ['/models'],
+          modelsViewed: [],
+          searchQueries: []
+        }
+      );
+
+      // Generate intelligent recommendations
+      const response = await queryHandler.handle(query);
+
+      // Transform to match the expected format
+      const forYouModels = response.recommendations.map(rec => ({
+        ...rec.model,
+        _recommendation: {
+          relevanceScore: rec.relevanceScore,
+          confidenceScore: rec.confidenceScore,
+          reasons: rec.recommendationReason,
+          diversityFactor: rec.diversityFactor
+        }
+      }));
+
+      res.json(forYouModels);
+    } catch (error) {
+      console.error("Error generating For You recommendations:", error);
+      // Fallback to featured models
+      const fallbackModels = await storage.getFeaturedAIModels(Number(req.query.limit) || 20);
+      res.json(fallbackModels);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
