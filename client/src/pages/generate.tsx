@@ -195,24 +195,51 @@ export default function Generate() {
           />
         </div>
 
-        {/* Generate Button - Mobile */}
-        <Button 
-          type="submit" 
-          className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-          disabled={generateImagesMutation.isPending}
-        >
-          {generateImagesMutation.isPending ? (
-            <div className="flex items-center space-x-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              <span>Creating Magic...</span>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-2">
-              <Wand2 className="h-5 w-5" />
-              <span>Generate Artwork</span>
-            </div>
-          )}
-        </Button>
+        {/* Action Buttons - Mobile */}
+        <div className="space-y-3">
+          {/* Generate Button */}
+          <Button 
+            type="submit" 
+            className="w-full h-14 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg"
+            disabled={generateImagesMutation.isPending}
+          >
+            {generateImagesMutation.isPending ? (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Creating Magic...</span>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Wand2 className="h-5 w-5" />
+                <span>Generate Artwork</span>
+              </div>
+            )}
+          </Button>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => form.reset()}
+              className="h-10"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Clear
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveTab("gallery")}
+              className="h-10"
+            >
+              <ImageIcon className="h-4 w-4 mr-2" />
+              Gallery
+            </Button>
+          </div>
+        </div>
 
         {/* Loading State - Mobile */}
         {generateImagesMutation.isPending && (
@@ -316,161 +343,307 @@ export default function Generate() {
 
   const renderAdvancedSettings = () => (
     <div className="space-y-6 pb-6">
-      {/* Steps */}
-      <FormField
-        control={form.control}
-        name="steps"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-base font-medium">Steps: {field.value}</FormLabel>
-            <FormControl>
-              <Slider
-                value={[field.value]}
-                onValueChange={(value) => field.onChange(value[0])}
-                max={50}
-                min={10}
-                step={5}
-                className="w-full"
-              />
-            </FormControl>
-            <p className="text-xs text-muted-foreground">Higher values = better quality, longer generation time</p>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      {/* CFG Scale */}
-      <FormField
-        control={form.control}
-        name="cfgScale"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-base font-medium">Guidance Scale: {field.value}</FormLabel>
-            <FormControl>
-              <Slider
-                value={[field.value]}
-                onValueChange={(value) => field.onChange(value[0])}
-                max={20}
-                min={1}
-                step={0.5}
-                className="w-full"
-              />
-            </FormControl>
-            <p className="text-xs text-muted-foreground">How closely AI follows your prompt</p>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      {/* Number of Images */}
-      <FormField
-        control={form.control}
-        name="numImages"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-base font-medium">Number of Images: {field.value || 1}</FormLabel>
-            <FormControl>
-              <Slider
-                value={[field.value || 1]}
-                onValueChange={(value) => field.onChange(value[0])}
-                max={4}
-                min={1}
-                step={1}
-                className="w-full"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      {/* Scheduler */}
-      <FormField
-        control={form.control}
-        name="scheduler"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-base font-medium">Scheduler</FormLabel>
-            <FormControl>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select scheduler..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DPMSolverMultistepScheduler">DPM++ 2M (Recommended)</SelectItem>
-                  <SelectItem value="EulerDiscreteScheduler">Euler (Fast)</SelectItem>
-                  <SelectItem value="EulerAncestralDiscreteScheduler">Euler Ancestral</SelectItem>
-                  <SelectItem value="DDIMScheduler">DDIM (Classic)</SelectItem>
-                  <SelectItem value="LMSDiscreteScheduler">LMS (Balanced)</SelectItem>
-                  <SelectItem value="UniPCMultistepScheduler">UniPC (Quality)</SelectItem>
-                </SelectContent>
-              </Select>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      {/* Seed */}
-      <FormField
-        control={form.control}
-        name="seed"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-base font-medium">Seed (Optional)</FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Random seed for reproducibility..."
-                type="number"
-                {...field}
-                onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-              />
-            </FormControl>
-            <p className="text-xs text-muted-foreground">Leave empty for random results</p>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      {/* Negative Prompt */}
-      <FormField
-        control={form.control}
-        name="negativePrompt"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-base font-medium">Negative Prompt</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Things to avoid in the image..."
-                className="min-h-[80px] resize-none"
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      {/* LoRA Section */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <FormLabel className="text-base font-medium flex items-center space-x-2">
-            <Palette className="h-4 w-4" />
-            <span>Style Enhancers (LoRA)</span>
-          </FormLabel>
-          <Badge variant="secondary" className="text-xs">
-            {selectedLoras.length} active
-          </Badge>
+      {/* Quality Settings Section */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2 pb-2 border-b">
+          <Sliders className="h-4 w-4 text-primary" />
+          <h3 className="font-semibold text-lg">Quality Settings</h3>
         </div>
         
-        {selectedLoras.length > 0 && (
-          <div className="space-y-3">
-            {selectedLoras.map((lora, index) => (
-              <div key={index} className="flex items-center justify-between bg-muted rounded-lg p-3">
-                <div className="flex-1">
-                  <span className="text-sm font-medium">{lora.model}</span>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <span className="text-xs text-muted-foreground">Weight:</span>
+        {/* Steps with Visual Indicator */}
+        <FormField
+          control={form.control}
+          name="steps"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <div className="flex items-center justify-between">
+                <FormLabel className="text-base font-medium">Generation Steps</FormLabel>
+                <Badge variant={field.value >= 40 ? "default" : field.value >= 25 ? "secondary" : "outline"}>
+                  {field.value >= 40 ? "Ultra" : field.value >= 25 ? "High" : "Standard"}
+                </Badge>
+              </div>
+              <FormControl>
+                <div className="space-y-2">
+                  <Slider
+                    value={[field.value]}
+                    onValueChange={(value) => field.onChange(value[0])}
+                    max={50}
+                    min={10}
+                    step={5}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground px-1">
+                    <span>Fast (10)</span>
+                    <span className="font-medium">{field.value}</span>
+                    <span>Ultra (50)</span>
+                  </div>
+                </div>
+              </FormControl>
+              <p className="text-xs text-muted-foreground">Higher values = better quality, longer generation time</p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* CFG Scale with Visual Indicator */}
+        <FormField
+          control={form.control}
+          name="cfgScale"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <div className="flex items-center justify-between">
+                <FormLabel className="text-base font-medium">Guidance Scale</FormLabel>
+                <Badge variant={field.value >= 12 ? "destructive" : field.value >= 8 ? "default" : "secondary"}>
+                  {field.value >= 12 ? "Strong" : field.value >= 8 ? "Balanced" : "Loose"}
+                </Badge>
+              </div>
+              <FormControl>
+                <div className="space-y-2">
+                  <Slider
+                    value={[field.value]}
+                    onValueChange={(value) => field.onChange(value[0])}
+                    max={20}
+                    min={1}
+                    step={0.5}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground px-1">
+                    <span>Creative (1)</span>
+                    <span className="font-medium">{field.value}</span>
+                    <span>Strict (20)</span>
+                  </div>
+                </div>
+              </FormControl>
+              <p className="text-xs text-muted-foreground">How closely AI follows your prompt</p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Number of Images with Cost Indicator */}
+        <FormField
+          control={form.control}
+          name="numImages"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <div className="flex items-center justify-between">
+                <FormLabel className="text-base font-medium">Number of Images</FormLabel>
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline">{field.value || 1} image{(field.value || 1) > 1 ? 's' : ''}</Badge>
+                  {(field.value || 1) > 1 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {(field.value || 1)}x cost
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <FormControl>
+                <div className="space-y-2">
+                  <Slider
+                    value={[field.value || 1]}
+                    onValueChange={(value) => field.onChange(value[0])}
+                    max={4}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                  <div className="grid grid-cols-4 gap-1 text-xs text-muted-foreground">
+                    {[1, 2, 3, 4].map((num) => (
+                      <div 
+                        key={num}
+                        className={`text-center p-1 rounded ${
+                          (field.value || 1) === num ? 'bg-primary text-primary-foreground' : ''
+                        }`}
+                      >
+                        {num}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      {/* Technical Settings Section */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2 pb-2 border-b">
+          <Zap className="h-4 w-4 text-primary" />
+          <h3 className="font-semibold text-lg">Technical Settings</h3>
+        </div>
+
+        {/* Scheduler with Descriptions */}
+        <FormField
+          control={form.control}
+          name="scheduler"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <FormLabel className="text-base font-medium">Sampling Method</FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Select sampling method..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DPMSolverMultistepScheduler" className="py-3">
+                      <div className="flex flex-col">
+                        <span className="font-medium">DPM++ 2M</span>
+                        <span className="text-xs text-muted-foreground">Recommended - Best quality/speed balance</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="EulerDiscreteScheduler" className="py-3">
+                      <div className="flex flex-col">
+                        <span className="font-medium">Euler</span>
+                        <span className="text-xs text-muted-foreground">Fast generation, good for sketches</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="EulerAncestralDiscreteScheduler" className="py-3">
+                      <div className="flex flex-col">
+                        <span className="font-medium">Euler Ancestral</span>
+                        <span className="text-xs text-muted-foreground">More creative, less predictable</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="DDIMScheduler" className="py-3">
+                      <div className="flex flex-col">
+                        <span className="font-medium">DDIM</span>
+                        <span className="text-xs text-muted-foreground">Classic method, very stable</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="LMSDiscreteScheduler" className="py-3">
+                      <div className="flex flex-col">
+                        <span className="font-medium">LMS</span>
+                        <span className="text-xs text-muted-foreground">Balanced approach, good details</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="UniPCMultistepScheduler" className="py-3">
+                      <div className="flex flex-col">
+                        <span className="font-medium">UniPC</span>
+                        <span className="text-xs text-muted-foreground">High quality, slower generation</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Seed with Random Generator */}
+        <FormField
+          control={form.control}
+          name="seed"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <FormLabel className="text-base font-medium">Seed (Reproducibility)</FormLabel>
+              <FormControl>
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="Leave empty for random..."
+                    type="number"
+                    className="flex-1"
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => field.onChange(Math.floor(Math.random() * 1000000))}
+                  >
+                    <Shuffle className="h-4 w-4" />
+                  </Button>
+                </div>
+              </FormControl>
+              <p className="text-xs text-muted-foreground">Use same seed to reproduce identical results</p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      {/* Creative Controls Section */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2 pb-2 border-b">
+          <Palette className="h-4 w-4 text-primary" />
+          <h3 className="font-semibold text-lg">Creative Controls</h3>
+        </div>
+
+        {/* Negative Prompt with Smart Suggestions */}
+        <FormField
+          control={form.control}
+          name="negativePrompt"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <FormLabel className="text-base font-medium">Negative Prompt</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Things to avoid: blurry, low quality, distorted, watermark..."
+                  className="min-h-[100px] resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <div className="flex flex-wrap gap-1">
+                {["blurry", "low quality", "distorted", "watermark", "text", "bad anatomy"].map((suggestion) => (
+                  <Button
+                    key={suggestion}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-6 text-xs"
+                    onClick={() => {
+                      const current = field.value || "";
+                      const newValue = current ? `${current}, ${suggestion}` : suggestion;
+                      field.onChange(newValue);
+                    }}
+                  >
+                    +{suggestion}
+                  </Button>
+                ))}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Enhanced LoRA Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <FormLabel className="text-base font-medium flex items-center space-x-2">
+              <Palette className="h-4 w-4" />
+              <span>Style Enhancers (LoRA)</span>
+            </FormLabel>
+            <Badge variant="secondary" className="text-xs">
+              {selectedLoras.length} active
+            </Badge>
+          </div>
+          
+          {selectedLoras.length > 0 && (
+            <div className="space-y-3">
+              {selectedLoras.map((lora, index) => (
+                <Card key={index} className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">{lora.model}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedLoras(selectedLoras.filter((_, i) => i !== index));
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Strength:</span>
+                      <Badge variant={lora.weight >= 1.5 ? "default" : lora.weight >= 1 ? "secondary" : "outline"}>
+                        {lora.weight >= 1.5 ? "Strong" : lora.weight >= 1 ? "Medium" : "Subtle"}
+                      </Badge>
+                    </div>
                     <Slider
                       value={[lora.weight]}
                       onValueChange={(value) => {
@@ -481,38 +654,102 @@ export default function Generate() {
                       max={2}
                       min={0.1}
                       step={0.1}
-                      className="flex-1"
+                      className="w-full"
                     />
-                    <span className="text-xs text-muted-foreground w-8">{lora.weight}</span>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Subtle (0.1)</span>
+                      <span className="font-medium">{lora.weight}</span>
+                      <span>Strong (2.0)</span>
+                    </div>
                   </div>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedLoras(selectedLoras.filter((_, i) => i !== index));
-                  }}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
+                </Card>
+              ))}
+            </div>
+          )}
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setSelectedLoras([...selectedLoras, { model: "cartoon-style", weight: 1.0 }]);
-          }}
-          className="w-full"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Style Enhancer
-        </Button>
+          <div className="space-y-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSelectedLoras([...selectedLoras, { model: "portrait-style", weight: 1.0 }]);
+              }}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Portrait Style
+            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedLoras([...selectedLoras, { model: "anime-style", weight: 1.2 }]);
+                }}
+                className="text-xs"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Anime
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedLoras([...selectedLoras, { model: "realistic-skin", weight: 0.8 }]);
+                }}
+                className="text-xs"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Realistic
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Presets */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2 pb-2 border-b">
+          <Star className="h-4 w-4 text-primary" />
+          <h3 className="font-semibold text-lg">Quick Presets</h3>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              form.setValue("steps", 20);
+              form.setValue("cfgScale", 7);
+              form.setValue("scheduler", "EulerDiscreteScheduler");
+            }}
+            className="h-auto p-3 flex flex-col"
+          >
+            <Zap className="h-4 w-4 mb-1" />
+            <span className="text-xs font-medium">Fast Mode</span>
+            <span className="text-xs text-muted-foreground">Quick results</span>
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              form.setValue("steps", 40);
+              form.setValue("cfgScale", 8);
+              form.setValue("scheduler", "DPMSolverMultistepScheduler");
+            }}
+            className="h-auto p-3 flex flex-col"
+          >
+            <Star className="h-4 w-4 mb-1" />
+            <span className="text-xs font-medium">Quality Mode</span>
+            <span className="text-xs text-muted-foreground">Best results</span>
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -546,7 +783,9 @@ export default function Generate() {
                     </SheetDescription>
                   </SheetHeader>
                   <ScrollArea className="h-full mt-4">
-                    {renderAdvancedSettings()}
+                    <Form {...form}>
+                      {renderAdvancedSettings()}
+                    </Form>
                   </ScrollArea>
                 </SheetContent>
               </Sheet>
