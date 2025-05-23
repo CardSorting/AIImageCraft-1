@@ -13,8 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Download, Sparkles, ChevronDown, ChevronRight, Sliders } from "lucide-react";
-import { NavigationHeader } from "@/components/navigation/NavigationHeader";
+import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Coins } from "lucide-react";
 
 interface ImageGenerationResponse {
   success: boolean;
@@ -140,6 +139,18 @@ export default function Home() {
                   {/* Enhanced Prompt Input with Apple Design */}
                   <div className="space-y-4">
                     <div className="text-center mb-8">
+                      <div className="flex items-center justify-center mb-6">
+                        <div className="flex items-center space-x-3 bg-gradient-to-r from-background/80 to-background/60 backdrop-blur-xl border border-border/50 rounded-2xl px-6 py-4 shadow-lg">
+                          <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow-lg">
+                            <Coins className="h-4 w-4 text-yellow-900" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xl font-bold text-foreground">{userCredits.toLocaleString()}</span>
+                            <span className="text-sm text-muted-foreground leading-none">Available Credits</span>
+                          </div>
+                        </div>
+                      </div>
+                      
                       <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">Create with AI</h1>
                       <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">Transform your imagination into stunning visuals using advanced AI technology</p>
                     </div>
