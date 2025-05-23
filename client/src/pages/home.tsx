@@ -133,7 +133,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-
       {/* Enhanced Loading State - Hides Form Completely */}
       {generateImagesMutation.isPending ? (
         <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12 safe-area-top">
@@ -456,8 +455,8 @@ export default function Home() {
         </main>
       )}
 
-      {/* Premium Gallery Section */}
-      {images.length > 0 && (
+      {/* Premium Gallery Section - Only show when not loading */}
+      {!generateImagesMutation.isPending && images.length > 0 && (
         <div className="px-4 sm:px-6 lg:px-8 mb-12 animate-fade-in">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
