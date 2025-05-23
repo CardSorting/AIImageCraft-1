@@ -293,7 +293,7 @@ function ModelCard({ model }: ModelCardProps) {
     }
   };
 
-  // Load bookmark status and track view interaction when card is visible
+  // Load bookmark and like status when card is visible
   useEffect(() => {
     trackInteraction('view', 6);
     
@@ -307,8 +307,20 @@ function ModelCard({ model }: ModelCardProps) {
         setIsBookmarked(false);
       }
     };
+
+    // Check if model is liked
+    const loadLikeStatus = async () => {
+      try {
+        const response = await fetch(`/api/likes/1/${model.id}`);
+        const data = await response.json();
+        setIsLiked(data.liked || false);
+      } catch (error) {
+        setIsLiked(false);
+      }
+    };
     
     loadBookmarkStatus();
+    loadLikeStatus();
   }, [model.id]);
 
   // Handle like functionality
@@ -316,8 +328,26 @@ function ModelCard({ model }: ModelCardProps) {
     e.preventDefault();
     e.stopPropagation();
     
-    setIsLiked(!isLiked);
-    await trackInteraction('like', isLiked ? 3 : 8);
+    try {
+      const response = await fetch('/api/likes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: 1, // Using hardcoded user ID for now
+          modelId: model.id
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setIsLiked(data.liked);
+        await trackInteraction('like', data.liked ? 8 : 3);
+      }
+    } catch (error) {
+      console.error('Error handling like:', error);
+    }
   };
 
   // Handle bookmark functionality with immediate visual feedback
