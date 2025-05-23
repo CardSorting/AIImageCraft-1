@@ -16,7 +16,7 @@ export const generatedImages = pgTable("generated_images", {
   imageUrl: text("image_url").notNull(),
   fileName: text("file_name"),
   fileSize: integer("file_size"),
-  seed: integer("seed"),
+  seed: bigint("seed", { mode: "number" }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
