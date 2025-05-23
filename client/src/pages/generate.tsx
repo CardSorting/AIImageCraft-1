@@ -143,56 +143,211 @@ export default function Generate() {
         </div>
 
         {/* Essential Settings - Mobile */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Aspect Ratio */}
-          <FormField
-            control={form.control}
-            name="aspectRatio"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Aspect Ratio</FormLabel>
-                <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="h-10">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1:1">Square</SelectItem>
-                      <SelectItem value="4:3">Landscape</SelectItem>
-                      <SelectItem value="16:9">Widescreen</SelectItem>
-                      <SelectItem value="3:4">Portrait</SelectItem>
-                      <SelectItem value="9:16">Mobile</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            {/* Aspect Ratio */}
+            <FormField
+              control={form.control}
+              name="aspectRatio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium">Aspect Ratio</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1:1">Square</SelectItem>
+                        <SelectItem value="4:3">Landscape</SelectItem>
+                        <SelectItem value="16:9">Widescreen</SelectItem>
+                        <SelectItem value="3:4">Portrait</SelectItem>
+                        <SelectItem value="9:16">Mobile</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Model Selection */}
-          <FormField
-            control={form.control}
-            name="model"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">AI Model</FormLabel>
-                <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="h-10">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="runware:100@1">Runware v1</SelectItem>
-                      <SelectItem value="runware:101@1">Runware v1.1</SelectItem>
-                      <SelectItem value="runware:4@1">Runware v4</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Model Selection */}
+            <FormField
+              control={form.control}
+              name="model"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium">AI Model</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="runware:100@1">Runware v1</SelectItem>
+                        <SelectItem value="runware:101@1">Runware v1.1</SelectItem>
+                        <SelectItem value="runware:4@1">Runware v4</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Quick Quality Control */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <FormLabel className="text-sm font-medium">Quality & Speed</FormLabel>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setActiveTab("settings")}
+                className="text-xs h-6"
+              >
+                Advanced <Settings className="h-3 w-3 ml-1" />
+              </Button>
+            </div>
+
+            {/* Steps - Mobile Optimized */}
+            <FormField
+              control={form.control}
+              name="steps"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-sm">Steps</FormLabel>
+                    <Badge variant={field.value >= 40 ? "default" : field.value >= 25 ? "secondary" : "outline"} className="text-xs">
+                      {field.value >= 40 ? "Ultra" : field.value >= 25 ? "High" : "Standard"}
+                    </Badge>
+                  </div>
+                  <FormControl>
+                    <div className="space-y-1">
+                      <Slider
+                        value={[field.value]}
+                        onValueChange={(value) => field.onChange(value[0])}
+                        max={50}
+                        min={10}
+                        step={5}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Fast</span>
+                        <span className="font-medium">{field.value}</span>
+                        <span>Quality</span>
+                      </div>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* CFG Scale - Mobile Optimized */}
+            <FormField
+              control={form.control}
+              name="cfgScale"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-sm">Guidance</FormLabel>
+                    <Badge variant={field.value >= 12 ? "destructive" : field.value >= 8 ? "default" : "secondary"} className="text-xs">
+                      {field.value >= 12 ? "Strong" : field.value >= 8 ? "Balanced" : "Creative"}
+                    </Badge>
+                  </div>
+                  <FormControl>
+                    <div className="space-y-1">
+                      <Slider
+                        value={[field.value]}
+                        onValueChange={(value) => field.onChange(value[0])}
+                        max={20}
+                        min={1}
+                        step={0.5}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Creative</span>
+                        <span className="font-medium">{field.value}</span>
+                        <span>Precise</span>
+                      </div>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Number of Images - Mobile Optimized */}
+            <FormField
+              control={form.control}
+              name="numImages"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-sm">Images</FormLabel>
+                    <div className="flex items-center space-x-1">
+                      <Badge variant="outline" className="text-xs">{field.value || 1}</Badge>
+                      {(field.value || 1) > 1 && (
+                        <Badge variant="secondary" className="text-xs">{(field.value || 1)}x cost</Badge>
+                      )}
+                    </div>
+                  </div>
+                  <FormControl>
+                    <div className="grid grid-cols-4 gap-1">
+                      {[1, 2, 3, 4].map((num) => (
+                        <Button
+                          key={num}
+                          type="button"
+                          variant={(field.value || 1) === num ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => field.onChange(num)}
+                          className="h-8 text-xs"
+                        >
+                          {num}
+                        </Button>
+                      ))}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Quick Presets */}
+          <div className="space-y-2">
+            <FormLabel className="text-sm font-medium">Quick Presets</FormLabel>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  form.setValue("steps", 20);
+                  form.setValue("cfgScale", 7);
+                }}
+                className="h-10 flex flex-col py-1"
+              >
+                <Zap className="h-3 w-3 mb-1" />
+                <span className="text-xs">Fast</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  form.setValue("steps", 40);
+                  form.setValue("cfgScale", 8);
+                }}
+                className="h-10 flex flex-col py-1"
+              >
+                <Star className="h-3 w-3 mb-1" />
+                <span className="text-xs">Quality</span>
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Action Buttons - Mobile */}
@@ -267,15 +422,21 @@ export default function Generate() {
     <div className="space-y-4">
       {/* Gallery Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold flex items-center space-x-2">
+        <div className="flex items-center space-x-2">
           <ImageIcon className="h-5 w-5" />
-          <span>Your Gallery</span>
-        </h2>
+          <div>
+            <h2 className="text-lg font-semibold">Your Gallery</h2>
+            <p className="text-xs text-muted-foreground">
+              {Array.isArray(existingImages) ? existingImages.length : 0} masterpieces
+            </p>
+          </div>
+        </div>
         <div className="flex items-center space-x-2">
           <Button
             variant={galleryView === "grid" ? "default" : "outline"}
             size="sm"
             onClick={() => setGalleryView("grid")}
+            className="h-8 w-8 p-0"
           >
             <Grid className="h-4 w-4" />
           </Button>
@@ -283,59 +444,107 @@ export default function Generate() {
             variant={galleryView === "list" ? "default" : "outline"}
             size="sm"
             onClick={() => setGalleryView("list")}
+            className="h-8 w-8 p-0"
           >
             <List className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
+      {/* Quick Stats */}
+      {Array.isArray(existingImages) && existingImages.length > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          <Card className="p-3 text-center">
+            <div className="text-lg font-semibold text-primary">
+              {existingImages.length}
+            </div>
+            <div className="text-xs text-muted-foreground">Total</div>
+          </Card>
+          <Card className="p-3 text-center">
+            <div className="text-lg font-semibold text-green-600">
+              {existingImages.filter((img: any) => img.rarityTier !== 'COMMON').length}
+            </div>
+            <div className="text-xs text-muted-foreground">Rare+</div>
+          </Card>
+          <Card className="p-3 text-center">
+            <div className="text-lg font-semibold text-orange-600">
+              {existingImages.filter((img: any) => {
+                const today = new Date();
+                const imageDate = new Date(img.createdAt);
+                return today.toDateString() === imageDate.toDateString();
+              }).length}
+            </div>
+            <div className="text-xs text-muted-foreground">Today</div>
+          </Card>
+        </div>
+      )}
+
       {/* Images Grid - Mobile Optimized */}
       {Array.isArray(existingImages) && existingImages.length > 0 ? (
         <div className={
           galleryView === "grid" 
-            ? "grid grid-cols-2 gap-3" 
-            : "space-y-3"
+            ? "grid grid-cols-2 gap-3 pb-20" 
+            : "space-y-3 pb-20"
         }>
           {existingImages
             .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
             .map((image: any, index: number) => (
-            <TradingCard
+            <div 
               key={image.id}
-              image={{
-                id: image.id,
-                imageUrl: image.imageUrl,
-                prompt: image.prompt,
-                model: image.model,
-                dimensions: { width: 512, height: 512 },
-                createdAt: image.createdAt,
-                rarityTier: image.rarityTier || 'COMMON',
-                rarityScore: image.rarityScore || 50,
-                rarityStars: image.rarityStars || 1,
-                rarityLetter: image.rarityLetter || 'S',
-              }}
-              isNewest={index === 0}
-            />
+              className={`${galleryView === "list" ? "animate-in slide-in-from-left duration-300" : "animate-in fade-in duration-300"}`}
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <TradingCard
+                image={{
+                  id: image.id,
+                  imageUrl: image.imageUrl,
+                  prompt: image.prompt,
+                  model: image.model,
+                  dimensions: { width: 512, height: 512 },
+                  createdAt: image.createdAt,
+                  rarityTier: image.rarityTier || 'COMMON',
+                  rarityScore: image.rarityScore || 50,
+                  rarityStars: image.rarityStars || 1,
+                  rarityLetter: image.rarityLetter || 'S',
+                }}
+                isNewest={index === 0}
+              />
+            </div>
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="rounded-full bg-muted p-6 mb-4">
-            <ImageIcon className="h-12 w-12 text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="relative mb-6">
+            <div className="rounded-full bg-gradient-to-br from-primary/20 to-primary/10 p-8">
+              <ImageIcon className="h-16 w-16 text-primary" />
+            </div>
+            <div className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
+              <Sparkles className="h-3 w-3 text-white" />
+            </div>
           </div>
-          <h3 className="text-lg font-medium mb-2">
-            Your gallery awaits
+          <h3 className="text-xl font-semibold mb-2">
+            Your creative journey starts here
           </h3>
-          <p className="text-muted-foreground mb-4 max-w-sm text-sm">
-            Start creating amazing AI artwork! Your generated images will appear here as beautiful trading cards.
+          <p className="text-muted-foreground mb-6 max-w-sm text-sm leading-relaxed">
+            Generate stunning AI artwork with just a few words. Your creations will appear here as collectible trading cards with unique rarity levels.
           </p>
-          <Button
-            variant="outline"
-            onClick={() => setActiveTab("create")}
-            className="text-sm"
-          >
-            <Sparkles className="h-4 w-4 mr-2" />
-            Create your first masterpiece
-          </Button>
+          <div className="space-y-3">
+            <Button
+              onClick={() => setActiveTab("create")}
+              className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+            >
+              <Wand2 className="h-4 w-4 mr-2" />
+              Create your first masterpiece
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setActiveTab("settings")}
+              className="text-sm"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Explore advanced settings
+            </Button>
+          </div>
         </div>
       )}
     </div>
@@ -768,27 +977,15 @@ export default function Generate() {
               <Badge variant="outline" className="text-xs">
                 {Array.isArray(existingImages) ? existingImages.length : 0}
               </Badge>
-              <Sheet open={showSettings} onOpenChange={setShowSettings}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Settings className="h-4 w-4" />
-                    <span className="sr-only">Advanced Settings</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="h-[80vh]">
-                  <SheetHeader>
-                    <SheetTitle>Advanced Settings</SheetTitle>
-                    <SheetDescription>
-                      Fine-tune your AI generation parameters
-                    </SheetDescription>
-                  </SheetHeader>
-                  <ScrollArea className="h-full mt-4">
-                    <Form {...form}>
-                      {renderAdvancedSettings()}
-                    </Form>
-                  </ScrollArea>
-                </SheetContent>
-              </Sheet>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8"
+                onClick={() => setActiveTab("settings")}
+              >
+                <Settings className="h-4 w-4" />
+                <span className="sr-only">Advanced Settings</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -796,13 +993,17 @@ export default function Generate() {
         {/* Mobile Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-[calc(100vh-60px)]">
           <div className="border-b bg-background/95 backdrop-blur">
-            <TabsList className="grid w-full grid-cols-2 h-12 mx-4 my-2">
+            <TabsList className="grid w-full grid-cols-3 h-12 mx-4 my-2">
               <TabsTrigger value="create" className="text-sm">
-                <Wand2 className="h-4 w-4 mr-2" />
+                <Wand2 className="h-4 w-4 mr-1" />
                 Create
               </TabsTrigger>
+              <TabsTrigger value="settings" className="text-sm">
+                <Settings className="h-4 w-4 mr-1" />
+                Settings
+              </TabsTrigger>
               <TabsTrigger value="gallery" className="text-sm">
-                <ImageIcon className="h-4 w-4 mr-2" />
+                <ImageIcon className="h-4 w-4 mr-1" />
                 Gallery
               </TabsTrigger>
             </TabsList>
@@ -812,10 +1013,30 @@ export default function Generate() {
             {renderMobileCreateForm()}
           </TabsContent>
 
+          <TabsContent value="settings" className="flex-1 p-4 overflow-auto">
+            <Form {...form}>
+              {renderAdvancedSettings()}
+            </Form>
+          </TabsContent>
+
           <TabsContent value="gallery" className="flex-1 p-4 overflow-auto">
             {renderMobileGallery()}
           </TabsContent>
         </Tabs>
+
+        {/* Floating Generate Button - Shows on Gallery/Settings tabs */}
+        {(activeTab === "gallery" || activeTab === "settings") && (
+          <div className="fixed bottom-6 right-4 z-50">
+            <Button
+              onClick={() => setActiveTab("create")}
+              className="h-14 w-14 rounded-full shadow-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+              size="icon"
+            >
+              <Wand2 className="h-6 w-6" />
+              <span className="sr-only">Create new artwork</span>
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
