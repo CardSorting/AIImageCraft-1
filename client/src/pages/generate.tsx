@@ -199,6 +199,33 @@ export default function Generate() {
                         )}
                       />
 
+                      {/* Model Selection */}
+                      <FormField
+                        control={form.control}
+                        name="model"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center space-x-2">
+                              <Brain className="h-4 w-4" />
+                              <span>AI Model</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="runware:100@1">Runware v1 (Recommended)</SelectItem>
+                                  <SelectItem value="runware:101@1">Runware v1.1 (Enhanced)</SelectItem>
+                                  <SelectItem value="runware:4@1">Runware v4 (Ultra)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
                       {/* Advanced Settings */}
                       <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
                         <CollapsibleTrigger asChild>
@@ -256,6 +283,81 @@ export default function Generate() {
                             )}
                           />
 
+                          {/* Number of Images */}
+                          <FormField
+                            control={form.control}
+                            name="numImages"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Number of Images: {field.value || 1}</FormLabel>
+                                <FormControl>
+                                  <Slider
+                                    value={[field.value || 1]}
+                                    onValueChange={(value) => field.onChange(value[0])}
+                                    max={4}
+                                    min={1}
+                                    step={1}
+                                    className="w-full"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Scheduler */}
+                          <FormField
+                            control={form.control}
+                            name="scheduler"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="flex items-center space-x-2">
+                                  <Zap className="h-4 w-4" />
+                                  <span>Scheduler</span>
+                                </FormLabel>
+                                <FormControl>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select scheduler..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="DPMSolverMultistepScheduler">DPM++ 2M (Recommended)</SelectItem>
+                                      <SelectItem value="EulerDiscreteScheduler">Euler (Fast)</SelectItem>
+                                      <SelectItem value="EulerAncestralDiscreteScheduler">Euler Ancestral</SelectItem>
+                                      <SelectItem value="DDIMScheduler">DDIM (Classic)</SelectItem>
+                                      <SelectItem value="LMSDiscreteScheduler">LMS (Balanced)</SelectItem>
+                                      <SelectItem value="UniPCMultistepScheduler">UniPC (Quality)</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Seed */}
+                          <FormField
+                            control={form.control}
+                            name="seed"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="flex items-center space-x-2">
+                                  <Shuffle className="h-4 w-4" />
+                                  <span>Seed (Optional)</span>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Random seed for reproducibility..."
+                                    type="number"
+                                    {...field}
+                                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
                           {/* Negative Prompt */}
                           <FormField
                             control={form.control}
@@ -274,6 +376,70 @@ export default function Generate() {
                               </FormItem>
                             )}
                           />
+
+                          {/* LoRA Section */}
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <FormLabel className="flex items-center space-x-2">
+                                <Palette className="h-4 w-4" />
+                                <span>Style Enhancers (LoRA)</span>
+                              </FormLabel>
+                              <Badge variant="secondary" className="text-xs">
+                                {selectedLoras.length} active
+                              </Badge>
+                            </div>
+                            
+                            {selectedLoras.length > 0 && (
+                              <div className="space-y-2">
+                                {selectedLoras.map((lora, index) => (
+                                  <div key={index} className="flex items-center justify-between bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                                    <div className="flex-1">
+                                      <span className="text-sm font-medium">{lora.model}</span>
+                                      <div className="flex items-center space-x-2 mt-1">
+                                        <span className="text-xs text-muted-foreground">Weight:</span>
+                                        <Slider
+                                          value={[lora.weight]}
+                                          onValueChange={(value) => {
+                                            const newLoras = [...selectedLoras];
+                                            newLoras[index].weight = value[0];
+                                            setSelectedLoras(newLoras);
+                                          }}
+                                          max={2}
+                                          min={0.1}
+                                          step={0.1}
+                                          className="flex-1"
+                                        />
+                                        <span className="text-xs text-muted-foreground w-8">{lora.weight}</span>
+                                      </div>
+                                    </div>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        setSelectedLoras(selectedLoras.filter((_, i) => i !== index));
+                                      }}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedLoras([...selectedLoras, { model: "cartoon-style", weight: 1.0 }]);
+                              }}
+                              className="w-full"
+                            >
+                              <Plus className="h-4 w-4 mr-2" />
+                              Add Style Enhancer
+                            </Button>
+                          </div>
 
                         </CollapsibleContent>
                       </Collapsible>
