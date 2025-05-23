@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import Home from "@/pages/home";
+import ForYouFeed from "@/pages/for-you";
 import Gallery from "@/pages/gallery";
 import Generate from "@/pages/generate";
 import History from "@/pages/history";
@@ -14,7 +15,8 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={ForYouFeed} />
+      <Route path="/create" component={Home} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/generate" component={Generate} />
       <Route path="/history" component={History} />

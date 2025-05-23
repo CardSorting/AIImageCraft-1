@@ -1,6 +1,7 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DesktopNavigation } from "./DesktopNavigation";
 import { MobileNavigation } from "./MobileNavigation";
+import { useLocation } from "wouter";
 
 interface NavigationHeaderProps {
   credits?: number;
@@ -14,6 +15,26 @@ export function NavigationHeader({
   activeItem = "for-you" 
 }: NavigationHeaderProps) {
   const isMobile = useIsMobile();
+  const [location, setLocation] = useLocation();
+  
+  const handleNavClick = (itemId: string) => {
+    onNavigationClick(itemId);
+    
+    // Handle routing
+    switch (itemId) {
+      case "for-you":
+        setLocation("/");
+        break;
+      case "following":
+        setLocation("/following");
+        break;
+      case "auction":
+        setLocation("/auction");
+        break;
+      default:
+        break;
+    }
+  };
   
   return (
     <>
@@ -21,7 +42,7 @@ export function NavigationHeader({
       <div className="hidden md:block">
         <DesktopNavigation 
           credits={credits}
-          onNavigationClick={onNavigationClick}
+          onNavigationClick={handleNavClick}
           activeItem={activeItem}
         />
       </div>
@@ -30,7 +51,7 @@ export function NavigationHeader({
       <div className="block md:hidden">
         <MobileNavigation 
           credits={credits}
-          onNavigationClick={onNavigationClick}
+          onNavigationClick={handleNavClick}
           activeItem={activeItem}
         />
       </div>
