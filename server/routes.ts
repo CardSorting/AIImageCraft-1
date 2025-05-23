@@ -257,6 +257,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Import and initialize the new CQRS-based controller
+  const { ModelsController } = await import('./application/controllers/ModelsController.js');
+  const modelsController = new ModelsController();
+
+  // New versioned API endpoints following Clean Architecture
+  app.get("/api/v1/models/catalog", modelsController.getCatalog.bind(modelsController));
+  app.get("/api/v1/models/bookmarks/:userId", modelsController.getBookmarked.bind(modelsController));
+  app.get("/api/v1/models/recommendations/:userId", modelsController.getPersonalized.bind(modelsController));
+
   const httpServer = createServer(app);
   return httpServer;
 }
