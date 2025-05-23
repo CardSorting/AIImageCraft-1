@@ -13,7 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Search, Plus, Share, User } from "lucide-react";
+import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Heart, Users, Gavel, User, Coins } from "lucide-react";
 
 interface ImageGenerationResponse {
   success: boolean;
@@ -135,21 +135,28 @@ export default function Home() {
             {/* Navigation Items - Desktop */}
             <nav className="hidden md:flex items-center space-x-8">
               <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors font-medium">
-                <Search className="h-4 w-4" />
-                <span>Search</span>
+                <Heart className="h-4 w-4" />
+                <span>For You</span>
               </button>
               <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors font-medium">
-                <Plus className="h-4 w-4" />
-                <span>Create</span>
+                <Users className="h-4 w-4" />
+                <span>Following</span>
               </button>
               <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors font-medium">
-                <Share className="h-4 w-4" />
-                <span>Publish</span>
+                <Gavel className="h-4 w-4" />
+                <span>Auction</span>
               </button>
             </nav>
 
-            {/* Sign In Button */}
+            {/* Credits and Sign In */}
             <div className="flex items-center space-x-4">
+              {/* Credits Display */}
+              <div className="hidden sm:flex items-center space-x-2 bg-background/50 backdrop-blur-sm border border-border/50 rounded-2xl px-4 py-2">
+                <Coins className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground">1,250</span>
+                <span className="text-xs text-muted-foreground">credits</span>
+              </div>
+              
               <button className="btn-ios-primary px-6 py-2 h-10 text-sm font-semibold">
                 <User className="h-4 w-4 mr-2" />
                 Sign In
