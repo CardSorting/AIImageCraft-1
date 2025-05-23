@@ -501,7 +501,7 @@ export default function Generate() {
                         rarityTier: image.rarityTier || 'COMMON',
                         rarityScore: image.rarityScore || 50,
                         rarityStars: image.rarityStars || 1,
-                        rarityLetter: image.rarityLetter || 'C',
+                        rarityLetter: image.rarityLetter || 'S',
                       }}
                       isNewest={index === 0}
                     />
