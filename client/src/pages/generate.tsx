@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -43,6 +44,7 @@ export default function Generate() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const [location] = useLocation();
 
   const form = useForm<GenerateImageRequest>({
     resolver: zodResolver(generateImageRequestSchema),
@@ -56,11 +58,35 @@ export default function Generate() {
     },
   });
 
+  // Handle model parameter from URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const modelParam = urlParams.get('model');
+    
+    if (modelParam) {
+      // Set the model in the form
+      form.setValue('model', modelParam);
+      // Show a toast to indicate the model was pre-selected
+      toast({
+        title: "Model Selected",
+        description: `Ready to create with ${modelParam}`,
+      });
+    }
+  }, [location, form, toast]);
+
   // Fetch existing images
   const { data: existingImages = [], refetch } = useQuery({
     queryKey: ["/api/images"],
     queryFn: () => fetch("/api/images").then(res => res.json()),
   });
+
+  // Fetch available models
+  const { data: modelsResponse } = useQuery({
+    queryKey: ["/api/v1/models/catalog"],
+    queryFn: () => fetch("/api/v1/models/catalog").then(res => res.json()),
+  });
+
+  const availableModels = modelsResponse?.data || [];
 
   const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
     mutationFn: async (data) => {
@@ -238,9 +264,11 @@ export default function Generate() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="runware:100@1">Runware v1</SelectItem>
-                      <SelectItem value="runware:101@1">Runware v1.1</SelectItem>
-                      <SelectItem value="runware:4@1">Runware v4</SelectItem>
+                      {availableModels.map((model: any) => (
+                        <SelectItem key={model.id} value={model.modelId}>
+                          {model.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -1219,9 +1247,11 @@ export default function Generate() {
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="runware:100@1">Runware v1 (Recommended)</SelectItem>
-                                  <SelectItem value="runware:101@1">Runware v1.1 (Enhanced)</SelectItem>
-                                  <SelectItem value="runware:4@1">Runware v4 (Ultra)</SelectItem>
+                                  {availableModels.map((model: any) => (
+                                    <SelectItem key={model.id} value={model.modelId}>
+                                      {model.name}
+                                    </SelectItem>
+                                  ))}
                                 </SelectContent>
                               </Select>
                             </FormControl>

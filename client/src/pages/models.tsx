@@ -609,7 +609,10 @@ function ModelCard({ model }: ModelCardProps) {
             <Button 
               size="sm" 
               className="w-full ios-button bg-blue-500 hover:bg-blue-600 text-white"
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = `/create?model=${encodeURIComponent(model.modelId)}`;
+              }}
             >
               <Play className="h-4 w-4 mr-2" />
               Try Model
