@@ -84,7 +84,7 @@ export default function ModelsPage() {
     enabled: searchQuery.length > 2,
   });
 
-  const displayModels = searchQuery.length > 2 ? searchResults : models;
+  const displayModels = searchQuery.length > 2 ? (Array.isArray(searchResults) ? searchResults : []) : (Array.isArray(models) ? models : []);
 
   const formatDownloads = (downloads: number) => {
     if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1)}M`;
