@@ -53,6 +53,7 @@ export class GenerateImagesCommandHandler {
         console.log(`💾 Saved image: ${savedImage.fileName}`);
         
         // Store to cloud in background (non-blocking)
+        console.log(`🔄 [DEBUG] Starting background cloud storage for image ${savedImage.id}`);
         this.storeImageToCloudInBackground(result.url, savedImage.id, result.fileName);
         
       } catch (error: any) {
@@ -69,11 +70,21 @@ export class GenerateImagesCommandHandler {
    * Store image to cloud storage in background without blocking the response
    */
   private async storeImageToCloudInBackground(falUrl: string, imageId: number, fileName?: string): Promise<void> {
+    console.log(`🔍 [DEBUG] Entering cloud storage background process for image ${imageId}`);
+    console.log(`🔍 [DEBUG] FAL URL: ${falUrl}`);
+    console.log(`🔍 [DEBUG] File name: ${fileName}`);
+    
     try {
+      console.log(`🔍 [DEBUG] Creating cloud command for image ${imageId}`);
       const cloudCommand = new StoreImageToCloudCommand(falUrl, imageId, fileName);
+      
+      console.log(`🔍 [DEBUG] Calling cloud storage handler for image ${imageId}`);
       await this.cloudStorageHandler.handle(cloudCommand);
+      
+      console.log(`✅ [DEBUG] Cloud storage completed for image ${imageId}`);
     } catch (error: any) {
-      console.error(`⚠️ Background cloud storage failed for image ${imageId}:`, error.message);
+      console.error(`❌ [DEBUG] Background cloud storage failed for image ${imageId}:`, error.message);
+      console.error(`❌ [DEBUG] Error stack:`, error.stack);
       // Don't throw - this is background processing
     }
   }
