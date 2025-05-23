@@ -284,6 +284,48 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
     return !!bookmark;
   }
+
+  async createUserLike(insertLike: InsertUserLike): Promise<UserLike> {
+    // Check if like already exists, if so, just return it
+    const [existingLike] = await db
+      .select()
+      .from(userLikes)
+      .where(and(eq(userLikes.userId, insertLike.userId), eq(userLikes.modelId, insertLike.modelId)));
+    
+    if (existingLike) {
+      return existingLike;
+    }
+
+    const [like] = await db
+      .insert(userLikes)
+      .values(insertLike)
+      .returning();
+    return like;
+  }
+
+  async removeUserLike(userId: number, modelId: number): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(userLikes)
+        .where(and(eq(userLikes.userId, userId), eq(userLikes.modelId, modelId)));
+      
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error('Error removing like:', error);
+      return false;
+    }
+  }
+
+  async isModelLiked(userId: number, modelId: number): Promise<boolean> {
+    const [like] = await db.select()
+      .from(userLikes)
+      .where(and(
+        eq(userLikes.userId, userId),
+        eq(userLikes.modelId, modelId)
+      ))
+      .limit(1);
+    return !!like;
+  }
 }
 
 export const storage = new DatabaseStorage();

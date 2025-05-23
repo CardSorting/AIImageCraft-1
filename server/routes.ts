@@ -245,6 +245,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User likes API endpoints
+  app.post("/api/likes", async (req, res) => {
+    try {
+      const { userId, modelId } = req.body;
+      
+      const isLiked = await storage.isModelLiked(userId, modelId);
+      
+      if (isLiked) {
+        // Unlike the model
+        await storage.removeUserLike(userId, modelId);
+        res.json({ success: true, liked: false, message: "Model unliked successfully" });
+      } else {
+        // Like the model
+        await storage.createUserLike({ userId, modelId });
+        res.json({ success: true, liked: true, message: "Model liked successfully" });
+      }
+    } catch (error) {
+      console.error("Error handling like:", error);
+      res.status(500).json({ error: "Failed to handle like" });
+    }
+  });
+
+  app.get("/api/likes/:userId/:modelId", async (req, res) => {
+    try {
+      const { userId, modelId } = req.params;
+      const isLiked = await storage.isModelLiked(Number(userId), Number(modelId));
+      res.json({ liked: isLiked });
+    } catch (error) {
+      console.error("Error checking like status:", error);
+      res.status(500).json({ error: "Failed to check like status" });
+    }
+  });
+
   // Get user's bookmarked models
   app.get("/api/models/bookmarked/:userId", async (req, res) => {
     try {
