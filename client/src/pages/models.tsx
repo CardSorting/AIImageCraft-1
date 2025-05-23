@@ -66,9 +66,8 @@ export default function ModelsPage() {
         return fetch("/api/models/for-you?userId=1&limit=20").then(res => res.json());
       }
       if (selectedTab === "bookmarked") {
-        // For demonstration, returning empty array
-        // In production, this would use user ID from auth context
-        return Promise.resolve([]);
+        // Fetch user's bookmarked models
+        return fetch("/api/models/bookmarked/1").then(res => res.json());
       }
       return fetch(`/api/models?sortBy=${sortBy}`).then(res => res.json());
     },

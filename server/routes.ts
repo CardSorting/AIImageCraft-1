@@ -245,6 +245,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user's bookmarked models
+  app.get("/api/models/bookmarked/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const bookmarkedModels = await storage.getBookmarkedModels(Number(userId));
+      res.json(bookmarkedModels);
+    } catch (error) {
+      console.error("Error fetching bookmarked models:", error);
+      res.status(500).json({ error: "Failed to fetch bookmarked models" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
