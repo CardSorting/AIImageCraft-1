@@ -203,6 +203,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       .map(([type, count]) => ({ type, count: count as number }));
   }
 
+  // Bookmark management endpoints
+  app.post("/api/bookmarks", async (req, res) => {
+    try {
+      const { userId = 1, modelId } = req.body;
+      
+      if (!modelId) {
+        return res.status(400).json({ error: "Missing modelId" });
+      }
+
+      // Check if already bookmarked
+      const isBookmarked = await storage.isModelBookmarked(Number(userId), Number(modelId));
+      
+      if (isBookmarked) {
+        // Remove bookmark
+        await storage.removeUserBookmark(Number(userId), Number(modelId));
+        res.json({ success: true, bookmarked: false, message: "Bookmark removed" });
+      } else {
+        // Add bookmark
+        await storage.createUserBookmark({
+          userId: Number(userId),
+          modelId: Number(modelId)
+        });
+        res.json({ success: true, bookmarked: true, message: "Model bookmarked" });
+      }
+    } catch (error) {
+      console.error("Error managing bookmark:", error);
+      res.status(500).json({ error: "Failed to manage bookmark" });
+    }
+  });
+
+  // Check bookmark status
+  app.get("/api/bookmarks/:userId/:modelId", async (req, res) => {
+    try {
+      const { userId, modelId } = req.params;
+      const isBookmarked = await storage.isModelBookmarked(Number(userId), Number(modelId));
+      res.json({ bookmarked: isBookmarked });
+    } catch (error) {
+      console.error("Error checking bookmark status:", error);
+      res.status(500).json({ error: "Failed to check bookmark status" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

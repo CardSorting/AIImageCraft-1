@@ -265,6 +265,7 @@ interface ModelCardProps {
 
 function ModelCard({ model }: ModelCardProps) {
   const [isLiked, setIsLiked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const [viewStartTime] = useState(Date.now());
   
   const categoryIcon = categoryIcons[model.category as keyof typeof categoryIcons] || Brain;
@@ -301,21 +302,50 @@ function ModelCard({ model }: ModelCardProps) {
     }
   };
 
-  // Track view interaction when card is visible
+  // Load bookmark status and track view interaction when card is visible
   useEffect(() => {
     trackInteraction('view', 6);
+    
+    // Check if model is bookmarked
+    fetch(`/api/bookmarks/1/${model.id}`)
+      .then(res => res.json())
+      .then(data => setIsBookmarked(data.bookmarked))
+      .catch(() => setIsBookmarked(false));
   }, [model.id]);
 
+  // Handle like functionality
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    const newLikedState = !isLiked;
-    setIsLiked(newLikedState);
+    setIsLiked(!isLiked);
+    await trackInteraction('like', isLiked ? 3 : 8);
+  };
+
+  // Handle bookmark functionality
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     
-    // Track like/unlike interaction with appropriate engagement level
-    if (newLikedState) {
-      await trackInteraction('like', 8);
+    try {
+      const response = await fetch('/api/bookmarks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: 1,
+          modelId: model.id
+        }),
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setIsBookmarked(data.bookmarked);
+        await trackInteraction('bookmark', data.bookmarked ? 9 : 4);
+      }
+    } catch (error) {
+      console.log('Bookmark functionality temporarily unavailable');
     }
   };
 
@@ -346,6 +376,14 @@ function ModelCard({ model }: ModelCardProps) {
                 onClick={handleLike}
               >
                 <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="ios-floating-button"
+                onClick={handleBookmark}
+              >
+                <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-blue-500 text-blue-500' : ''}`} />
               </Button>
             </div>
 
