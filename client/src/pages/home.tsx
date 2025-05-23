@@ -13,7 +13,8 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Heart, Users, Gavel, User, Coins } from "lucide-react";
+import { Download, Sparkles, ChevronDown, ChevronRight, Sliders } from "lucide-react";
+import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 
 interface ImageGenerationResponse {
   success: boolean;
@@ -25,6 +26,8 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [activeNavItem, setActiveNavItem] = useState("for-you");
+  const [userCredits] = useState(1250);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -114,57 +117,20 @@ export default function Home() {
     return `${Math.floor(diffInMinutes / 1440)} days ago`;
   };
 
+  const handleNavigationClick = (itemId: string) => {
+    setActiveNavItem(itemId);
+    // Here you would typically handle routing or content switching
+    console.log(`Navigation clicked: ${itemId}`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Apple-style Navigation Header */}
-      <header className="sticky top-0 z-50 glass-effect border-b border-border/30 safe-area-top">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo and Brand */}
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-md">
-                  <Sparkles className="text-primary-foreground w-4 h-4" />
-                </div>
-                <div className="hidden sm:block">
-                  <h1 className="text-lg font-bold text-foreground tracking-tight">AI Studio</h1>
-                </div>
-              </div>
-            </div>
-
-            {/* Navigation Items - Desktop */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors font-medium">
-                <Heart className="h-4 w-4" />
-                <span>For You</span>
-              </button>
-              <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors font-medium">
-                <Users className="h-4 w-4" />
-                <span>Following</span>
-              </button>
-              <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors font-medium">
-                <Gavel className="h-4 w-4" />
-                <span>Auction</span>
-              </button>
-            </nav>
-
-            {/* Credits and Sign In */}
-            <div className="flex items-center space-x-4">
-              {/* Credits Display */}
-              <div className="hidden sm:flex items-center space-x-2 bg-background/50 backdrop-blur-sm border border-border/50 rounded-2xl px-4 py-2">
-                <Coins className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">1,250</span>
-                <span className="text-xs text-muted-foreground">credits</span>
-              </div>
-              
-              <button className="btn-ios-primary px-6 py-2 h-10 text-sm font-semibold">
-                <User className="h-4 w-4 mr-2" />
-                Sign In
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Enhanced Navigation Header */}
+      <NavigationHeader 
+        credits={userCredits}
+        onNavigationClick={handleNavigationClick}
+        activeItem={activeNavItem}
+      />
 
       {/* Main Content Section */}
       <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12">
