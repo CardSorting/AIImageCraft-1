@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useModelsQuery, useModelsSearchQuery, ModelFilter } from "@/hooks/useModelsQuery";
 import { Link, useParams } from "wouter";
 import { 
@@ -70,8 +71,13 @@ export default function ModelsPage() {
   const { data: searchResults = [] } = useModelsSearchQuery(searchQuery);
 
   // Extract models from response (handles both new structured and legacy format)
-  const models = modelsResponse?.data || [];
+  const models = modelsResponse?.data || modelsResponse || [];
   const displayModels = searchQuery.length > 2 ? searchResults : models;
+  
+  // Debug logging to check data structure
+  console.log('Models response:', modelsResponse);
+  console.log('Models array:', models);
+  console.log('Display models:', displayModels);
 
   const formatDownloads = (downloads: number) => {
     if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1)}M`;
