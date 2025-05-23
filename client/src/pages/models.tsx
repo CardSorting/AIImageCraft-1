@@ -345,13 +345,24 @@ function ModelCard({ model }: ModelCardProps) {
       });
       
       if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          // Confirm the state matches the server response
-          setIsLiked(data.liked);
-          await trackInteraction('like', data.liked ? 8 : 3);
+        try {
+          const data = await response.json();
+          console.log('Like API response:', data);
+          if (data.success) {
+            // Confirm the state matches the server response
+            setIsLiked(data.liked);
+            await trackInteraction('like', data.liked ? 8 : 3);
+          } else {
+            console.log('API returned success: false, reverting state');
+            setIsLiked(!newLikedState);
+          }
+        } catch (parseError) {
+          console.error('Failed to parse API response as JSON:', parseError);
+          // If we can't parse JSON, revert the optimistic update
+          setIsLiked(!newLikedState);
         }
       } else {
+        console.log('API request failed with status:', response.status);
         // If server call fails, revert the optimistic update
         setIsLiked(!newLikedState);
       }
