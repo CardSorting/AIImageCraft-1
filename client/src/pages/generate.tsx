@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +31,8 @@ const quickPrompts = [
 
 export default function Generate() {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [progressStage, setProgressStage] = useState(0);
+  const [progressText, setProgressText] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -43,6 +45,46 @@ export default function Generate() {
       numImages: 1,
     },
   });
+
+  // Dynamic progress simulation for better UX
+  useEffect(() => {
+    let progressInterval: NodeJS.Timeout;
+    
+    if (generateImagesMutation.isPending) {
+      setProgressStage(0);
+      setProgressText("Analyzing your prompt...");
+      
+      progressInterval = setInterval(() => {
+        setProgressStage(prev => {
+          const next = prev + 1;
+          switch (next) {
+            case 1:
+              setProgressText("AI is processing your vision...");
+              break;
+            case 2:
+              setProgressText("Generating high-quality pixels...");
+              break;
+            case 3:
+              setProgressText("Adding final details...");
+              break;
+            case 4:
+              setProgressText("Storing to your cloud storage...");
+              break;
+            default:
+              setProgressText("Almost ready...");
+          }
+          return next > 4 ? 0 : next;
+        });
+      }, 8000); // Update every 8 seconds
+    } else {
+      setProgressStage(0);
+      setProgressText("");
+    }
+
+    return () => {
+      if (progressInterval) clearInterval(progressInterval);
+    };
+  }, [generateImagesMutation.isPending]);
 
   const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
     mutationFn: async (data) => {
@@ -229,29 +271,100 @@ export default function Generate() {
               </CollapsibleContent>
             </Collapsible>
 
-            {/* Generate Button */}
+            {/* Enhanced Generate Button */}
             <Button 
               type="submit" 
               disabled={generateImagesMutation.isPending}
-              className="btn-ios-primary w-full h-14 text-lg font-semibold haptic-medium"
+              className="btn-ios-primary w-full h-14 text-lg font-semibold haptic-medium relative overflow-hidden group"
             >
-              <Sparkles className="h-6 w-6 mr-3" />
-              {generateImagesMutation.isPending ? "Creating Magic..." : "Generate Images"}
+              {generateImagesMutation.isPending ? (
+                <>
+                  {/* Loading Animation */}
+                  <div className="flex items-center space-x-3">
+                    <div className="relative">
+                      <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <Sparkles className="absolute inset-0 w-6 h-6 text-white/70 animate-pulse" />
+                    </div>
+                    <span className="animate-pulse">Creating Magic...</span>
+                  </div>
+                  {/* Shimmer Effect */}
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-6 w-6 mr-3 group-hover:animate-spin transition-transform duration-300" />
+                  <span>Generate Images</span>
+                  {/* Hover Shimmer */}
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:translate-x-full transition-transform duration-500 ease-out"></div>
+                </>
+              )}
             </Button>
           </form>
         </Form>
       </div>
 
-      {/* Loading State */}
+      {/* Enhanced Loading State */}
       {generateImagesMutation.isPending && (
         <div className="card-ios-elevated p-8 text-center animate-fade-in">
-          <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <Sparkles className="text-primary-foreground w-10 h-10" />
+          {/* Main Loading Animation */}
+          <div className="relative w-24 h-24 mx-auto mb-8">
+            {/* Outer Ring */}
+            <div className="absolute inset-0 w-24 h-24 border-4 border-primary/20 rounded-full"></div>
+            {/* Animated Ring */}
+            <div className="absolute inset-0 w-24 h-24 border-4 border-transparent border-t-primary rounded-full animate-spin"></div>
+            {/* Inner Glow */}
+            <div className="absolute inset-2 w-20 h-20 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full animate-pulse"></div>
+            {/* Center Icon */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Sparkles className="w-8 h-8 text-primary animate-pulse" />
+            </div>
           </div>
-          <h3 className="text-2xl font-bold text-foreground mb-3">Creating Your Masterpiece</h3>
-          <p className="text-muted-foreground mb-6 text-lg">Our AI is painting your vision into reality...</p>
-          <Progress value={undefined} className="w-full max-w-sm mx-auto h-2" />
-          <p className="text-xs text-muted-foreground mt-4">This usually takes 30-60 seconds</p>
+
+          {/* Dynamic Status Text */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-foreground">Creating Your Masterpiece</h3>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground animate-pulse min-h-[20px]">
+                {progressText || "AI is crafting your image with incredible detail..."}
+              </p>
+              
+              {/* Dynamic Progress Steps */}
+              <div className="flex items-center justify-center space-x-3 text-xs text-muted-foreground">
+                <div className={`flex items-center space-x-1 transition-all duration-500 ${progressStage >= 0 ? 'text-primary' : ''}`}>
+                  <div className={`w-2 h-2 rounded-full transition-all duration-500 ${progressStage >= 0 ? 'bg-primary animate-pulse' : 'bg-muted-foreground/30'}`}></div>
+                  <span>Analyzing</span>
+                </div>
+                <div className="w-1 h-1 bg-border rounded-full"></div>
+                <div className={`flex items-center space-x-1 transition-all duration-500 ${progressStage >= 2 ? 'text-primary' : ''}`}>
+                  <div className={`w-2 h-2 rounded-full transition-all duration-500 ${progressStage >= 2 ? 'bg-primary animate-pulse' : 'bg-muted-foreground/30'}`}></div>
+                  <span>Generating</span>
+                </div>
+                <div className="w-1 h-1 bg-border rounded-full"></div>
+                <div className={`flex items-center space-x-1 transition-all duration-500 ${progressStage >= 4 ? 'text-primary' : ''}`}>
+                  <div className={`w-2 h-2 rounded-full transition-all duration-500 ${progressStage >= 4 ? 'bg-primary animate-pulse' : 'bg-muted-foreground/30'}`}></div>
+                  <span>Storing</span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full max-w-sm mx-auto">
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-1000 ease-out"
+                    style={{ width: `${Math.min((progressStage + 1) * 20, 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Estimated Time */}
+          <div className="mt-6 p-4 bg-muted/50 rounded-2xl border border-border/50">
+            <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+              <div className="w-4 h-4 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin"></div>
+              <span>Estimated time: 30-60 seconds</span>
+            </div>
+          </div>
         </div>
       )}
     </div>
