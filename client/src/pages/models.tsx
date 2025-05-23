@@ -328,6 +328,10 @@ function ModelCard({ model }: ModelCardProps) {
     e.preventDefault();
     e.stopPropagation();
     
+    // Immediate visual feedback
+    const newLikedState = !isLiked;
+    setIsLiked(newLikedState);
+    
     try {
       const response = await fetch('/api/likes', {
         method: 'POST',
@@ -340,13 +344,21 @@ function ModelCard({ model }: ModelCardProps) {
         })
       });
       
-      const data = await response.json();
-      if (data.success) {
-        setIsLiked(data.liked);
-        await trackInteraction('like', data.liked ? 8 : 3);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Confirm the state matches the server response
+          setIsLiked(data.liked);
+          await trackInteraction('like', data.liked ? 8 : 3);
+        }
+      } else {
+        // If server call fails, revert the optimistic update
+        setIsLiked(!newLikedState);
       }
     } catch (error) {
       console.error('Error handling like:', error);
+      // If error occurs, revert the optimistic update
+      setIsLiked(!newLikedState);
     }
   };
 
