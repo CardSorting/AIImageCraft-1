@@ -28,9 +28,6 @@ export function NavigationHeader({
       case "following":
         setLocation("/following");
         break;
-      case "auction":
-        setLocation("/auction");
-        break;
       default:
         break;
     }

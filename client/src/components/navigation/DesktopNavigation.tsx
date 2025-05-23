@@ -18,7 +18,6 @@ interface DesktopNavigationProps {
 const navigationItems: NavigationItem[] = [
   { id: "for-you", label: "For You", icon: Heart },
   { id: "following", label: "Following", icon: Users },
-  { id: "auction", label: "Auction", icon: Gavel },
 ];
 
 export function DesktopNavigation({ 

@@ -153,10 +153,17 @@ export default function ForYouFeed() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* TikTok-style Feed Container - Full Screen */}
+      {/* Header Navigation - For You & Following */}
+      <NavigationHeader 
+        credits={1250}
+        onNavigationClick={handleNavigationClick}
+        activeItem={activeNavItem}
+      />
+
+      {/* TikTok-style Feed Container */}
       <div 
         ref={containerRef}
-        className="relative h-screen overflow-hidden"
+        className="relative h-[calc(100vh-4rem)] overflow-hidden"
       >
         {mockFeedData.map((item, index) => (
           <div
