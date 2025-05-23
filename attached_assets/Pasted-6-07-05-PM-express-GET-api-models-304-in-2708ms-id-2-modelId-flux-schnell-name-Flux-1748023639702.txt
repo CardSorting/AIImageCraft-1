@@ -1,0 +1,170 @@
+6:07:05 PM [express] GET /api/models 304 in 2708ms :: [{"id":2,"modelId":"flux/schnell","name":"Flux…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:07:05 PM [express] POST /api/interactions/track 500 in 409ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:07:06 PM [express] POST /api/interactions/track 500 in 572ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:07:06 PM [express] POST /api/interactions/track 500 in 618ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:07:06 PM [express] POST /api/interactions/track 500 in 622ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:07:06 PM [express] POST /api/interactions/track 500 in 625ms :: {"error":"Failed to track interact…
+Error tracking user interaction: TypeError: Cannot read properties of undefined (reading 'calculateAffinityBoost')
+    at <anonymous> (/home/runner/workspace/server/routes.ts:167:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+6:07:06 PM [express] POST /api/interactions/track 500 in 629ms :: {"error":"Failed to track interact…
+6:07:06 PM [express] GET /api/models/for-you 500 in 67ms :: {"error":"Failed to fetch model"}
+Error updating behavior profile: error: column "last_active_at" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 201,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "user_behavior_profiles.last_activity_at".',
+  position: '469',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "last_active_at" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 201,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "user_behavior_profiles.last_activity_at".',
+  position: '469',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "last_active_at" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 201,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "user_behavior_profiles.last_activity_at".',
+  position: '469',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "last_active_at" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 201,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "user_behavior_profiles.last_activity_at".',
+  position: '469',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "last_active_at" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 201,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "user_behavior_profiles.last_activity_at".',
+  position: '469',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
+Error updating behavior profile: error: column "last_active_at" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async UserBehaviorRepository.updateBehaviorProfile (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:134:25)
+    at async Timeout._onTimeout (/home/runner/workspace/server/infrastructure/repositories/UserBehaviorRepository.ts:399:9) {
+  length: 201,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "user_behavior_profiles.last_activity_at".',
+  position: '469',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
