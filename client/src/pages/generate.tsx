@@ -125,58 +125,65 @@ export default function Generate() {
 
         {/* Essential Settings - Mobile */}
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            {/* Aspect Ratio */}
-            <FormField
-              control={form.control}
-              name="aspectRatio"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Aspect Ratio</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <SelectTrigger className="h-10">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1:1">Square</SelectItem>
-                        <SelectItem value="4:3">Landscape</SelectItem>
-                        <SelectItem value="16:9">Widescreen</SelectItem>
-                        <SelectItem value="3:4">Portrait</SelectItem>
-                        <SelectItem value="9:16">Mobile</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          {/* Aspect Ratio Cards */}
+          <FormField
+            control={form.control}
+            name="aspectRatio"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel className="text-sm font-medium">Aspect Ratio</FormLabel>
+                <FormControl>
+                  <div className="grid grid-cols-5 gap-2">
+                    {[
+                      { value: "1:1", label: "Square", icon: "□" },
+                      { value: "4:3", label: "Landscape", icon: "▭" },
+                      { value: "16:9", label: "Wide", icon: "▬" },
+                      { value: "3:4", label: "Portrait", icon: "▯" },
+                      { value: "9:16", label: "Mobile", icon: "▮" }
+                    ].map((ratio) => (
+                      <Button
+                        key={ratio.value}
+                        type="button"
+                        variant={field.value === ratio.value ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => field.onChange(ratio.value)}
+                        className="h-16 flex flex-col items-center justify-center p-2"
+                      >
+                        <div className="text-lg mb-1">{ratio.icon}</div>
+                        <div className="text-xs font-medium">{ratio.label}</div>
+                        <div className="text-xs text-muted-foreground">{ratio.value}</div>
+                      </Button>
+                    ))}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            {/* Model Selection */}
-            <FormField
-              control={form.control}
-              name="model"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">AI Model</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <SelectTrigger className="h-10">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="runware:100@1">Runware v1</SelectItem>
-                        <SelectItem value="runware:101@1">Runware v1.1</SelectItem>
-                        <SelectItem value="runware:4@1">Runware v4</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
+          {/* Model Selection */}
+          <FormField
+            control={form.control}
+            name="model"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">AI Model</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="runware:100@1">Runware v1</SelectItem>
+                      <SelectItem value="runware:101@1">Runware v1.1</SelectItem>
+                      <SelectItem value="runware:4@1">Runware v4</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {/* Quick Quality Control */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
