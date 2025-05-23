@@ -19,7 +19,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { 
   Sparkles, ChevronDown, ChevronRight, Sliders, Palette, Camera, Wand2, 
   Brain, Zap, Star, Plus, X, Settings, Lightbulb, ImageIcon, 
-  Shuffle, Copy, Download, Share, Eye, Menu, ArrowLeft, Grid, List
+  Shuffle, Copy, Download, Share, Eye, Menu, ArrowLeft, Grid, List,
+  Square, RectangleHorizontal, MonitorSpeaker, Smartphone, Tablet
 } from "lucide-react";
 import { TradingCard } from "@/components/TradingCard";
 import { generateImageRequestSchema, type GenerateImageRequest } from "@shared/schema";
@@ -139,35 +140,40 @@ export default function Generate() {
                         value: "1:1", 
                         label: "Square", 
                         description: "Perfect for social media",
-                        visualRatio: "aspect-square",
+                        icon: Square,
+                        iconSize: "w-5 h-5",
                         popular: true
                       },
                       { 
                         value: "4:3", 
                         label: "Landscape", 
                         description: "Classic photo format",
-                        visualRatio: "aspect-[4/3]",
+                        icon: RectangleHorizontal,
+                        iconSize: "w-6 h-4",
                         popular: false
                       },
                       { 
                         value: "16:9", 
                         label: "Widescreen", 
                         description: "Cinematic format",
-                        visualRatio: "aspect-[16/9]",
+                        icon: MonitorSpeaker,
+                        iconSize: "w-6 h-4",
                         popular: false
                       },
                       { 
                         value: "3:4", 
                         label: "Portrait", 
                         description: "Tall format",
-                        visualRatio: "aspect-[3/4]",
+                        icon: Tablet,
+                        iconSize: "w-4 h-6",
                         popular: false
                       },
                       { 
                         value: "9:16", 
                         label: "Mobile", 
                         description: "Stories & reels",
-                        visualRatio: "aspect-[9/16]",
+                        icon: Smartphone,
+                        iconSize: "w-4 h-6",
                         popular: true
                       }
                     ].map((ratio) => (
@@ -182,9 +188,11 @@ export default function Generate() {
                               : "hover:shadow-sm"
                           }`}
                         >
-                          {/* Visual Ratio Representation */}
+                          {/* Icon Representation */}
                           <div className="flex items-center justify-center mb-2">
-                            <div className={`bg-current opacity-20 ${ratio.visualRatio} w-6 h-6 max-w-6 max-h-6 rounded-sm`}></div>
+                            <ratio.icon className={`${ratio.iconSize} ${
+                              field.value === ratio.value ? "text-primary-foreground" : "text-muted-foreground"
+                            }`} />
                           </div>
                           
                           {/* Labels */}
