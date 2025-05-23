@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%; /* #FFFFFF */
+  --foreground: 235 15% 7%; /* #11111F */
+  --muted: 210 40% 95%;
+  --muted-foreground: 215 13% 45%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 235 15% 7%;
+  --card: 0 0% 100%;
+  --card-foreground: 235 15% 7%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --primary: 244 93% 70%; /* #6469FF */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 8 100% 80%; /* #FF9C9C */
+  --secondary-foreground: 0 0% 0%;
+  --accent: 244 93% 93%; /* #E3E3FF */
+  --accent-foreground: 244 93% 30%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 244 93% 70%;
+  --radius: 0.5rem;
+  --near-black: 235 15% 7%; /* #11111F */
+}
+
+.dark {
+  --background: 235 15% 7%;
+  --foreground: 0 0% 98%;
+  --muted: 215 28% 17%;
+  --muted-foreground: 217 11% 65%;
+  --popover: 235 15% 7%;
+  --popover-foreground: 0 0% 98%;
+  --card: 235 15% 7%;
+  --card-foreground: 0 0% 98%;
+  --border: 215 28% 17%;
+  --input: 215 28% 17%;
+  --primary: 244 93% 70%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 8 100% 80%;
+  --secondary-foreground: 0 0% 0%;
+  --accent: 244 93% 20%;
+  --accent-foreground: 244 93% 90%;
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 244 93% 70%;
+  --near-black: 0 0% 98%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'SF Pro Display', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
