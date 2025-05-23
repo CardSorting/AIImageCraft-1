@@ -29,9 +29,10 @@ interface GeneratedImage {
 
 interface ImageCardProps {
   image: GeneratedImage;
+  isNewest?: boolean;
 }
 
-export function ImageCard({ image }: ImageCardProps) {
+export function ImageCard({ image, isNewest = false }: ImageCardProps) {
   const [showModal, setShowModal] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -102,10 +103,15 @@ export function ImageCard({ image }: ImageCardProps) {
   return (
     <>
       <Card 
-        className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] overflow-hidden"
+        className={`group cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] overflow-hidden ${
+          isNewest 
+            ? 'ring-4 ring-blue-500 ring-opacity-50 shadow-xl animate-pulse bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30' 
+            : ''
+        }`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => setShowModal(true)}
+        style={isNewest ? { animation: 'shake 0.5s ease-in-out 1s, newImageGlow 2s ease-in-out infinite' } : {}}
       >
         <CardContent className="p-0">
           <div className="relative aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden">
@@ -168,8 +174,15 @@ export function ImageCard({ image }: ImageCardProps) {
 
             {/* Time Badge */}
             <div className="absolute top-2 right-2">
-              <Badge variant="secondary" className="bg-black/50 text-white border-none">
-                {formatTimeAgo(image.createdAt)}
+              <Badge 
+                variant="secondary" 
+                className={`border-none ${
+                  isNewest 
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white animate-pulse' 
+                    : 'bg-black/50 text-white'
+                }`}
+              >
+                {isNewest ? '✨ NEW' : formatTimeAgo(image.createdAt)}
               </Badge>
             </div>
           </div>

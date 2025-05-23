@@ -486,7 +486,9 @@ export default function Generate() {
               {/* Images Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Array.isArray(existingImages) && existingImages.length > 0 ? (
-                  existingImages.map((image: any) => (
+                  existingImages
+                    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .map((image: any, index: number) => (
                     <ImageCard
                       key={image.id}
                       image={{
@@ -497,6 +499,7 @@ export default function Generate() {
                         dimensions: { width: 512, height: 512 },
                         createdAt: image.createdAt
                       }}
+                      isNewest={index === 0}
                     />
                   ))
                 ) : (
