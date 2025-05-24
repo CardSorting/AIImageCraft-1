@@ -232,23 +232,28 @@ export default function SimpleHome() {
             </p>
           </div>
 
-          {/* Masonry Grid with Better Space Utilization */}
-          <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-4">
+          {/* True Masonry Grid Layout */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 auto-rows-[10px]">
             {/* Actual Images */}
             {imageFeed && imageFeed.images.map((image, index) => {
               if (!image) return null;
 
+              // Calculate random span for masonry effect
+              const spanOptions = [20, 25, 30, 35, 40, 45, 50];
+              const randomSpan = spanOptions[index % spanOptions.length];
+
               return (
                 <div
                   key={image.id}
-                  className="break-inside-avoid mb-4 group cursor-pointer"
+                  className="group cursor-pointer"
+                  style={{ gridRowEnd: `span ${randomSpan}` }}
                   onClick={() => handleImageClick(image)}
                 >
-                  <div className="relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
+                  <div className="relative h-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
                     <img
                       src={image.imageUrl}
                       alt={image.prompt || 'AI Generated Image'}
-                      className="w-full h-auto object-cover"
+                      className="w-full h-full object-cover"
                     />
                     
                     {/* Overlay on hover */}
@@ -277,15 +282,16 @@ export default function SimpleHome() {
             {/* Skeleton Loading Cards to Fill Space */}
             {imageFeed && imageFeed.images.length > 0 && imageFeed.images.length < 30 && 
               Array.from({ length: 30 - imageFeed.images.length }).map((_, index) => {
-                const heights = ['h-48', 'h-56', 'h-64', 'h-72', 'h-80', 'h-96', 'h-60', 'h-52'];
-                const randomHeight = heights[index % heights.length];
+                const spanOptions = [20, 25, 30, 35, 40, 45, 50];
+                const randomSpan = spanOptions[index % spanOptions.length];
                 
                 return (
                   <div
                     key={`skeleton-${index}`}
-                    className={`break-inside-avoid mb-4 ${randomHeight}`}
+                    className="animate-pulse"
+                    style={{ gridRowEnd: `span ${randomSpan}` }}
                   >
-                    <div className="relative h-full bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden animate-pulse">
+                    <div className="relative h-full bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                       <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-200 dark:from-gray-600 dark:to-gray-700"></div>
                       
                       {/* Skeleton overlay */}
@@ -304,15 +310,16 @@ export default function SimpleHome() {
             {/* Loading state - show only skeletons when loading */}
             {(!imageFeed || imageFeed.images.length === 0) && !error &&
               Array.from({ length: 24 }).map((_, index) => {
-                const heights = ['h-48', 'h-56', 'h-64', 'h-72', 'h-80', 'h-96', 'h-60', 'h-52'];
-                const randomHeight = heights[index % heights.length];
+                const spanOptions = [20, 25, 30, 35, 40, 45, 50];
+                const randomSpan = spanOptions[index % spanOptions.length];
                 
                 return (
                   <div
                     key={`loading-skeleton-${index}`}
-                    className={`break-inside-avoid mb-4 ${randomHeight}`}
+                    className="animate-pulse"
+                    style={{ gridRowEnd: `span ${randomSpan}` }}
                   >
-                    <div className="relative h-full bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden animate-pulse">
+                    <div className="relative h-full bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                       <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-200 dark:from-gray-600 dark:to-gray-700"></div>
                       
                       {/* Skeleton overlay */}
