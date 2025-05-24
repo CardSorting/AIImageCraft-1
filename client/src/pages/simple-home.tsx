@@ -160,61 +160,137 @@ export default function SimpleHome() {
   }
 
   return (
-    <div 
-      ref={containerRef}
-      className="min-h-screen bg-black overflow-hidden relative"
-    >
-      {/* Current Image Display */}
-      <div
-        className="absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer"
-        onClick={() => handleImageClick(currentImage)}
+    <>
+      {/* Mobile Layout - Full Screen Single Image */}
+      <div 
+        ref={containerRef}
+        className="min-h-screen bg-black overflow-hidden relative md:hidden"
       >
-        <div className="relative w-full h-full flex items-center justify-center">
-          <img 
-            src={currentImage.imageUrl}
-            alt={currentImage.prompt || 'AI Generated Image'}
-            className="max-w-full max-h-full object-contain"
-          />
-          
-          {/* Subtle overlay with prompt hint */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-transparent to-transparent p-6">
-            <p className="text-white/80 text-sm line-clamp-2 max-w-2xl">
-              "{currentImage.prompt}"
-            </p>
-            <p className="text-white/50 text-xs mt-2">
-              Click to recreate with these settings
-            </p>
+        {/* Current Image Display */}
+        <div
+          className="absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer"
+          onClick={() => handleImageClick(currentImage)}
+        >
+          <div className="relative w-full h-full flex items-center justify-center">
+            <img 
+              src={currentImage.imageUrl}
+              alt={currentImage.prompt || 'AI Generated Image'}
+              className="w-full h-full object-cover"
+            />
+            
+            {/* Subtle overlay with prompt hint */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4">
+              <p className="text-white/90 text-sm line-clamp-2">
+                "{currentImage.prompt}"
+              </p>
+              <p className="text-white/60 text-xs mt-1">
+                Tap to recreate
+              </p>
+            </div>
           </div>
+        </div>
+
+        {/* Navigation indicators - mobile */}
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex flex-col space-y-1 z-10">
+          {Array.from({ length: Math.min(totalImages, 8) }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToIndex(index)}
+              className={`
+                w-1 h-6 rounded-full transition-all duration-200
+                ${index === currentIndex 
+                  ? 'bg-white' 
+                  : 'bg-white/40 hover:bg-white/60'
+                }
+              `}
+            />
+          ))}
+        </div>
+
+        {/* Progress info - mobile */}
+        <div className="absolute top-4 left-4 text-white/70 text-xs z-10 bg-black/30 rounded-lg px-2 py-1">
+          <div>{remainingCount} unique left</div>
+        </div>
+
+        {/* Swipe hint - mobile */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/60 text-xs z-10">
+          Swipe up for next unique image
         </div>
       </div>
 
-      {/* Navigation indicators - showing progress through unique images */}
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col space-y-2 z-10">
-        {Array.from({ length: Math.min(totalImages, 10) }).map((_, index) => (
-          <button
-            key={index}
-            onClick={() => goToIndex(index)}
-            className={`
-              w-1 h-8 rounded-full transition-all duration-200
-              ${index === currentIndex 
-                ? 'bg-white' 
-                : 'bg-white/30 hover:bg-white/50'
-              }
-            `}
-          />
-        ))}
-      </div>
+      {/* Desktop Layout - Masonry Grid */}
+      <div className="hidden md:block min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-6 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Discover Unique AI Art
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300">
+              Session: {sessionId.slice(0, 8)}... • {remainingCount} unique images remaining
+            </p>
+          </div>
 
-      {/* Progress info */}
-      <div className="absolute top-4 left-4 text-white/60 text-xs z-10">
-        <div>Session: {sessionId.slice(0, 8)}...</div>
-        <div>Remaining: {remainingCount} unique images</div>
-      </div>
+          {/* Masonry Grid */}
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
+            {Array.from({ length: Math.min(totalImages, 20) }).map((_, index) => {
+              const image = imageFeed?.images[index];
+              if (!image) return null;
 
-      {/* Scroll hint */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/60 text-sm z-10">
-        Scroll or swipe to discover unique images
+              // Randomize heights for masonry effect
+              const heights = ['h-64', 'h-80', 'h-96', 'h-72', 'h-56'];
+              const randomHeight = heights[index % heights.length];
+
+              return (
+                <div
+                  key={image.id}
+                  className={`break-inside-avoid mb-6 ${randomHeight} group cursor-pointer`}
+                  onClick={() => handleImageClick(image)}
+                >
+                  <div className="relative h-full bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
+                    <img
+                      src={image.imageUrl}
+                      alt={image.prompt || 'AI Generated Image'}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Overlay on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <p className="text-white text-sm line-clamp-2 mb-2">
+                          "{image.prompt}"
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-white/80 text-xs">
+                            Click to recreate
+                          </span>
+                          {index === currentIndex && (
+                            <span className="bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs">
+                              Current
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Load More Button */}
+          {remainingCount > 0 && (
+            <div className="text-center mt-8">
+              <button
+                onClick={goToNext}
+                className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+              >
+                Load More Unique Images ({remainingCount} remaining)
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
