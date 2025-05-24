@@ -9,6 +9,8 @@ export default function SimpleHome() {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isScrolling = useRef(false);
+  const [shuffledImages, setShuffledImages] = useState<GeneratedImage[]>([]);
+  const seenImageIds = useRef<Set<number>>(new Set());
 
   // Get images from the API
   const { data: images, isLoading } = useQuery({
@@ -16,6 +18,22 @@ export default function SimpleHome() {
   });
 
   const imageList = Array.isArray(images) ? images : [];
+
+  // Initialize shuffled images on first load
+  useEffect(() => {
+    if (imageList.length > 0 && shuffledImages.length === 0) {
+      const shuffled = [...imageList].sort(() => Math.random() - 0.5);
+      setShuffledImages(shuffled);
+    }
+  }, [imageList, shuffledImages.length]);
+
+  // Mark current image as seen
+  useEffect(() => {
+    if (shuffledImages.length > 0 && shuffledImages[currentIndex]) {
+      const currentImage = shuffledImages[currentIndex];
+      seenImageIds.current.add(currentImage.id);
+    }
+  }, [currentIndex, shuffledImages]);
 
   // Handle scroll to navigate between images with throttling
   useEffect(() => {
@@ -27,7 +45,7 @@ export default function SimpleHome() {
       
       isScrolling.current = true;
       
-      if (e.deltaY > 0 && currentIndex < imageList.length - 1) {
+      if (e.deltaY > 0 && currentIndex < shuffledImages.length - 1) {
         // Scroll down
         setCurrentIndex(prev => prev + 1);
       } else if (e.deltaY < 0 && currentIndex > 0) {
@@ -72,7 +90,7 @@ export default function SimpleHome() {
       if (Math.abs(diff) > 50) { // Minimum swipe distance
         isTouchScrolling = true;
         
-        if (diff > 0 && currentIndex < imageList.length - 1) {
+        if (diff > 0 && currentIndex < shuffledImages.length - 1) {
           // Swipe up - next image
           setCurrentIndex(prev => prev + 1);
         } else if (diff < 0 && currentIndex > 0) {
