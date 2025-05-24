@@ -79,7 +79,7 @@ export default function ModelDetailPage() {
   const queryClient = useQueryClient();
 
   // Fetch model data
-  const { data: model, isLoading, error } = useQuery({
+  const { data: model, isLoading, error } = useQuery<AIModel>({
     queryKey: ["/api/models", id],
     enabled: !!id,
   });
@@ -91,18 +91,18 @@ export default function ModelDetailPage() {
   });
 
   // Fetch like/bookmark status
-  const { data: likeStatus } = useQuery({
+  const { data: likeStatus } = useQuery<{liked: boolean}>({
     queryKey: ["/api/likes", 1, id],
     enabled: !!id,
   });
 
-  const { data: bookmarkStatus } = useQuery({
+  const { data: bookmarkStatus } = useQuery<{bookmarked: boolean}>({
     queryKey: ["/api/bookmarks", 1, id],
     enabled: !!id,
   });
 
   // Fetch generated images from this model
-  const { data: generatedImages } = useQuery({
+  const { data: generatedImages } = useQuery<any[]>({
     queryKey: ["/api/images/by-model", id],
     enabled: !!id,
   });
