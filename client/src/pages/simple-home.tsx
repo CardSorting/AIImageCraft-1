@@ -8,6 +8,7 @@ export default function SimpleHome() {
   const [, navigate] = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const isScrolling = useRef(false);
 
   // Get images from the API
   const { data: images, isLoading } = useQuery({
@@ -16,10 +17,15 @@ export default function SimpleHome() {
 
   const imageList = Array.isArray(images) ? images : [];
 
-  // Handle scroll to navigate between images
+  // Handle scroll to navigate between images with throttling
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
+      
+      // Prevent rapid scrolling
+      if (isScrolling.current) return;
+      
+      isScrolling.current = true;
       
       if (e.deltaY > 0 && currentIndex < imageList.length - 1) {
         // Scroll down
@@ -28,6 +34,11 @@ export default function SimpleHome() {
         // Scroll up
         setCurrentIndex(prev => prev - 1);
       }
+      
+      // Reset scroll throttle after animation completes
+      setTimeout(() => {
+        isScrolling.current = false;
+      }, 700); // Match the transition duration
     };
 
     const container = containerRef.current;
@@ -37,12 +48,14 @@ export default function SimpleHome() {
     }
   }, [currentIndex, imageList.length]);
 
-  // Handle touch gestures for mobile
+  // Handle touch gestures for mobile with throttling
   useEffect(() => {
     let touchStartY = 0;
     let touchEndY = 0;
+    let isTouchScrolling = false;
 
     const handleTouchStart = (e: TouchEvent) => {
+      if (isTouchScrolling) return;
       touchStartY = e.touches[0].clientY;
     };
 
@@ -51,10 +64,14 @@ export default function SimpleHome() {
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
+      if (isTouchScrolling) return;
+      
       touchEndY = e.changedTouches[0].clientY;
       const diff = touchStartY - touchEndY;
 
       if (Math.abs(diff) > 50) { // Minimum swipe distance
+        isTouchScrolling = true;
+        
         if (diff > 0 && currentIndex < imageList.length - 1) {
           // Swipe up - next image
           setCurrentIndex(prev => prev + 1);
@@ -62,6 +79,11 @@ export default function SimpleHome() {
           // Swipe down - previous image
           setCurrentIndex(prev => prev - 1);
         }
+        
+        // Reset touch throttle after animation completes
+        setTimeout(() => {
+          isTouchScrolling = false;
+        }, 700);
       }
     };
 
