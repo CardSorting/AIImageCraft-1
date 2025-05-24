@@ -23,10 +23,12 @@ export class ModelDetailController {
   private readonly imagesHandler: ModelImagesQueryHandler;
 
   constructor() {
-    // Dependency Injection following Dependency Inversion Principle (DIP)
-    this.modelDetailHandler = new GetModelDetailQueryHandler();
-    this.engagementHandler = new ModelEngagementQueryHandler();
-    this.imagesHandler = new ModelImagesQueryHandler();
+    // Use dynamic import to avoid circular dependency
+    import('../../storage.js').then(({ storage }) => {
+      this.modelDetailHandler = new GetModelDetailQueryHandler(storage);
+      this.engagementHandler = new ModelEngagementQueryHandler(storage);
+      this.imagesHandler = new ModelImagesQueryHandler(storage);
+    });
   }
 
   /**
