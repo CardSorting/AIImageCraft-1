@@ -221,9 +221,9 @@ export default function SimpleHome() {
 
       {/* Desktop Layout - Masonry Grid */}
       <div className="hidden md:block min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-4 py-6 max-w-7xl">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Discover Unique AI Art
             </h1>
@@ -232,22 +232,23 @@ export default function SimpleHome() {
             </p>
           </div>
 
-          {/* Masonry Grid */}
-          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
-            {imageFeed && imageFeed.images.slice(0, 20).map((image, index) => {
+          {/* Masonry Grid with Better Space Utilization */}
+          <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-4">
+            {/* Actual Images */}
+            {imageFeed && imageFeed.images.map((image, index) => {
               if (!image) return null;
 
-              // Randomize heights for masonry effect
-              const heights = ['h-64', 'h-80', 'h-96', 'h-72', 'h-56'];
+              // Varied heights for masonry effect
+              const heights = ['h-48', 'h-56', 'h-64', 'h-72', 'h-80', 'h-96', 'h-60', 'h-52'];
               const randomHeight = heights[index % heights.length];
 
               return (
                 <div
                   key={image.id}
-                  className={`break-inside-avoid mb-6 ${randomHeight} group cursor-pointer`}
+                  className={`break-inside-avoid mb-4 ${randomHeight} group cursor-pointer`}
                   onClick={() => handleImageClick(image)}
                 >
-                  <div className="relative h-full bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
+                  <div className="relative h-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
                     <img
                       src={image.imageUrl}
                       alt={image.prompt || 'AI Generated Image'}
@@ -255,9 +256,9 @@ export default function SimpleHome() {
                     />
                     
                     {/* Overlay on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <p className="text-white text-sm line-clamp-2 mb-2">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute bottom-0 left-0 right-0 p-3">
+                        <p className="text-white text-xs line-clamp-2 mb-1">
                           "{image.prompt}"
                         </p>
                         <div className="flex items-center justify-between">
@@ -276,10 +277,64 @@ export default function SimpleHome() {
                 </div>
               );
             })}
+
+            {/* Skeleton Loading Cards to Fill Space */}
+            {imageFeed && imageFeed.images.length > 0 && imageFeed.images.length < 30 && 
+              Array.from({ length: 30 - imageFeed.images.length }).map((_, index) => {
+                const heights = ['h-48', 'h-56', 'h-64', 'h-72', 'h-80', 'h-96', 'h-60', 'h-52'];
+                const randomHeight = heights[index % heights.length];
+                
+                return (
+                  <div
+                    key={`skeleton-${index}`}
+                    className={`break-inside-avoid mb-4 ${randomHeight}`}
+                  >
+                    <div className="relative h-full bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden animate-pulse">
+                      <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-200 dark:from-gray-600 dark:to-gray-700"></div>
+                      
+                      {/* Skeleton overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-3">
+                        <div className="space-y-2">
+                          <div className="h-2 bg-gray-400 dark:bg-gray-500 rounded w-3/4"></div>
+                          <div className="h-2 bg-gray-400 dark:bg-gray-500 rounded w-1/2"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            }
+
+            {/* Loading state - show only skeletons when loading */}
+            {(!imageFeed || imageFeed.images.length === 0) && !error &&
+              Array.from({ length: 24 }).map((_, index) => {
+                const heights = ['h-48', 'h-56', 'h-64', 'h-72', 'h-80', 'h-96', 'h-60', 'h-52'];
+                const randomHeight = heights[index % heights.length];
+                
+                return (
+                  <div
+                    key={`loading-skeleton-${index}`}
+                    className={`break-inside-avoid mb-4 ${randomHeight}`}
+                  >
+                    <div className="relative h-full bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden animate-pulse">
+                      <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-200 dark:from-gray-600 dark:to-gray-700"></div>
+                      
+                      {/* Skeleton overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-3">
+                        <div className="space-y-2">
+                          <div className="h-2 bg-gray-400 dark:bg-gray-500 rounded w-3/4"></div>
+                          <div className="h-2 bg-gray-400 dark:bg-gray-500 rounded w-1/2"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            }
           </div>
 
           {/* Load More Button */}
-          {remainingCount > 0 && (
+          {remainingCount > 0 && imageFeed && imageFeed.images.length > 0 && (
             <div className="text-center mt-8">
               <button
                 onClick={goToNext}
