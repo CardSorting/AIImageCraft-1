@@ -19,7 +19,8 @@ export default function SimpleHome() {
     goToNext,
     goToPrevious,
     goToIndex,
-    sessionId
+    sessionId,
+    imageFeed
   } = useRandomizedImageFeed({
     autoMarkAsViewed: true, // Automatically mark images as viewed
     maxImages: 50 // Load up to 50 random images at a time
@@ -233,8 +234,7 @@ export default function SimpleHome() {
 
           {/* Masonry Grid */}
           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
-            {Array.from({ length: Math.min(totalImages, 20) }).map((_, index) => {
-              const image = imageFeed?.images[index];
+            {imageFeed && imageFeed.images.slice(0, 20).map((image, index) => {
               if (!image) return null;
 
               // Randomize heights for masonry effect
