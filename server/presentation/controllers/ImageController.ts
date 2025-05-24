@@ -77,6 +77,14 @@ export class ImageController {
   async getImageById(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(req.params.id);
+      
+      if (isNaN(id) || id <= 0) {
+        res.status(400).json({
+          message: "Invalid image ID. Must be a positive number.",
+        });
+        return;
+      }
+      
       const query = new GetImageByIdQuery(id);
       
       const image = await this.container.imageRepository.findById(id);

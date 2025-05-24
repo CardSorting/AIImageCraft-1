@@ -11,10 +11,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Image generation and management endpoints using Clean Architecture
   app.post("/api/generate-images", (req, res) => imageController.generateImages(req, res));
   app.get("/api/images", (req, res) => imageController.getImages(req, res));
-  app.get("/api/images/:id", (req, res) => imageController.getImageById(req, res));
-  app.delete("/api/images/:id", (req, res) => imageController.deleteImage(req, res));
-
-  // Get images by model - using direct database access for authentic data
+  
+  // Get images by model - using direct database access for authentic data (MUST come before /api/images/:id)
   app.get("/api/images/by-model/:modelId", async (req, res) => {
     try {
       const { modelId } = req.params;
@@ -40,6 +38,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to fetch images for model" });
     }
   });
+
+  // Generic image routes (MUST come after specific routes like /by-model)
+  app.get("/api/images/:id", (req, res) => imageController.getImageById(req, res));
+  app.delete("/api/images/:id", (req, res) => imageController.deleteImage(req, res));
 
   // AI Model endpoints
   app.get("/api/models", async (req, res) => {
