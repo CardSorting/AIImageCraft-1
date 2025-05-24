@@ -133,77 +133,105 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Enhanced Loading State - Hides Form Completely */}
+      {/* Apple-Inspired Premium Loading Experience */}
       {generateImagesMutation.isPending ? (
-        <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12 safe-area-top">
-          <div className="max-w-4xl mx-auto">
-            {/* Full-Screen Loading Experience */}
-            <div className="relative group animate-fade-in">
-              {/* Animated gradient background */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/20 to-primary/30 rounded-3xl blur-lg opacity-100 animate-pulse" />
-              
-              <div className="relative bg-card/90 backdrop-blur-xl border border-border/50 rounded-3xl p-12 shadow-2xl text-center min-h-[600px] flex flex-col items-center justify-center">
-                {/* Large animated icon */}
-                <div className="relative mb-8">
-                  <div className="w-32 h-32 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center shadow-2xl relative overflow-hidden animate-pulse">
-                    <Sparkles className="text-primary-foreground w-16 h-16" />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-white/10 rounded-full" />
-                  </div>
-                  {/* Orbiting dots */}
-                  <div className="absolute inset-0 animate-spin">
-                    <div className="w-4 h-4 bg-primary rounded-full absolute -top-2 left-1/2 transform -translate-x-1/2"></div>
-                    <div className="w-3 h-3 bg-primary/70 rounded-full absolute top-1/2 -right-2 transform -translate-y-1/2"></div>
-                    <div className="w-4 h-4 bg-primary rounded-full absolute -bottom-2 left-1/2 transform -translate-x-1/2"></div>
-                    <div className="w-3 h-3 bg-primary/70 rounded-full absolute top-1/2 -left-2 transform -translate-y-1/2"></div>
-                  </div>
+        <div className="fixed inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-black dark:to-gray-900 overflow-hidden z-50">
+          {/* Sophisticated background effects */}
+          <div className="absolute inset-0">
+            {/* Subtle particle system */}
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-1 h-1 bg-gray-300/30 dark:bg-white/10 rounded-full animate-sophisticated-pulse"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 4}s`,
+                  animationDuration: `${3 + Math.random() * 2}s`
+                }}
+              />
+            ))}
+            
+            {/* Apple-style ambient light */}
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-200/20 via-purple-200/10 to-pink-200/20 dark:from-blue-500/10 dark:via-purple-500/5 dark:to-pink-500/10 rounded-full blur-3xl animate-sophisticated-pulse" />
+            <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-tl from-green-200/20 via-blue-200/10 to-purple-200/20 dark:from-green-500/10 dark:via-blue-500/5 dark:to-purple-500/10 rounded-full blur-3xl animate-sophisticated-pulse" style={{ animationDelay: '1s' }} />
+          </div>
+
+          {/* Central content with Apple's refined aesthetic */}
+          <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6">
+            
+            {/* Premium loading indicator */}
+            <div className="relative mb-12">
+              {/* Main spinner with Apple's signature design */}
+              <div className="relative">
+                {/* Outer ring */}
+                <div className="w-20 h-20 border border-gray-200 dark:border-gray-700 rounded-full">
+                  <div className="absolute inset-0 border-2 border-transparent border-t-gray-900 dark:border-t-white rounded-full animate-spin" style={{ animationDuration: '1.2s' }}></div>
                 </div>
                 
-                {/* Dynamic loading messages */}
-                <div className="space-y-4 mb-8">
-                  <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Creating Your Masterpiece</h2>
-                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                    Our AI is carefully crafting {numImages === 1 ? 'your image' : `${numImages} images`} with attention to every detail...
-                  </p>
+                {/* Inner content */}
+                <div className="absolute inset-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-full flex items-center justify-center border border-gray-100 dark:border-gray-800">
+                  <Sparkles className="w-6 h-6 text-gray-700 dark:text-gray-300 animate-sophisticated-pulse" />
                 </div>
+              </div>
+              
+              {/* Elegant glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-purple-500/10 to-pink-500/20 rounded-full blur-xl animate-sophisticated-pulse" />
+            </div>
 
-                {/* Enhanced progress indicator */}
-                <div className="w-full max-w-md space-y-4">
-                  <div className="bg-background/50 rounded-full h-3 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-primary via-primary/80 to-primary rounded-full animate-pulse w-full opacity-80"></div>
-                  </div>
-                  <div className="text-sm text-muted-foreground animate-pulse">
-                    Generating {aspectRatio} {numImages === 1 ? 'image' : 'images'}...
-                  </div>
+            {/* Typography with Apple's refined hierarchy */}
+            <div className="text-center space-y-4 mb-12">
+              <h1 className="text-4xl sm:text-5xl font-light text-gray-900 dark:text-white tracking-tight">
+                Creating Magic
+              </h1>
+              <p className="text-lg font-light text-gray-600 dark:text-gray-400 max-w-md leading-relaxed">
+                Crafting {numImages === 1 ? 'your artwork' : `${numImages} masterpieces`} with precision and care
+              </p>
+            </div>
+
+            {/* Apple-style progress indicator */}
+            <div className="w-full max-w-xs space-y-6">
+              {/* Refined progress bar */}
+              <div className="relative">
+                <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 rounded-full animate-shimmer bg-[length:200%_100%]" />
                 </div>
+              </div>
+              
+              {/* Status text */}
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 animate-sophisticated-pulse">
+                  {aspectRatio} • {numImages} {numImages === 1 ? 'image' : 'images'}
+                </p>
+              </div>
+            </div>
 
-                {/* Generation details */}
-                <div className="mt-8 bg-background/30 rounded-2xl p-6 border border-border/30 max-w-lg">
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Format:</span>
-                      <span className="font-medium">{aspectRatio}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Count:</span>
-                      <span className="font-medium">{numImages} {numImages === 1 ? 'image' : 'images'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Credits Used:</span>
-                      <span className="font-medium text-primary">{currentCost}</span>
-                    </div>
-                  </div>
+            {/* Elegant details card */}
+            <div className="mt-12 bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-3xl p-8 border border-gray-200/50 dark:border-gray-700/50 shadow-xl max-w-sm w-full">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-gray-600 dark:text-gray-400">Resolution</span>
+                  <span className="text-gray-900 dark:text-gray-100 font-medium">{aspectRatio}</span>
                 </div>
-
-                {/* Tip section */}
-                <div className="mt-8 text-center">
-                  <p className="text-sm text-muted-foreground/80">
-                    ✨ This usually takes 10-30 seconds depending on complexity
-                  </p>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-gray-600 dark:text-gray-400">Quantity</span>
+                  <span className="text-gray-900 dark:text-gray-100 font-medium">{numImages}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <span className="font-medium text-gray-600 dark:text-gray-400">Credits</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-semibold">{currentCost}</span>
                 </div>
               </div>
             </div>
+
+            {/* Apple-style tip */}
+            <div className="absolute bottom-8 text-center">
+              <p className="text-xs font-light text-gray-500 dark:text-gray-500 tracking-wide">
+                Usually completes in 15–45 seconds
+              </p>
+            </div>
           </div>
-        </main>
+        </div>
       ) : (
         /* Normal Create Interface - Only shown when NOT loading */
         <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12 safe-area-top">

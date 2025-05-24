@@ -124,8 +124,71 @@ export default function SimpleHome() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-lg">Loading random images...</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden relative">
+        {/* Animated background particles */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-white/10 rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 3}s`,
+                animationDuration: `${2 + Math.random() * 2}s`
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Central loading experience */}
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6">
+          {/* Main loading icon with sophisticated animation */}
+          <div className="relative mb-8">
+            {/* Outer rotating ring */}
+            <div className="w-24 h-24 border-2 border-white/20 rounded-full animate-spin" 
+                 style={{ animationDuration: '3s' }}>
+              <div className="absolute top-0 left-1/2 w-1 h-6 bg-gradient-to-b from-white to-transparent rounded-full transform -translate-x-1/2 -translate-y-1"></div>
+            </div>
+            
+            {/* Inner pulsing core */}
+            <div className="absolute inset-3 bg-gradient-to-br from-white/40 via-white/20 to-white/10 rounded-full animate-pulse backdrop-blur-sm">
+              <div className="w-full h-full rounded-full bg-gradient-to-tr from-transparent via-white/30 to-white/10"></div>
+            </div>
+            
+            {/* Center dot */}
+            <div className="absolute inset-1/2 w-2 h-2 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
+          </div>
+
+          {/* Elegant typography */}
+          <div className="text-center space-y-3">
+            <h2 className="text-2xl font-light text-white tracking-wide">
+              Curating Your Gallery
+            </h2>
+            <p className="text-white/60 text-sm font-light max-w-sm leading-relaxed">
+              Discovering the most captivating AI-generated artworks just for you
+            </p>
+          </div>
+
+          {/* Progress indicators */}
+          <div className="mt-8 flex space-x-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="w-2 h-2 bg-white/30 rounded-full animate-pulse"
+                style={{ 
+                  animationDelay: `${i * 0.2}s`,
+                  animationDuration: '1.5s'
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Subtle brand presence */}
+          <div className="absolute bottom-8 text-white/40 text-xs font-light tracking-wider">
+            AI Image Studio
+          </div>
+        </div>
       </div>
     );
   }
@@ -307,7 +370,7 @@ export default function SimpleHome() {
               })
             }
 
-            {/* Loading state - show only skeletons when loading */}
+            {/* Enhanced Loading state with Apple-inspired skeleton design */}
             {(!imageFeed || imageFeed.images.length === 0) && !error &&
               Array.from({ length: 24 }).map((_, index) => {
                 const spanOptions = [20, 25, 30, 35, 40, 45, 50];
@@ -316,18 +379,48 @@ export default function SimpleHome() {
                 return (
                   <div
                     key={`loading-skeleton-${index}`}
-                    className="animate-pulse"
-                    style={{ gridRowEnd: `span ${randomSpan}` }}
+                    className="group"
+                    style={{ 
+                      gridRowEnd: `span ${randomSpan}`,
+                      animationDelay: `${index * 0.1}s`
+                    }}
                   >
-                    <div className="relative h-full bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
-                      <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-200 dark:from-gray-600 dark:to-gray-700"></div>
+                    <div className="relative h-full bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm ios-fade-in">
+                      {/* Sophisticated shimmer effect */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 dark:from-gray-700 dark:via-gray-800 dark:to-gray-700">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 dark:via-white/10 to-transparent animate-shimmer"></div>
+                      </div>
                       
-                      {/* Skeleton overlay */}
-                      <div className="absolute bottom-0 left-0 right-0 p-3">
-                        <div className="space-y-2">
-                          <div className="h-2 bg-gray-400 dark:bg-gray-500 rounded w-3/4"></div>
-                          <div className="h-2 bg-gray-400 dark:bg-gray-500 rounded w-1/2"></div>
+                      {/* Content skeleton with refined spacing */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <div className="space-y-3">
+                          {/* Title skeleton */}
+                          <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded-full animate-pulse" 
+                               style={{ 
+                                 width: `${60 + Math.random() * 30}%`,
+                                 animationDelay: `${index * 0.05}s`
+                               }} />
+                          {/* Subtitle skeleton */}
+                          <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full animate-pulse" 
+                               style={{ 
+                                 width: `${40 + Math.random() * 20}%`,
+                                 animationDelay: `${index * 0.05 + 0.1}s`
+                               }} />
                         </div>
+                        
+                        {/* Action indicator skeleton */}
+                        <div className="mt-3 flex items-center justify-between">
+                          <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full w-16 animate-pulse"
+                               style={{ animationDelay: `${index * 0.05 + 0.2}s` }} />
+                          <div className="w-6 h-6 bg-gray-200 dark:bg-gray-600 rounded-full animate-pulse"
+                               style={{ animationDelay: `${index * 0.05 + 0.3}s` }} />
+                        </div>
+                      </div>
+                      
+                      {/* Subtle loading indicator dot */}
+                      <div className="absolute top-3 right-3">
+                        <div className="w-2 h-2 bg-gray-300 dark:bg-gray-500 rounded-full animate-ping"
+                             style={{ animationDelay: `${index * 0.1}s` }} />
                       </div>
                     </div>
                   </div>

@@ -252,6 +252,47 @@
     }
   }
 
+  /* Apple-inspired shimmer animation for loading states */
+  @keyframes animate-shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer {
+    animation: animate-shimmer 2s infinite;
+  }
+
+  /* Enhanced loading animations following Apple's design principles */
+  @keyframes sophisticated-pulse {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes elegant-ping {
+    75%, 100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+
+  .animate-sophisticated-pulse {
+    animation: sophisticated-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-elegant-ping {
+    animation: elegant-ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
   /* iOS Blur Effects */
   .ios-blur {
     backdrop-filter: blur(20px) saturate(180%);
