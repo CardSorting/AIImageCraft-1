@@ -238,21 +238,17 @@ export default function SimpleHome() {
             {imageFeed && imageFeed.images.map((image, index) => {
               if (!image) return null;
 
-              // Varied heights for masonry effect
-              const heights = ['h-48', 'h-56', 'h-64', 'h-72', 'h-80', 'h-96', 'h-60', 'h-52'];
-              const randomHeight = heights[index % heights.length];
-
               return (
                 <div
                   key={image.id}
-                  className={`break-inside-avoid mb-4 ${randomHeight} group cursor-pointer`}
+                  className="break-inside-avoid mb-4 group cursor-pointer"
                   onClick={() => handleImageClick(image)}
                 >
-                  <div className="relative h-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
+                  <div className="relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
                     <img
                       src={image.imageUrl}
                       alt={image.prompt || 'AI Generated Image'}
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto object-cover"
                     />
                     
                     {/* Overlay on hover */}
