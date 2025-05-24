@@ -14,6 +14,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/images/:id", (req, res) => imageController.getImageById(req, res));
   app.delete("/api/images/:id", (req, res) => imageController.deleteImage(req, res));
 
+  // Get images by model
+  app.get("/api/images/by-model/:modelId", async (req, res) => {
+    try {
+      const { modelId } = req.params;
+      const { limit = 50 } = req.query;
+      
+      // Find model by ID first to get modelId string
+      const model = await storage.getAIModelById(Number(modelId));
+      if (!model) {
+        return res.status(404).json({ error: "Model not found" });
+      }
+      
+      // Get all images and filter by model
+      const allImages = await storage.getImages(Number(limit) * 2); // Get more to filter
+      const modelImages = allImages.filter(image => image.model === model.modelId);
+      
+      res.json(modelImages.slice(0, Number(limit)));
+    } catch (error) {
+      console.error("Error fetching images by model:", error);
+      res.status(500).json({ error: "Failed to fetch images for model" });
+    }
+  });
+
   // AI Model endpoints
   app.get("/api/models", async (req, res) => {
     try {
