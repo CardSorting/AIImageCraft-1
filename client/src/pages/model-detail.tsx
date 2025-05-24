@@ -1,5 +1,10 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+/**
+ * Model Detail Page - Clean Architecture Implementation
+ * Follows Apple's philosophy of clear, purposeful design
+ * Implements proper separation of concerns with authentic data
+ */
+
+import { useState } from "react";
 import { Link, useParams, useLocation } from "wouter";
 import { 
   ArrowLeft, 
@@ -27,7 +32,8 @@ import {
   X,
   ZoomIn,
   Grid3X3,
-  MoreHorizontal
+  MoreHorizontal,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,9 +42,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { apiRequest } from "@/lib/queryClient";
+import { useQuery } from "@tanstack/react-query";
 import type { AIModel } from "@shared/schema";
 
 const categoryIcons = {
@@ -66,43 +73,45 @@ interface Review {
   avatar?: string;
 }
 
+/**
+ * Main Model Detail Page Component
+ * Follows Apple's philosophy of clear, purposeful interfaces
+ */
 export default function ModelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const queryClient = useQueryClient();
+  const userId = 1; // Current user ID
 
-  // Fetch model data
-  const { data: model, isLoading, error } = useQuery<AIModel>({
+  // Fetch authentic model data from the database
+  const { data: model, isLoading: modelLoading } = useQuery<AIModel>({
     queryKey: ["/api/models", id],
     enabled: !!id,
   });
 
-  // Fetch model stats
-  const { data: stats } = useQuery<ModelStats>({
-    queryKey: ["/api/models", id, "stats"],
-    enabled: !!id,
-  });
-
-  // Fetch like/bookmark status
+  // Fetch authentic engagement data 
   const { data: likeStatus } = useQuery<{liked: boolean}>({
-    queryKey: ["/api/likes", 1, id],
+    queryKey: ["/api/likes", userId, id],
     enabled: !!id,
   });
 
   const { data: bookmarkStatus } = useQuery<{bookmarked: boolean}>({
-    queryKey: ["/api/bookmarks", 1, id],
+    queryKey: ["/api/bookmarks", userId, id],
     enabled: !!id,
   });
 
-  // Fetch generated images from this model
-  const { data: generatedImages } = useQuery<any[]>({
+  // Fetch authentic model statistics
+  const { data: stats } = useQuery<{likeCount: number; bookmarkCount: number}>({
+    queryKey: ["/api/models", id, "stats"],
+    enabled: !!id,
+  });
+
+  // Fetch authentic generated images from database
+  const { data: generatedImages, isLoading: imagesLoading } = useQuery<any[]>({
     queryKey: ["/api/images/by-model", id],
     queryFn: () => fetch(`/api/images/by-model/${id}`).then(res => res.json()),
     enabled: !!id,
