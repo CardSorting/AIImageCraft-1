@@ -72,6 +72,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get images generated with a specific model
+  app.get("/api/models/:modelId/images", async (req, res) => {
+    try {
+      const { modelId } = req.params;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const images = await storage.getImagesByModelId(modelId, limit);
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching model images:", error);
+      res.status(500).json({ error: "Failed to fetch model images" });
+    }
+  });
+
   // Intelligent "For You" personalized recommendations endpoint
   app.get("/api/models/for-you", async (req, res) => {
     try {

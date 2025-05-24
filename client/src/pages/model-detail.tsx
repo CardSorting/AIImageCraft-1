@@ -17,7 +17,12 @@ import {
   Zap,
   Camera,
   Palette,
-  Sparkles
+  Sparkles,
+  User,
+  Clock,
+  ImageIcon,
+  Tag,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +32,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import type { AIModel } from "@shared/schema";
+
+interface ModelImage {
+  id: number;
+  imageUrl: string;
+  prompt: string;
+  username: string;
+  createdAt: string;
+  rarityTier: string;
+  rarityStars: number;
+}
 
 const categoryIcons = {
   "General": Brain,
@@ -47,6 +62,13 @@ export default function ModelDetailPage() {
     queryKey: ["/api/models", id],
     queryFn: () => fetch(`/api/models/${id}`).then(res => res.json()),
     enabled: !!id,
+  });
+
+  // Fetch images generated with this model
+  const { data: modelImages = [] } = useQuery({
+    queryKey: ["/api/models", model?.modelId, "images"],
+    queryFn: () => fetch(`/api/models/${model?.modelId}/images`).then(res => res.json()),
+    enabled: !!model?.modelId,
   });
 
   const formatDownloads = (downloads: number) => {
@@ -161,108 +183,116 @@ export default function ModelDetailPage() {
 
       <ScrollArea className="h-[calc(100vh-60px)]">
         <div className="pb-20">
-          {/* Hero Section */}
+          {/* Enhanced Hero Section */}
           <div className="p-4">
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 mb-4">
-              {model.thumbnail ? (
-                <img 
-                  src={model.thumbnail} 
-                  alt={model.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <Icon className="h-20 w-20 text-blue-500" />
-                </div>
-              )}
+            {/* Model Title */}
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                {model.name}
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
+                {model.description}
+              </p>
               
-              {/* Floating Actions */}
-              <div className="absolute top-4 right-4 flex flex-col space-y-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="ios-floating-button"
-                  onClick={() => setIsLiked(!isLiked)}
-                >
-                  <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-                </Button>
+              {/* Enhanced Model Stats */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center">
+                  <ImageIcon className="h-6 w-6 text-blue-500 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {model.imagesGenerated || modelImages.length}
+                  </div>
+                  <div className="text-sm text-gray-500">Images Generated</div>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center">
+                  <Download className="h-6 w-6 text-green-500 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {formatDownloads(model.downloads || 0)}
+                  </div>
+                  <div className="text-sm text-gray-500">Total Uses</div>
+                </div>
+                
+                {model.rating && (
+                  <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center">
+                    <Star className="h-6 w-6 text-yellow-500 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {(model.rating / 20).toFixed(1)}
+                    </div>
+                    <div className="text-sm text-gray-500">Rating</div>
+                  </div>
+                )}
+                
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center">
+                  <Settings className="h-6 w-6 text-purple-500 mx-auto mb-2" />
+                  <div className="text-xl font-bold text-gray-900 dark:text-white">
+                    {model.category}
+                  </div>
+                  <div className="text-sm text-gray-500">Checkpoint Type</div>
+                </div>
               </div>
 
-              {/* Featured Badge */}
-              {model.featured === 1 && (
-                <div className="absolute top-4 left-4">
-                  <Badge className="ios-badge bg-yellow-500 text-white">
-                    <Star className="h-3 w-3 mr-1" />
-                    Featured
-                  </Badge>
-                </div>
-              )}
-            </div>
-
-            {/* Model Title & Stats */}
-            <div className="mb-4">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                    {model.name}
-                  </h1>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {model.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Provider & Version */}
-              <div className="flex items-center space-x-4 mb-3">
+              {/* Model Metadata */}
+              <div className="flex flex-wrap gap-2 mb-4">
                 <Badge variant="outline" className="ios-badge">
+                  <Icon className="h-3 w-3 mr-1" />
                   {model.provider}
                 </Badge>
                 <Badge variant="secondary" className="ios-badge">
                   v{model.version}
                 </Badge>
-                <Badge variant="outline" className="ios-badge">
-                  <Icon className="h-3 w-3 mr-1" />
-                  {model.category}
-                </Badge>
+                {model.featured === 1 && (
+                  <Badge className="ios-badge bg-yellow-500 text-white">
+                    <Star className="h-3 w-3 mr-1" />
+                    Featured
+                  </Badge>
+                )}
               </div>
 
-              {/* Stats Row */}
-              <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-                {model.rating && (
-                  <div className="flex items-center space-x-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {(model.rating / 20).toFixed(1)}
-                    </span>
+              {/* Tags */}
+              {model.tags && model.tags.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                    <Tag className="h-5 w-5 mr-2" />
+                    Tags
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {model.tags.map((tag: string) => (
+                      <Badge key={tag} variant="secondary" className="ios-tag">
+                        {tag}
+                      </Badge>
+                    ))}
                   </div>
-                )}
-                <div className="flex items-center space-x-1">
-                  <Download className="h-4 w-4" />
-                  <span>{formatDownloads(model.downloads || 0)} uses</span>
                 </div>
-              </div>
-            </div>
+              )}
 
-            {/* Action Buttons */}
-            <div className="flex space-x-3 mb-6">
-              <Button 
-                className="flex-1 ios-button bg-blue-500 hover:bg-blue-600 text-white"
-                onClick={handleTryModel}
-              >
-                <Play className="h-4 w-4 mr-2" />
-                Try Model
-              </Button>
-              <Button 
-                variant="outline" 
-                className="ios-button"
-                onClick={() => handleCopy(model.modelId, "Model ID")}
-              >
-                {copiedText === model.modelId ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
+              {/* Action Buttons */}
+              <div className="flex space-x-3 mb-6">
+                <Button 
+                  className="flex-1 ios-button bg-blue-500 hover:bg-blue-600 text-white"
+                  onClick={handleTryModel}
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Try Model
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="ios-button"
+                  onClick={() => handleCopy(model.modelId, "Model ID")}
+                >
+                  {copiedText === model.modelId ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="ios-button"
+                  onClick={handleShare}
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -359,28 +389,84 @@ export default function ModelDetailPage() {
               </TabsContent>
 
               <TabsContent value="gallery" className="mt-4">
-                {model.gallery && model.gallery.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-3">
-                    {model.gallery.map((image, index) => (
-                      <div key={index} className="aspect-square rounded-xl overflow-hidden">
-                        <img 
-                          src={image} 
-                          alt={`${model.name} example ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Generated Images ({modelImages.length})
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    Images created by users with this model
+                  </p>
+                </div>
+                
+                {modelImages.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {modelImages.map((image: ModelImage) => (
+                      <Card key={image.id} className="ios-card overflow-hidden">
+                        <div className="aspect-square overflow-hidden">
+                          <img 
+                            src={image.imageUrl} 
+                            alt={image.prompt}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <CardContent className="p-4">
+                          <div className="mb-2">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                              "{image.prompt}"
+                            </p>
+                          </div>
+                          
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              <User className="h-4 w-4 text-gray-400" />
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                {image.username}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center space-x-1">
+                              {Array.from({ length: image.rarityStars }).map((_, i) => (
+                                <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                              ))}
+                              <Badge 
+                                variant="secondary" 
+                                className={`text-xs ${
+                                  image.rarityTier === 'LEGENDARY' ? 'bg-orange-500 text-white' :
+                                  image.rarityTier === 'EPIC' ? 'bg-purple-500 text-white' :
+                                  image.rarityTier === 'RARE' ? 'bg-blue-500 text-white' :
+                                  'bg-gray-500 text-white'
+                                }`}
+                              >
+                                {image.rarityTier}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            <Clock className="h-3 w-3 mr-1" />
+                            {new Date(image.createdAt).toLocaleDateString()}
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 ) : (
                   <Card className="ios-card">
                     <CardContent className="text-center py-8">
-                      <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                       <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-                        No gallery images
+                        No images generated yet
                       </h3>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">
-                        Gallery images will appear here when available.
+                      <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
+                        Be the first to create something amazing with this model!
                       </p>
+                      <Button 
+                        className="ios-button bg-blue-500 hover:bg-blue-600 text-white"
+                        onClick={handleTryModel}
+                      >
+                        <Play className="h-4 w-4 mr-2" />
+                        Generate First Image
+                      </Button>
                     </CardContent>
                   </Card>
                 )}
