@@ -179,13 +179,18 @@ export default function ModelDetailPage() {
                     <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                       {model.description}
                     </p>
-                    <div className="flex items-center space-x-2 mt-2">
+                    <div className="flex items-center flex-wrap gap-2 mt-2">
                       <Badge variant="outline" className="text-xs">
                         {model.provider}
                       </Badge>
                       <Badge variant="secondary" className="text-xs">
                         {model.category}
                       </Badge>
+                      {model.tags && model.tags.map((tag: string) => (
+                        <Badge key={tag} variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800">
+                          {tag}
+                        </Badge>
+                      ))}
                     </div>
                   </div>
                 </div>
