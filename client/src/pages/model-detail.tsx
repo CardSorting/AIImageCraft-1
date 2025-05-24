@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams, useLocation } from "wouter";
 import { 
@@ -152,11 +152,45 @@ export default function ModelDetailPage() {
 
       <ScrollArea className="h-[calc(100vh-60px)]">
         <div className="pb-20">
-          {/* Simplified Header */}
+          {/* Model Card and Try Button */}
           <div className="p-4">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              {model.name}
-            </h1>
+            {/* Model Preview Card */}
+            <Card className="ios-card mb-4">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 flex-shrink-0">
+                    {model.thumbnail ? (
+                      <img 
+                        src={model.thumbnail} 
+                        alt={model.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <Brain className="h-8 w-8 text-blue-500" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                      {model.name}
+                    </h2>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                      {model.description}
+                    </p>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Badge variant="outline" className="text-xs">
+                        {model.provider}
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        {model.category}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             
             {/* Try Model Button */}
             <Button 
