@@ -15,8 +15,9 @@ export class LocalStorageImageFeedRepository implements IImageFeedRepository {
   // Query operations (CQRS Read side)
   async getAllImages(): Promise<GeneratedImage[]> {
     // Fetch from API using existing query client
-    const response = await apiRequest('/api/images');
-    return Array.isArray(response) ? response : [];
+    const response = await apiRequest('GET', '/api/images');
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
   }
 
   async getViewedImages(sessionId: string, userId?: number): Promise<ViewedImage[]> {
