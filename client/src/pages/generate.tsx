@@ -66,6 +66,7 @@ export default function Generate() {
     const modelParam = urlParams.get('model');
     const aspectRatioParam = urlParams.get('aspectRatio');
     
+    // Only trigger highlighting and toast if there are actual parameters from home feed
     if (promptParam || modelParam || aspectRatioParam) {
       // Set form values from URL parameters
       if (promptParam) {
@@ -85,8 +86,12 @@ export default function Generate() {
         description: "Image settings have been pre-filled from your selection",
       });
       
-      // Remove highlight after 3 seconds
-      setTimeout(() => setHighlightPrompt(false), 3000);
+      // Remove highlight after 3 seconds and clear URL params
+      setTimeout(() => {
+        setHighlightPrompt(false);
+        // Clear URL parameters to prevent highlighting on refresh
+        window.history.replaceState({}, '', window.location.pathname);
+      }, 3000);
     } else {
       // Default to Juggernaut Pro Flux if no model is selected
       form.setValue('model', 'rundiffusion:130@100');
