@@ -104,6 +104,7 @@ export default function ModelDetailPage() {
   // Fetch generated images from this model
   const { data: generatedImages } = useQuery<any[]>({
     queryKey: ["/api/images/by-model", id],
+    queryFn: () => fetch(`/api/images/by-model/${id}`).then(res => res.json()),
     enabled: !!id,
   });
 
