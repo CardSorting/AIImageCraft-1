@@ -58,18 +58,29 @@ export default function Generate() {
     },
   });
 
-  // Handle model parameter from URL
+  // Handle parameters from URL (when clicking from home feed)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
+    const promptParam = urlParams.get('prompt');
     const modelParam = urlParams.get('model');
+    const aspectRatioParam = urlParams.get('aspectRatio');
     
-    if (modelParam) {
-      // Set the model in the form
-      form.setValue('model', modelParam);
-      // Show a toast to indicate the model was pre-selected
+    if (promptParam || modelParam || aspectRatioParam) {
+      // Set form values from URL parameters
+      if (promptParam) {
+        form.setValue('prompt', promptParam);
+      }
+      if (modelParam) {
+        form.setValue('model', modelParam);
+      }
+      if (aspectRatioParam) {
+        form.setValue('aspectRatio', aspectRatioParam);
+      }
+      
+      // Show toast to indicate settings were loaded
       toast({
-        title: "Model Selected",
-        description: `Ready to create with ${modelParam}`,
+        title: "Settings Loaded",
+        description: "Image settings have been pre-filled from your selection",
       });
     } else {
       // Default to Juggernaut Pro Flux if no model is selected

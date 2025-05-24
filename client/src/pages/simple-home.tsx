@@ -1,108 +1,179 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Sparkles, Image, Zap, ArrowRight } from "lucide-react";
-import { Link } from "wouter";
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
+import { type GeneratedImage } from "@shared/schema";
 
 export default function SimpleHome() {
-  // Get total images count for the badge
-  const { data: images } = useQuery({
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [, navigate] = useLocation();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Get images from the API
+  const { data: images, isLoading } = useQuery({
     queryKey: ["/api/images"],
   });
 
-  const imageCount = Array.isArray(images) ? images.length : 0;
+  const imageList = Array.isArray(images) ? images : [];
+
+  // Handle scroll to navigate between images
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      
+      if (e.deltaY > 0 && currentIndex < imageList.length - 1) {
+        // Scroll down
+        setCurrentIndex(prev => prev + 1);
+      } else if (e.deltaY < 0 && currentIndex > 0) {
+        // Scroll up
+        setCurrentIndex(prev => prev - 1);
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+      return () => container.removeEventListener('wheel', handleWheel);
+    }
+  }, [currentIndex, imageList.length]);
+
+  // Handle touch gestures for mobile
+  useEffect(() => {
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      touchEndY = e.changedTouches[0].clientY;
+      const diff = touchStartY - touchEndY;
+
+      if (Math.abs(diff) > 50) { // Minimum swipe distance
+        if (diff > 0 && currentIndex < imageList.length - 1) {
+          // Swipe up - next image
+          setCurrentIndex(prev => prev + 1);
+        } else if (diff < 0 && currentIndex > 0) {
+          // Swipe down - previous image
+          setCurrentIndex(prev => prev - 1);
+        }
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('touchstart', handleTouchStart, { passive: true });
+      container.addEventListener('touchmove', handleTouchMove, { passive: false });
+      container.addEventListener('touchend', handleTouchEnd, { passive: true });
+      
+      return () => {
+        container.removeEventListener('touchstart', handleTouchStart);
+        container.removeEventListener('touchmove', handleTouchMove);
+        container.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
+  }, [currentIndex, imageList.length]);
+
+  // Handle image click to navigate to create page with metadata
+  const handleImageClick = (image: GeneratedImage) => {
+    // Create URL with the image metadata as query parameters
+    const params = new URLSearchParams({
+      prompt: image.prompt || '',
+      model: image.modelId || '',
+      aspectRatio: image.aspectRatio || '1:1'
+    });
+    
+    navigate(`/generate?${params.toString()}`);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-lg">Loading images...</div>
+      </div>
+    );
+  }
+
+  if (imageList.length === 0) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
+        <h2 className="text-2xl font-bold mb-4">No images yet</h2>
+        <p className="text-white/60 mb-8">Create your first AI image to get started</p>
+        <button 
+          onClick={() => navigate('/generate')}
+          className="px-6 py-3 bg-primary rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+        >
+          Start Creating
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/80">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <Sparkles className="h-12 w-12 text-primary mr-3" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              AI Image Studio
-            </h1>
+    <div 
+      ref={containerRef}
+      className="min-h-screen bg-black overflow-hidden relative"
+    >
+      {imageList.map((image, index) => (
+        <div
+          key={image.id}
+          ref={(el) => itemRefs.current[index] = el}
+          className={`
+            absolute inset-0 transition-transform duration-500 ease-out cursor-pointer
+            ${index === currentIndex ? 'translate-y-0' : 
+              index < currentIndex ? '-translate-y-full' : 'translate-y-full'
+            }
+          `}
+          onClick={() => handleImageClick(image)}
+        >
+          <div className="relative w-full h-full flex items-center justify-center">
+            <img 
+              src={image.imageUrl}
+              alt={image.prompt || 'AI Generated Image'}
+              className="max-w-full max-h-full object-contain"
+            />
+            
+            {/* Subtle overlay with prompt hint */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-transparent to-transparent p-6">
+              <p className="text-white/80 text-sm line-clamp-2 max-w-2xl">
+                "{image.prompt}"
+              </p>
+              <p className="text-white/50 text-xs mt-2">
+                Click to recreate with these settings
+              </p>
+            </div>
           </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Transform your ideas into stunning AI-generated images with cutting-edge technology
-          </p>
-          {imageCount > 0 && (
-            <Badge variant="outline" className="mt-4 bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800">
-              {imageCount} Images Created
-            </Badge>
-          )}
         </div>
+      ))}
 
-        {/* Main Action */}
-        <div className="text-center mb-16">
-          <Link href="/generate">
-            <Button size="lg" className="text-lg px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-              <Zap className="h-5 w-5 mr-2" />
-              Start Creating
-              <ArrowRight className="h-5 w-5 ml-2" />
-            </Button>
-          </Link>
-        </div>
-
-        {/* Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow duration-200">
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Image className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">AI-Powered Generation</h3>
-              <p className="text-sm text-muted-foreground">
-                Advanced AI models create high-quality images from your text descriptions
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow duration-200">
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">Multiple Models</h3>
-              <p className="text-sm text-muted-foreground">
-                Choose from various AI models to match your creative vision
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow duration-200">
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">Fast & Easy</h3>
-              <p className="text-sm text-muted-foreground">
-                Generate professional-quality images in seconds with simple prompts
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Links */}
-        <div className="flex flex-wrap justify-center gap-4">
-          <Link href="/gallery">
-            <Button variant="outline" className="rounded-lg">
-              View Gallery
-            </Button>
-          </Link>
-          <Link href="/models">
-            <Button variant="outline" className="rounded-lg">
-              Browse Models
-            </Button>
-          </Link>
-          <Link href="/history">
-            <Button variant="outline" className="rounded-lg">
-              My History
-            </Button>
-          </Link>
-        </div>
+      {/* Navigation indicators */}
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col space-y-2 z-10">
+        {imageList.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`
+              w-1 h-8 rounded-full transition-all duration-200
+              ${index === currentIndex 
+                ? 'bg-white' 
+                : 'bg-white/30 hover:bg-white/50'
+              }
+            `}
+          />
+        ))}
       </div>
+
+      {/* Scroll hint */}
+      {imageList.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/60 text-sm z-10">
+          Scroll or swipe to explore
+        </div>
+      )}
     </div>
   );
 }
