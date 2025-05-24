@@ -14,28 +14,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/images/:id", (req, res) => imageController.getImageById(req, res));
   app.delete("/api/images/:id", (req, res) => imageController.deleteImage(req, res));
 
-  // Get images by model
+  // Get images by model - using direct database access for authentic data
   app.get("/api/images/by-model/:modelId", async (req, res) => {
     try {
       const { modelId } = req.params;
-      const { limit = 20 } = req.query;
+      const { limit = 12 } = req.query;
       
       // Validate modelId parameter
       if (!modelId || isNaN(Number(modelId))) {
         return res.status(400).json({ error: "Invalid model ID" });
       }
       
-      // Find model by ID first
+      // Find model by ID first to verify it exists
       const model = await storage.getAIModelById(Number(modelId));
       if (!model) {
         return res.status(404).json({ error: "Model not found" });
       }
       
-      // Get all actual images from your database
-      const allImages = await storage.getImages(100);
+      // Get your authentic images directly from the database
+      const images = await storage.getImages(Number(limit));
       
-      // Return real images from your database
-      res.json(allImages.slice(0, Number(limit)));
+      res.json(images);
     } catch (error) {
       console.error("Error fetching images by model:", error);
       res.status(500).json({ error: "Failed to fetch images for model" });
