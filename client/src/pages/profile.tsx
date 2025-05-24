@@ -1,4 +1,4 @@
-import { User, Settings, Key, Bell, Shield, Trash2, LogOut, Edit3 } from "lucide-react";
+import { User, Settings, Key, Bell, Shield, LogOut, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,21 +99,6 @@ export default function Profile() {
             </div>
             <Switch defaultChecked />
           </div>
-        </div>
-      </section>
-
-      {/* Danger Zone */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-red-500 mb-4">Danger Zone</h2>
-        
-        <div className="card-ios border-red-200 dark:border-red-800">
-          <button className="list-item-ios w-full text-left">
-            <Trash2 className="h-5 w-5 text-red-500 mr-3" />
-            <div className="flex-1">
-              <div className="font-medium text-red-500">Delete Account</div>
-              <div className="text-sm text-muted-foreground">Permanently delete your account and all data</div>
-            </div>
-          </button>
         </div>
       </section>
 
