@@ -38,7 +38,7 @@ interface ImageGenerationResponse {
 export default function Generate() {
   const [activeTab, setActiveTab] = useState("create");
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [selectedLoras, setSelectedLoras] = useState<Array<{model: string; weight: number}>>([]);
+
   const [showSettings, setShowSettings] = useState(false);
   const [galleryView, setGalleryView] = useState<"grid" | "list">("grid");
   const { toast } = useToast();
@@ -97,10 +97,7 @@ export default function Generate() {
 
   const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
     mutationFn: async (data) => {
-      const response = await apiRequest("POST", "/api/generate-images", {
-        ...data,
-        loras: selectedLoras
-      });
+      const response = await apiRequest("POST", "/api/generate-images", data);
       return response.json();
     },
     onSuccess: (data) => {
@@ -111,7 +108,6 @@ export default function Generate() {
       queryClient.invalidateQueries({ queryKey: ["/api/images"] });
       refetch();
       form.reset();
-      setSelectedLoras([]);
     },
     onError: (error) => {
       toast({
@@ -889,106 +885,7 @@ export default function Generate() {
           )}
         />
 
-        {/* Enhanced LoRA Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <FormLabel className="text-base font-medium flex items-center space-x-2">
-              <Palette className="h-4 w-4" />
-              <span>Style Enhancers (LoRA)</span>
-            </FormLabel>
-            <Badge variant="secondary" className="text-xs">
-              {selectedLoras.length} active
-            </Badge>
-          </div>
-          
-          {selectedLoras.length > 0 && (
-            <div className="space-y-3">
-              {selectedLoras.map((lora, index) => (
-                <Card key={index} className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">{lora.model}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedLoras(selectedLoras.filter((_, i) => i !== index));
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Strength:</span>
-                      <Badge variant={lora.weight >= 1.5 ? "default" : lora.weight >= 1 ? "secondary" : "outline"}>
-                        {lora.weight >= 1.5 ? "Strong" : lora.weight >= 1 ? "Medium" : "Subtle"}
-                      </Badge>
-                    </div>
-                    <Slider
-                      value={[lora.weight]}
-                      onValueChange={(value) => {
-                        const newLoras = [...selectedLoras];
-                        newLoras[index].weight = value[0];
-                        setSelectedLoras(newLoras);
-                      }}
-                      max={2}
-                      min={0.1}
-                      step={0.1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Subtle (0.1)</span>
-                      <span className="font-medium">{lora.weight}</span>
-                      <span>Strong (2.0)</span>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
 
-          <div className="space-y-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSelectedLoras([...selectedLoras, { model: "portrait-style", weight: 1.0 }]);
-              }}
-              className="w-full"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Portrait Style
-            </Button>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedLoras([...selectedLoras, { model: "anime-style", weight: 1.2 }]);
-                }}
-                className="text-xs"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                Anime
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedLoras([...selectedLoras, { model: "realistic-skin", weight: 0.8 }]);
-                }}
-                className="text-xs"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                Realistic
-              </Button>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Quick Presets */}
@@ -1185,47 +1082,101 @@ export default function Generate() {
                         )}
                       />
 
-                      {/* Quick Prompt Suggestions */}
-                      <div className="grid grid-cols-2 gap-2">
-                        {[
-                          "Majestic dragon",
-                          "Cyberpunk city",
-                          "Fantasy castle",
-                          "Space station"
-                        ].map((suggestion) => (
-                          <Button
-                            key={suggestion}
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => addQuickPrompt(suggestion)}
-                            className="text-xs"
-                          >
-                            {suggestion}
-                          </Button>
-                        ))}
-                      </div>
 
-                      {/* Aspect Ratio */}
+
+                      {/* Aspect Ratio - Desktop with Mobile Styling */}
                       <FormField
                         control={form.control}
                         name="aspectRatio"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Aspect Ratio</FormLabel>
+                          <FormItem className="space-y-3">
+                            <FormLabel className="text-sm font-medium">Select a Size</FormLabel>
                             <FormControl>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="1:1">Square (1:1)</SelectItem>
-                                  <SelectItem value="4:3">Landscape (4:3)</SelectItem>
-                                  <SelectItem value="16:9">Widescreen (16:9)</SelectItem>
-                                  <SelectItem value="3:4">Portrait (3:4)</SelectItem>
-                                  <SelectItem value="9:16">Mobile (9:16)</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <div className="grid grid-cols-5 gap-3">
+                                {[
+                                  { 
+                                    value: "1:1", 
+                                    label: "Square", 
+                                    description: "Perfect for social media",
+                                    icon: Square,
+                                    iconSize: "w-5 h-5",
+                                    popular: true
+                                  },
+                                  { 
+                                    value: "4:3", 
+                                    label: "Landscape", 
+                                    description: "Classic photo format",
+                                    icon: RectangleHorizontal,
+                                    iconSize: "w-6 h-4",
+                                    popular: false
+                                  },
+                                  { 
+                                    value: "16:9", 
+                                    label: "Widescreen", 
+                                    description: "Cinematic format",
+                                    icon: MonitorSpeaker,
+                                    iconSize: "w-6 h-4",
+                                    popular: false
+                                  },
+                                  { 
+                                    value: "3:4", 
+                                    label: "Portrait", 
+                                    description: "Tall format",
+                                    icon: Tablet,
+                                    iconSize: "w-4 h-6",
+                                    popular: false
+                                  },
+                                  { 
+                                    value: "9:16", 
+                                    label: "Mobile", 
+                                    description: "Stories & reels",
+                                    icon: Smartphone,
+                                    iconSize: "w-4 h-6",
+                                    popular: true
+                                  }
+                                ].map((ratio) => (
+                                  <div key={ratio.value} className="relative">
+                                    <Button
+                                      type="button"
+                                      variant={field.value === ratio.value ? "default" : "outline"}
+                                      onClick={() => field.onChange(ratio.value)}
+                                      className={`w-full h-20 p-3 flex flex-col items-center justify-center relative transition-all duration-200 ${
+                                        field.value === ratio.value 
+                                          ? "ring-2 ring-primary ring-offset-2 shadow-md" 
+                                          : "hover:shadow-sm"
+                                      }`}
+                                    >
+                                      {/* Icon Representation */}
+                                      <div className="flex items-center justify-center mb-2">
+                                        <ratio.icon className={`${ratio.iconSize} ${
+                                          field.value === ratio.value ? "text-primary-foreground" : "text-muted-foreground"
+                                        }`} />
+                                      </div>
+                                      
+                                      {/* Labels */}
+                                      <div className="text-center">
+                                        <div className="text-xs font-semibold">{ratio.label}</div>
+                                        <div className="text-xs text-muted-foreground">{ratio.value}</div>
+                                      </div>
+                                      
+                                      {/* Popular Badge */}
+                                      {ratio.popular && (
+                                        <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 flex items-center justify-center">
+                                          <Star className="w-2 h-2" />
+                                        </div>
+                                      )}
+                                    </Button>
+                                    
+                                    {/* Description Tooltip on Selection */}
+                                    {field.value === ratio.value && (
+                                      <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md whitespace-nowrap z-10">
+                                        {ratio.description}
+                                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rotate-45"></div>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
