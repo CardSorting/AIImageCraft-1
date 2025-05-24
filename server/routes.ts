@@ -2,7 +2,6 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { ImageController } from "./presentation/controllers/ImageController";
 import { StatisticsController } from "./presentation/controllers/StatisticsController";
-
 import { storage } from "./storage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -12,63 +11,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Image generation and management endpoints using Clean Architecture
   app.post("/api/generate-images", (req, res) => imageController.generateImages(req, res));
   app.get("/api/images", (req, res) => imageController.getImages(req, res));
-  
-  // Get images by model - using direct database access for authentic data (MUST come before /api/images/:id)
-  app.get("/api/images/by-model/:modelId", async (req, res) => {
-    try {
-      const { modelId } = req.params;
-      const { limit = 12 } = req.query;
-      
-      // Validate modelId parameter
-      if (!modelId || isNaN(Number(modelId))) {
-        return res.status(400).json({ error: "Invalid model ID" });
-      }
-      
-      // Find model by ID first to verify it exists
-      const model = await storage.getAIModelById(Number(modelId));
-      if (!model) {
-        return res.status(404).json({ error: "Model not found" });
-      }
-      
-      // Get your authentic images directly from the database
-      const images = await storage.getImages(Number(limit));
-      
-      res.json(images);
-    } catch (error) {
-      console.error("Error fetching images by model:", error);
-      res.status(500).json({ error: "Failed to fetch images for model" });
-    }
-  });
-
-  // Generic image routes (MUST come after specific routes like /by-model)
   app.get("/api/images/:id", (req, res) => imageController.getImageById(req, res));
   app.delete("/api/images/:id", (req, res) => imageController.deleteImage(req, res));
-
-  // Simplified authentic data endpoints
-  app.get("/api/v1/models/:id/detail", async (req, res) => {
-    try {
-      const modelId = parseInt(req.params.id);
-      if (isNaN(modelId)) {
-        return res.status(400).json({ error: "Invalid model ID" });
-      }
-
-      const model = await storage.getAIModelById(modelId);
-      if (!model) {
-        return res.status(404).json({ error: "Model not found" });
-      }
-
-      res.json({
-        success: true,
-        data: {
-          model,
-          engagement: { isLiked: false, isBookmarked: false },
-          images: { items: [], pagination: { total: 0, limit: 12, offset: 0, hasMore: false } }
-        }
-      });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch model details" });
-    }
-  });
 
   // AI Model endpoints
   app.get("/api/models", async (req, res) => {
