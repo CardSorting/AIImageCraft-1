@@ -4,7 +4,7 @@
  * Implements proper separation of concerns with authentic data
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams, useLocation } from "wouter";
 import { 
   ArrowLeft, 
@@ -45,7 +45,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import type { AIModel } from "@shared/schema";
 
 const categoryIcons = {
@@ -80,15 +81,18 @@ interface Review {
 export default function ModelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
+  const [isLiked, setIsLiked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const userId = 1; // Current user ID
 
   // Fetch authentic model data from the database
-  const { data: model, isLoading: modelLoading } = useQuery<AIModel>({
+  const { data: model, isLoading: modelLoading, error } = useQuery<AIModel>({
     queryKey: ["/api/models", id],
     enabled: !!id,
   });
@@ -253,7 +257,7 @@ export default function ModelDetailPage() {
     }
   };
 
-  if (isLoading) {
+  if (modelLoading) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-950">
         <div className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
