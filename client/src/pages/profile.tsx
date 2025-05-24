@@ -1,4 +1,4 @@
-import { User, Settings, Key, Bell, Shield, LogOut, Edit3 } from "lucide-react";
+import { User, Settings, Key, Bell, LogOut, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,15 +65,6 @@ export default function Profile() {
               <div className="text-sm text-muted-foreground">Update your password</div>
             </div>
           </button>
-          
-          <div className="list-item-ios">
-            <Shield className="h-5 w-5 text-muted-foreground mr-3" />
-            <div className="flex-1">
-              <div className="font-medium text-foreground">Two-Factor Authentication</div>
-              <div className="text-sm text-muted-foreground">Add extra security to your account</div>
-            </div>
-            <Switch />
-          </div>
         </div>
       </section>
 
