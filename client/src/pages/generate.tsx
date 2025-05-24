@@ -39,6 +39,7 @@ export default function Generate() {
   const [activeTab, setActiveTab] = useState("create");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [highlightPrompt, setHighlightPrompt] = useState(false);
+  const [newlyCreatedImageIds, setNewlyCreatedImageIds] = useState<number[]>([]);
 
   const [showSettings, setShowSettings] = useState(false);
   const [galleryView, setGalleryView] = useState<"grid" | "list">("grid");
@@ -127,7 +128,18 @@ export default function Generate() {
         description: "Your masterpiece has been added to the gallery",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/images"] });
-      refetch();
+      refetch().then((result) => {
+        // Mark newly created images for highlighting
+        if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+          const latestImageId = result.data[0].id;
+          setNewlyCreatedImageIds(prev => [...prev, latestImageId]);
+          
+          // Remove the highlight after 5 seconds
+          setTimeout(() => {
+            setNewlyCreatedImageIds(prev => prev.filter(id => id !== latestImageId));
+          }, 5000);
+        }
+      });
       form.reset();
     },
     onError: (error) => {
@@ -596,7 +608,7 @@ export default function Generate() {
                   rarityStars: image.rarityStars || 1,
                   rarityLetter: image.rarityLetter || 'S',
                 }}
-                isNewest={index === 0}
+                isNewest={newlyCreatedImageIds.includes(image.id)}
               />
             </div>
           ))}
