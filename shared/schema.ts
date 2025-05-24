@@ -10,6 +10,8 @@ export const users = pgTable("users", {
 
 export const generatedImages = pgTable("generated_images", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  modelId: text("model_id").notNull(),
   prompt: text("prompt").notNull(),
   negativePrompt: text("negative_prompt").default(""),
   aspectRatio: text("aspect_ratio").notNull().default("1:1"),

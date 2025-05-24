@@ -11,6 +11,7 @@ export interface IStorage {
   createImage(image: InsertImage): Promise<GeneratedImage>;
   getImages(limit?: number): Promise<GeneratedImage[]>;
   getImageById(id: number): Promise<GeneratedImage | undefined>;
+  getImagesByModelId(modelId: string, limit?: number): Promise<(GeneratedImage & { username: string })[]>;
   deleteImage(id: number): Promise<boolean>;
   
   // AI Model storage methods
@@ -83,6 +84,35 @@ export class DatabaseStorage implements IStorage {
   async getImageById(id: number): Promise<GeneratedImage | undefined> {
     const [image] = await db.select().from(generatedImages).where(eq(generatedImages.id, id));
     return image || undefined;
+  }
+
+  async getImagesByModelId(modelId: string, limit: number = 20): Promise<(GeneratedImage & { username: string })[]> {
+    const results = await db
+      .select({
+        id: generatedImages.id,
+        userId: generatedImages.userId,
+        modelId: generatedImages.modelId,
+        prompt: generatedImages.prompt,
+        negativePrompt: generatedImages.negativePrompt,
+        aspectRatio: generatedImages.aspectRatio,
+        imageUrl: generatedImages.imageUrl,
+        fileName: generatedImages.fileName,
+        fileSize: generatedImages.fileSize,
+        seed: generatedImages.seed,
+        rarityTier: generatedImages.rarityTier,
+        rarityScore: generatedImages.rarityScore,
+        rarityStars: generatedImages.rarityStars,
+        rarityLetter: generatedImages.rarityLetter,
+        createdAt: generatedImages.createdAt,
+        username: users.username,
+      })
+      .from(generatedImages)
+      .innerJoin(users, eq(generatedImages.userId, users.id))
+      .where(eq(generatedImages.modelId, modelId))
+      .orderBy(desc(generatedImages.createdAt))
+      .limit(limit);
+    
+    return results;
   }
 
   async deleteImage(id: number): Promise<boolean> {
