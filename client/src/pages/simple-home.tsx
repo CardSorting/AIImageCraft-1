@@ -1,43 +1,33 @@
-import { useState, useRef, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { type GeneratedImage } from "@shared/schema";
+import { useRandomizedImageFeed } from "../hooks/useRandomizedImageFeed";
 
 export default function SimpleHome() {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [, navigate] = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isScrolling = useRef(false);
-  const [shuffledImages, setShuffledImages] = useState<GeneratedImage[]>([]);
-  const seenImageIds = useRef<Set<number>>(new Set());
 
-  // Get images from the API
-  const { data: images, isLoading } = useQuery({
-    queryKey: ["/api/images"],
+  // Use the sophisticated randomized image feed hook
+  const {
+    currentImage,
+    currentIndex,
+    totalImages,
+    remainingCount,
+    isLoading,
+    error,
+    goToNext,
+    goToPrevious,
+    goToIndex,
+    sessionId
+  } = useRandomizedImageFeed({
+    autoMarkAsViewed: true, // Automatically mark images as viewed
+    maxImages: 50 // Load up to 50 random images at a time
   });
-
-  const imageList = Array.isArray(images) ? images : [];
-
-  // Initialize shuffled images on first load
-  useEffect(() => {
-    if (imageList.length > 0 && shuffledImages.length === 0) {
-      const shuffled = [...imageList].sort(() => Math.random() - 0.5);
-      setShuffledImages(shuffled);
-    }
-  }, [imageList, shuffledImages.length]);
-
-  // Mark current image as seen
-  useEffect(() => {
-    if (shuffledImages.length > 0 && shuffledImages[currentIndex]) {
-      const currentImage = shuffledImages[currentIndex];
-      seenImageIds.current.add(currentImage.id);
-    }
-  }, [currentIndex, shuffledImages]);
 
   // Handle scroll to navigate between images with throttling
   useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
+    const handleWheel = async (e: WheelEvent) => {
       e.preventDefault();
       
       // Prevent rapid scrolling
@@ -45,12 +35,12 @@ export default function SimpleHome() {
       
       isScrolling.current = true;
       
-      if (e.deltaY > 0 && currentIndex < shuffledImages.length - 1) {
-        // Scroll down
-        setCurrentIndex(prev => prev + 1);
+      if (e.deltaY > 0) {
+        // Scroll down - go to next random image
+        await goToNext();
       } else if (e.deltaY < 0 && currentIndex > 0) {
-        // Scroll up
-        setCurrentIndex(prev => prev - 1);
+        // Scroll up - go to previous image
+        goToPrevious();
       }
       
       // Reset scroll throttle after animation completes
@@ -64,7 +54,7 @@ export default function SimpleHome() {
       container.addEventListener('wheel', handleWheel, { passive: false });
       return () => container.removeEventListener('wheel', handleWheel);
     }
-  }, [currentIndex, imageList.length]);
+  }, [currentIndex, goToNext, goToPrevious]);
 
   // Handle touch gestures for mobile with throttling
   useEffect(() => {
@@ -81,7 +71,7 @@ export default function SimpleHome() {
       e.preventDefault();
     };
 
-    const handleTouchEnd = (e: TouchEvent) => {
+    const handleTouchEnd = async (e: TouchEvent) => {
       if (isTouchScrolling) return;
       
       touchEndY = e.changedTouches[0].clientY;
@@ -90,12 +80,12 @@ export default function SimpleHome() {
       if (Math.abs(diff) > 50) { // Minimum swipe distance
         isTouchScrolling = true;
         
-        if (diff > 0 && currentIndex < shuffledImages.length - 1) {
-          // Swipe up - next image
-          setCurrentIndex(prev => prev + 1);
+        if (diff > 0) {
+          // Swipe up - next random image
+          await goToNext();
         } else if (diff < 0 && currentIndex > 0) {
           // Swipe down - previous image
-          setCurrentIndex(prev => prev - 1);
+          goToPrevious();
         }
         
         // Reset touch throttle after animation completes
@@ -117,7 +107,7 @@ export default function SimpleHome() {
         container.removeEventListener('touchend', handleTouchEnd);
       };
     }
-  }, [currentIndex, imageList.length]);
+  }, [currentIndex, goToNext, goToPrevious]);
 
   // Handle image click to navigate to create page with metadata
   const handleImageClick = (image: GeneratedImage) => {
@@ -134,12 +124,27 @@ export default function SimpleHome() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-lg">Loading images...</div>
+        <div className="text-white text-lg">Loading random images...</div>
       </div>
     );
   }
 
-  if (imageList.length === 0) {
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
+        <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
+        <p className="text-white/60 mb-8">{error}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-6 py-3 bg-primary rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (!currentImage) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <h2 className="text-2xl font-bold mb-4">No images yet</h2>
@@ -159,44 +164,36 @@ export default function SimpleHome() {
       ref={containerRef}
       className="min-h-screen bg-black overflow-hidden relative"
     >
-      {imageList.map((image, index) => (
-        <div
-          key={image.id}
-          ref={(el) => itemRefs.current[index] = el}
-          className={`
-            absolute inset-0 transition-transform duration-700 ease-in-out cursor-pointer
-            ${index === currentIndex ? 'translate-y-0' : 
-              index < currentIndex ? '-translate-y-full' : 'translate-y-full'
-            }
-          `}
-          onClick={() => handleImageClick(image)}
-        >
-          <div className="relative w-full h-full flex items-center justify-center">
-            <img 
-              src={image.imageUrl}
-              alt={image.prompt || 'AI Generated Image'}
-              className="max-w-full max-h-full object-contain"
-            />
-            
-            {/* Subtle overlay with prompt hint */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-transparent to-transparent p-6">
-              <p className="text-white/80 text-sm line-clamp-2 max-w-2xl">
-                "{image.prompt}"
-              </p>
-              <p className="text-white/50 text-xs mt-2">
-                Click to recreate with these settings
-              </p>
-            </div>
+      {/* Current Image Display */}
+      <div
+        className="absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer"
+        onClick={() => handleImageClick(currentImage)}
+      >
+        <div className="relative w-full h-full flex items-center justify-center">
+          <img 
+            src={currentImage.imageUrl}
+            alt={currentImage.prompt || 'AI Generated Image'}
+            className="max-w-full max-h-full object-contain"
+          />
+          
+          {/* Subtle overlay with prompt hint */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-transparent to-transparent p-6">
+            <p className="text-white/80 text-sm line-clamp-2 max-w-2xl">
+              "{currentImage.prompt}"
+            </p>
+            <p className="text-white/50 text-xs mt-2">
+              Click to recreate with these settings
+            </p>
           </div>
         </div>
-      ))}
+      </div>
 
-      {/* Navigation indicators */}
+      {/* Navigation indicators - showing progress through unique images */}
       <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col space-y-2 z-10">
-        {imageList.map((_, index) => (
+        {Array.from({ length: Math.min(totalImages, 10) }).map((_, index) => (
           <button
             key={index}
-            onClick={() => setCurrentIndex(index)}
+            onClick={() => goToIndex(index)}
             className={`
               w-1 h-8 rounded-full transition-all duration-200
               ${index === currentIndex 
@@ -208,12 +205,16 @@ export default function SimpleHome() {
         ))}
       </div>
 
+      {/* Progress info */}
+      <div className="absolute top-4 left-4 text-white/60 text-xs z-10">
+        <div>Session: {sessionId.slice(0, 8)}...</div>
+        <div>Remaining: {remainingCount} unique images</div>
+      </div>
+
       {/* Scroll hint */}
-      {imageList.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/60 text-sm z-10">
-          Scroll or swipe to explore
-        </div>
-      )}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/60 text-sm z-10">
+        Scroll or swipe to discover unique images
+      </div>
     </div>
   );
 }
