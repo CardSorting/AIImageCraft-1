@@ -38,6 +38,7 @@ interface ImageGenerationResponse {
 export default function Generate() {
   const [activeTab, setActiveTab] = useState("create");
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [highlightPrompt, setHighlightPrompt] = useState(false);
 
   const [showSettings, setShowSettings] = useState(false);
   const [galleryView, setGalleryView] = useState<"grid" | "list">("grid");
@@ -73,15 +74,19 @@ export default function Generate() {
       if (modelParam) {
         form.setValue('model', modelParam);
       }
-      if (aspectRatioParam) {
-        form.setValue('aspectRatio', aspectRatioParam);
+      if (aspectRatioParam && ['1:1', '16:9', '9:16', '3:4', '4:3'].includes(aspectRatioParam)) {
+        form.setValue('aspectRatio', aspectRatioParam as '1:1' | '16:9' | '9:16' | '3:4' | '4:3');
       }
       
-      // Show toast to indicate settings were loaded
+      // Show toast to indicate settings were loaded and highlight prompt
+      setHighlightPrompt(true);
       toast({
         title: "Settings Loaded",
         description: "Image settings have been pre-filled from your selection",
       });
+      
+      // Remove highlight after 3 seconds
+      setTimeout(() => setHighlightPrompt(false), 3000);
     } else {
       // Default to Juggernaut Pro Flux if no model is selected
       form.setValue('model', 'rundiffusion:130@100');
@@ -1084,7 +1089,11 @@ export default function Generate() {
                             <FormControl>
                               <Textarea
                                 placeholder="A serene mountain lake at sunset with golden reflections, photorealistic, 8k..."
-                                className="min-h-[100px] resize-none"
+                                className={`min-h-[100px] resize-none transition-all duration-500 ${
+                                  highlightPrompt 
+                                    ? 'ring-2 ring-primary ring-offset-2 bg-primary/5 border-primary animate-pulse' 
+                                    : ''
+                                }`}
                                 {...field}
                               />
                             </FormControl>

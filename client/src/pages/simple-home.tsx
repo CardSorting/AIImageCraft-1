@@ -124,7 +124,7 @@ export default function SimpleHome() {
           key={image.id}
           ref={(el) => itemRefs.current[index] = el}
           className={`
-            absolute inset-0 transition-transform duration-500 ease-out cursor-pointer
+            absolute inset-0 transition-transform duration-700 ease-in-out cursor-pointer
             ${index === currentIndex ? 'translate-y-0' : 
               index < currentIndex ? '-translate-y-full' : 'translate-y-full'
             }
