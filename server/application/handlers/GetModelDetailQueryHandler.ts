@@ -6,7 +6,6 @@
 
 import { GetModelDetailQuery, GetModelEngagementQuery, GetModelImagesQuery } from '../queries/GetModelDetailQuery.js';
 import { IStorage } from '../../storage.js';
-import { storage } from '../../storage.js';
 
 /**
  * Response DTOs following Apple's clear data contracts
@@ -50,7 +49,7 @@ export interface ModelDetailResponseDTO {
  * Follows Single Responsibility Principle
  */
 export class GetModelDetailQueryHandler {
-  constructor(private readonly storage: IStorage = storage) {}
+  constructor(private readonly storage: IStorage) {}
 
   async handle(query: GetModelDetailQuery): Promise<ModelDetailResponseDTO> {
     if (!query.validate()) {

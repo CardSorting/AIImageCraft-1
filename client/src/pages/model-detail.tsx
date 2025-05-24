@@ -121,36 +121,11 @@ export default function ModelDetailPage() {
     enabled: !!id,
   });
 
-  // Mock reviews for demonstration (replace with real API)
-  const mockReviews: Review[] = [
-    {
-      id: 1,
-      userId: 1,
-      username: "PixelArtist",
-      rating: 5,
-      comment: "Incredible results! The level of detail and creativity is amazing. Perfect for professional work.",
-      createdAt: "2024-01-15T10:30:00Z",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
-    },
-    {
-      id: 2,
-      userId: 2,
-      username: "CreativeFlow",
-      rating: 5,
-      comment: "Fast generation and stunning quality. This model has become my go-to for client projects.",
-      createdAt: "2024-01-14T15:45:00Z",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face"
-    },
-    {
-      id: 3,
-      userId: 3,
-      username: "DigitalDreamer",
-      rating: 4,
-      comment: "Excellent results with great consistency. Minor tweaks needed for specific styles but overall fantastic.",
-      createdAt: "2024-01-13T09:20:00Z",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
-    }
-  ];
+  // Use authentic data from database instead of mock data
+  const hasReviews = false; // No reviews in database yet
+  const modelDescription = model?.description || "Professional AI model for high-quality image generation";
+  const modelTags = model?.tags || [];
+  const isModelFeatured = model?.featured || false;
 
   // Like mutation
   const likeMutation = useMutation({
@@ -301,7 +276,11 @@ export default function ModelDetailPage() {
 
   const categoryIcon = categoryIcons[model.category as keyof typeof categoryIcons] || Brain;
   const Icon = categoryIcon;
-  const averageRating = mockReviews.reduce((acc, review) => acc + review.rating, 0) / mockReviews.length;
+  
+  // Use authentic statistics from database
+  const modelLikes = stats?.likeCount || 0;
+  const modelBookmarks = stats?.bookmarkCount || 0;
+  const totalGenerations = generatedImages?.length || 0;
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
@@ -619,32 +598,46 @@ export default function ModelDetailPage() {
               </TabsContent>
 
               <TabsContent value="reviews" className="mt-6 space-y-4">
-                {/* Reviews Header */}
+                {/* Reviews Header - Using authentic data */}
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      Reviews & Ratings
+                      Community Feedback
                     </h3>
                     <div className="flex items-center space-x-2 mt-1">
-                      <div className="flex items-center">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star 
-                            key={star} 
-                            className={`h-4 w-4 ${star <= averageRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
-                          />
-                        ))}
-                      </div>
                       <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {averageRating.toFixed(1)} ({mockReviews.length} reviews)
+                        {modelLikes} likes • {modelBookmarks} bookmarks • {totalGenerations} generations
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Reviews List */}
-                <div className="space-y-4">
-                  {mockReviews.map((review) => (
-                    <Card key={review.id} className="border-0 shadow-sm bg-white dark:bg-gray-900 rounded-2xl">
+                {/* Authentic Statistics */}
+                <Card className="border-0 shadow-sm bg-white dark:bg-gray-900 rounded-2xl">
+                  <CardContent className="text-center py-12">
+                    <TrendingUp className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-2">
+                      Model Performance
+                    </h3>
+                    <div className="grid grid-cols-3 gap-4 mt-4">
+                      <div>
+                        <div className="text-2xl font-bold text-blue-600">{modelLikes}</div>
+                        <div className="text-sm text-gray-500">Likes</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-green-600">{modelBookmarks}</div>
+                        <div className="text-sm text-gray-500">Bookmarks</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-purple-600">{totalGenerations}</div>
+                        <div className="text-sm text-gray-500">Images</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Future: Real user reviews will be loaded from database when implemented */}
+                </div>
                       <CardContent className="p-4">
                         <div className="flex items-start space-x-3">
                           <Avatar className="w-10 h-10">
