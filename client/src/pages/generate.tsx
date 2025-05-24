@@ -844,7 +844,7 @@ export default function Generate() {
       {/* Creative Controls Section */}
       <div className="space-y-4">
         <div className="flex items-center space-x-2 pb-2 border-b">
-          <Palette className="h-4 w-4 text-primary" />
+          <Sparkles className="h-4 w-4 text-primary" />
           <h3 className="font-semibold text-lg">Creative Controls</h3>
         </div>
 
