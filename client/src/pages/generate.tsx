@@ -1297,7 +1297,7 @@ export default function Generate() {
                         rarityStars: image.rarityStars || 1,
                         rarityLetter: image.rarityLetter || 'S',
                       }}
-                      isNewest={index === 0}
+                      isNewest={newlyCreatedImageIds.includes(image.id)}
                     />
                   ))
                 ) : (
