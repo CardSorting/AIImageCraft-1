@@ -25,22 +25,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid model ID" });
       }
       
-      // Find model by ID first to get modelId string
+      // Find model by ID first
       const model = await storage.getAIModelById(Number(modelId));
       if (!model) {
         return res.status(404).json({ error: "Model not found" });
       }
       
-      // Get all images and filter by model (for now, until we add model field to schema)
-      const allImages = await storage.getImages(200); // Get more to filter
+      // Get all actual images from your database
+      const allImages = await storage.getImages(100);
       
-      // Get actual images from the database (filter by matching prompt patterns for now)
-      const modelRelatedImages = allImages.filter(image => 
-        image.prompt.toLowerCase().includes(model.category.toLowerCase()) ||
-        image.prompt.toLowerCase().includes(model.name.toLowerCase().split(' ')[0])
-      );
-      
-      res.json(modelRelatedImages.slice(0, Number(limit)));
+      // Return real images from your database
+      res.json(allImages.slice(0, Number(limit)));
     } catch (error) {
       console.error("Error fetching images by model:", error);
       res.status(500).json({ error: "Failed to fetch images for model" });
