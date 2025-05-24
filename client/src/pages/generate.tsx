@@ -18,7 +18,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { 
-  Sparkles, ChevronDown, ChevronRight, Sliders, Palette, Camera, Wand2, 
+  Sparkles, ChevronDown, ChevronRight, Sliders, Camera, Wand2, 
   Brain, Zap, Star, Plus, X, Settings, Lightbulb, ImageIcon, 
   Shuffle, Copy, Download, Share, Eye, Menu, ArrowLeft, Grid, List,
   Square, RectangleHorizontal, MonitorSpeaker, Smartphone, Tablet
