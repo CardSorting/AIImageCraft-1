@@ -6,6 +6,27 @@ import { ImageController } from "./presentation/controllers/ImageController";
 import { StatisticsController } from "./presentation/controllers/StatisticsController";
 import { storage } from "./storage";
 
+// Helper function to get or create user from Auth0
+async function getOrCreateUserFromAuth0(oidcUser: any): Promise<number> {
+  if (!oidcUser) {
+    throw new Error('User not authenticated');
+  }
+  
+  // Try to find existing user by Auth0 ID
+  let user = await storage.getUserByAuth0Id(oidcUser.sub);
+  
+  if (!user) {
+    // Create new user if doesn't exist
+    user = await storage.createUser({
+      username: oidcUser.sub, // Using Auth0 sub as unique identifier
+      email: oidcUser.email,
+      displayName: oidcUser.name || oidcUser.nickname || oidcUser.email,
+    });
+  }
+  
+  return user.id;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   const imageController = new ImageController();
   const statisticsController = new StatisticsController();
@@ -39,8 +60,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Image generation and management endpoints using Clean Architecture
-  app.post("/api/generate-images", (req, res) => imageController.generateImages(req, res));
-  app.get("/api/images", (req, res) => imageController.getImages(req, res));
+  app.post("/api/generate-images", async (req, res) => {
+    try {
+      if (!req.oidc.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      req.body.userId = userId;
+      
+      imageController.generateImages(req, res);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to authenticate user" });
+    }
+  });
+
+  app.get("/api/images", async (req, res) => {
+    try {
+      if (!req.oidc.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const { limit = 50 } = req.query;
+      
+      const images = await storage.getImagesByUserId(userId, Number(limit));
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching user images:", error);
+      res.status(500).json({ error: "Failed to fetch images" });
+    }
+  });
+
   app.get("/api/images/:id", (req, res) => imageController.getImageById(req, res));
   app.delete("/api/images/:id", (req, res) => imageController.deleteImage(req, res));
 

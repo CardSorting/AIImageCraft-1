@@ -5,11 +5,13 @@ import { eq, desc, like, and, sql, count } from "drizzle-orm";
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByAuth0Id(auth0Id: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
   // Image storage methods
   createImage(image: InsertImage): Promise<GeneratedImage>;
   getImages(limit?: number): Promise<GeneratedImage[]>;
+  getImagesByUserId(userId: number, limit?: number): Promise<GeneratedImage[]>;
   getImageById(id: number): Promise<GeneratedImage | undefined>;
   getImagesByModelId(modelId: string, limit?: number): Promise<(GeneratedImage & { username: string })[]>;
   deleteImage(id: number): Promise<boolean>;
@@ -49,6 +51,11 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserByAuth0Id(auth0Id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, auth0Id));
+    return user || undefined;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
@@ -76,6 +83,16 @@ export class DatabaseStorage implements IStorage {
     const images = await db
       .select()
       .from(generatedImages)
+      .orderBy(desc(generatedImages.createdAt))
+      .limit(limit);
+    return images;
+  }
+
+  async getImagesByUserId(userId: number, limit: number = 50): Promise<GeneratedImage[]> {
+    const images = await db
+      .select()
+      .from(generatedImages)
+      .where(eq(generatedImages.userId, userId))
       .orderBy(desc(generatedImages.createdAt))
       .limit(limit);
     return images;
