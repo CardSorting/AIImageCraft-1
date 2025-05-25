@@ -25,8 +25,12 @@ export function MobileLayout({
         {children}
       </main>
 
-      {/* Native iOS Bottom Navigation */}
-      {showNavigation && <BottomNavigation />}
+      {/* Native iOS Bottom Navigation - Mobile Only */}
+      {showNavigation && (
+        <div className="md:hidden">
+          <BottomNavigation />
+        </div>
+      )}
     </div>
   );
 }
