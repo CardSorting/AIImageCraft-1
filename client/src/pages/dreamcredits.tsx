@@ -23,12 +23,12 @@ const creditPackages: CreditPackage[] = [
   {
     id: "starter",
     name: "Honey Starter",
-    credits: 125,
+    credits: 100,
     price: 1.00,
-    pricePerImage: 0.008,
+    pricePerImage: 0.01,
     icon: Sparkles,
     features: [
-      "125 DreamBee Credits",
+      "100 DreamBee Credits",
       "All AI models included",
       "High-quality generations",
       "Perfect for beginners"
@@ -37,16 +37,16 @@ const creditPackages: CreditPackage[] = [
   {
     id: "creative",
     name: "Creative Hive",
-    credits: 625,
-    price: 4.50,
-    pricePerImage: 0.0072,
-    bonus: 100,
+    credits: 550,
+    price: 5.00,
+    pricePerImage: 0.0091,
+    bonus: 50,
     popular: true,
     icon: Zap,
-    savings: "10% off",
+    savings: "9% off",
     features: [
-      "625 DreamBee Credits",
-      "100 bonus credits",
+      "550 DreamBee Credits",
+      "50 bonus credits",
       "Priority generation",
       "Great for creators"
     ]
@@ -54,15 +54,15 @@ const creditPackages: CreditPackage[] = [
   {
     id: "professional",
     name: "Queen Bee Pro",
-    credits: 1875,
-    price: 12.00,
-    pricePerImage: 0.0064,
-    bonus: 375,
+    credits: 1200,
+    price: 10.00,
+    pricePerImage: 0.0083,
+    bonus: 200,
     icon: Crown,
-    savings: "20% off",
+    savings: "17% off",
     features: [
-      "1,875 DreamBee Credits",
-      "375 bonus credits",
+      "1,200 DreamBee Credits",
+      "200 bonus credits",
       "Fastest speeds",
       "Best for professionals"
     ]
@@ -70,15 +70,15 @@ const creditPackages: CreditPackage[] = [
   {
     id: "enterprise",
     name: "Royal Swarm",
-    credits: 5000,
-    price: 28.00,
-    pricePerImage: 0.0056,
-    bonus: 1500,
+    credits: 2800,
+    price: 22.00,
+    pricePerImage: 0.0079,
+    bonus: 300,
     icon: Star,
-    savings: "30% off",
+    savings: "21% off",
     features: [
-      "5,000 DreamBee Credits",
-      "1,500 bonus credits",
+      "2,800 DreamBee Credits",
+      "300 bonus credits",
       "Enterprise access",
       "Priority support"
     ]
@@ -111,7 +111,7 @@ export default function DreamCreditsPage() {
             <Sparkles className="h-8 w-8 text-yellow-500" />
           </div>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Fuel your creativity with DreamBee Credits. Generate stunning AI artwork at just $0.008 per image with our premium credit packages.
+            Fuel your creativity with DreamBee Credits. Generate stunning AI artwork at just $0.01 per image with our premium credit packages.
           </p>
           <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <Check className="h-4 w-4 text-green-500" />
