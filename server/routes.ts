@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { requiresAuth } from "express-openid-connect";
+import pkg from "express-openid-connect";
+const { requiresAuth } = pkg;
 import { ImageController } from "./presentation/controllers/ImageController";
 import { StatisticsController } from "./presentation/controllers/StatisticsController";
 import { storage } from "./storage";
