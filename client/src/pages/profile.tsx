@@ -1,4 +1,4 @@
-import { User, Settings, Key, Bell, LogOut, Edit3, Coins, LogIn } from "lucide-react";
+import { User, Settings, Key, Bell, LogOut, Edit3, Coins, LogIn, ChevronRight, Camera, Mail, Lock, Palette, Download, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,219 +15,223 @@ export default function Profile() {
   const [, navigate] = useLocation();
   const isMobile = useIsMobile();
 
-  // Fetch credit balance for mobile display
+  // Fetch credit balance
   const { data: creditBalance } = useQuery<{ balance: number }>({
     queryKey: ['/api/credit-balance/1'],
-    enabled: isMobile,
+    enabled: isAuthenticated,
     refetchInterval: 30000,
   });
 
-  return (
-    <div className={`container-responsive ${isMobile ? 'py-3 px-4' : 'py-6'}`}>
-      {/* Mobile Credits Section - Compact for mobile */}
-      {isMobile && isAuthenticated && (
-        <section className="mb-3">
-          <div 
-            onClick={() => navigate('/dreamcredits')}
-            className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-lg border border-amber-200 dark:border-amber-800 cursor-pointer hover:scale-[1.02] transition-transform"
-          >
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
-                <Coins className="h-4 w-4 text-amber-900" />
-              </div>
-              <div>
-                <div className="text-base font-bold text-foreground">
-                  {creditBalance?.balance?.toLocaleString() || '150'}
-                </div>
-                <div className="text-xs text-muted-foreground">DreamBee Credits</div>
-              </div>
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+        <div className="container max-w-md mx-auto px-4 py-16">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-500/25">
+              <User className="h-12 w-12 text-white" />
             </div>
-            <div className="text-xs text-amber-700 dark:text-amber-300 font-medium">
-              Buy →
-            </div>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">
+              Welcome to AI Studio
+            </h1>
+            <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+              Sign in to unlock the full creative experience
+            </p>
           </div>
-        </section>
-      )}
 
-      {isAuthenticated ? (
-        <>
-          {/* User Profile Card - Only show when authenticated */}
-          <section className="mb-6 px-2">
-            <UserProfile />
-          </section>
-
-          {/* Account Information */}
-          <section className="mb-6 px-2">
-            <h2 className="text-xl font-semibold text-foreground mb-4">Account Information</h2>
-            
-            <div className="card-ios space-y-2">
-              <div className="space-y-1">
-                <Label htmlFor="username">Username</Label>
-                <div className="flex gap-1">
-                  <Input 
-                    id="username" 
-                    defaultValue={user?.nickname || ""} 
-                    className="flex-1"
-                    readOnly
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="email">Email</Label>
-                <div className="flex gap-1">
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    defaultValue={user?.email || ""} 
-                    className="flex-1"
-                    readOnly
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="name">Full Name</Label>
-                <div className="flex gap-1">
-                  <Input 
-                    id="name" 
-                    defaultValue={user?.name || ""} 
-                    className="flex-1"
-                    readOnly
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Privacy & Security */}
-          <section className="mb-6 px-2">
-            <h2 className="text-xl font-semibold text-foreground mb-4">Privacy & Security</h2>
-            
-            <div className="card-ios">
-              <button className="list-item-ios w-full text-left">
-                <Key className="h-5 w-5 text-muted-foreground mr-3" />
-                <div className="flex-1">
-                  <div className="font-medium text-foreground">Change Password</div>
-                  <div className="text-sm text-muted-foreground">Update your password</div>
-                </div>
-              </button>
-            </div>
-          </section>
-
-          {/* Preferences */}
-          <section className="mb-6 px-2">
-            <h2 className="text-xl font-semibold text-foreground mb-4">Preferences</h2>
-            
-            <div className="card-ios">
-              <div className="list-item-ios">
-                <Bell className="h-5 w-5 text-muted-foreground mr-3" />
-                <div className="flex-1">
-                  <div className="font-medium text-foreground">Email Notifications</div>
-                  <div className="text-sm text-muted-foreground">Get updates about your account</div>
-                </div>
-                <Switch defaultChecked />
-              </div>
-              
-              <div className="list-item-ios">
-                <Settings className="h-5 w-5 text-muted-foreground mr-3" />
-                <div className="flex-1">
-                  <div className="font-medium text-foreground">Auto-save Images</div>
-                  <div className="text-sm text-muted-foreground">Automatically save generated images</div>
-                </div>
-                <Switch defaultChecked />
-              </div>
-            </div>
-          </section>
-
-          <Separator className="my-4" />
-
-          {/* Sign Out */}
-          <div className="text-center px-2">
+          {/* Sign In Card */}
+          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-slate-200/50 dark:border-slate-700/50 mb-8">
             <Button 
-              variant="outline" 
-              className="w-full max-w-sm"
-              onClick={logout}
+              onClick={() => window.location.href = '/login'}
+              className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
+              <LogIn className="h-6 w-6 mr-3" />
+              Click to Sign In
             </Button>
           </div>
-        </>
-      ) : (
-        <>
-          {/* Enhanced Sign-In Section for Non-Authenticated Users */}
-          <section className={`${isMobile ? 'mb-4' : 'mb-6'}`}>
-            <div className={`text-center ${isMobile ? 'space-y-3' : 'space-y-4'}`}>
-              <div className={`${isMobile ? 'space-y-2' : 'space-y-3'}`}>
-                <div className={`${isMobile ? 'w-12 h-12' : 'w-16 h-16'} bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center mx-auto shadow-lg`}>
-                  <User className={`${isMobile ? 'h-6 w-6' : 'h-8 w-8'} text-primary-foreground`} />
-                </div>
-                <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-foreground`}>Welcome to AI Studio</h1>
-                <p className={`text-muted-foreground ${isMobile ? 'text-sm max-w-xs' : 'max-w-sm'} mx-auto`}>
-                  Sign in to unlock all features, save your creations, and track your credit usage
-                </p>
-              </div>
 
-              <div className={`card-ios ${isMobile ? 'p-3' : 'p-4'} max-w-sm mx-auto`}>
-                <div className={`${isMobile ? 'space-y-2' : 'space-y-3'}`}>
-                  <Button 
-                    onClick={() => window.location.href = '/login'}
-                    className={`w-full ${isMobile ? 'h-10 text-sm' : 'h-12 text-base'}`}
-                    size={isMobile ? "default" : "lg"}
-                  >
-                    <LogIn className={`${isMobile ? 'h-4 w-4 mr-2' : 'h-5 w-5 mr-3'}`} />
-                    Sign In with Auth0
-                  </Button>
-                  
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">
-                      New to AI Studio? Sign in to get started
-                    </p>
+          {/* Features Grid */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white text-center mb-6">
+              What awaits you
+            </h3>
+
+            <div className="grid gap-4">
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 border border-slate-200/50 dark:border-slate-700/50">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+                    <Download className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">Save Creations</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Access from anywhere</p>
                   </div>
                 </div>
               </div>
 
-              {/* Benefits of Signing In */}
-              <div className="card-ios p-4 max-w-sm mx-auto">
-                <h3 className="font-semibold text-foreground mb-4 text-center">What you get when signed in:</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-7 h-7 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                      <Settings className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div className="text-sm">
-                      <div className="font-medium text-foreground">Save Your Creations</div>
-                      <div className="text-muted-foreground">Access your images from any device</div>
-                    </div>
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 border border-slate-200/50 dark:border-slate-700/50">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center">
+                    <Coins className="h-6 w-6 text-white" />
                   </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <div className="w-7 h-7 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                      <Coins className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div className="text-sm">
-                      <div className="font-medium text-foreground">Track Credits</div>
-                      <div className="text-muted-foreground">Monitor your DreamBee Credit usage</div>
-                    </div>
+                  <div>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">Credit Management</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Track your usage</p>
                   </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <div className="w-7 h-7 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                      <Bell className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div className="text-sm">
-                      <div className="font-medium text-foreground">Personal Settings</div>
-                      <div className="text-muted-foreground">Customize your AI Studio experience</div>
-                    </div>
+                </div>
+              </div>
+
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 border border-slate-200/50 dark:border-slate-700/50">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                    <Palette className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">Personal Experience</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Tailored for you</p>
                   </div>
                 </div>
               </div>
             </div>
-          </section>
-        </>
-      )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="container max-w-2xl mx-auto px-4 py-8">
+        {/* Profile Header */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 mb-6 shadow-sm border border-slate-200/50 dark:border-slate-800/50">
+          <div className="flex items-center space-x-6">
+            <div className="relative">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                <User className="h-10 w-10 text-white" />
+              </div>
+              <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-100 dark:border-slate-700">
+                <Camera className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+              </button>
+            </div>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+                {user?.name || user?.nickname || "Welcome"}
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400">
+                {user?.email}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Credits Card */}
+        <div 
+          onClick={() => navigate('/dreamcredits')}
+          className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-3xl p-6 mb-6 shadow-lg cursor-pointer transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                <Coins className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">
+                  {creditBalance?.balance?.toLocaleString() || '150'}
+                </div>
+                <div className="text-amber-100">DreamBee Credits</div>
+              </div>
+            </div>
+            <ChevronRight className="h-6 w-6 text-white/80" />
+          </div>
+        </div>
+
+        {/* Account Section */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl mb-6 shadow-sm border border-slate-200/50 dark:border-slate-800/50 overflow-hidden">
+          <div className="p-6 pb-4">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Account</h2>
+          </div>
+
+          <div className="space-y-px">
+            <div className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                  <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <div className="font-medium text-slate-900 dark:text-white">Email</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400">{user?.email}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                  <Lock className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <div className="font-medium text-slate-900 dark:text-white">Password</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400">Change your password</div>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-slate-400" />
+            </div>
+          </div>
+        </div>
+
+        {/* Preferences Section */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl mb-6 shadow-sm border border-slate-200/50 dark:border-slate-800/50 overflow-hidden">
+          <div className="p-6 pb-4">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Preferences</h2>
+          </div>
+
+          <div className="space-y-px">
+            <div className="flex items-center justify-between px-6 py-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                  <Bell className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <div className="font-medium text-slate-900 dark:text-white">Notifications</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400">Email updates</div>
+                </div>
+              </div>
+              <Switch defaultChecked className="data-[state=checked]:bg-blue-600" />
+            </div>
+
+            <div className="flex items-center justify-between px-6 py-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+                  <Download className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <div className="font-medium text-slate-900 dark:text-white">Auto-save</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400">Save images automatically</div>
+                </div>
+              </div>
+              <Switch defaultChecked className="data-[state=checked]:bg-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        {/* Sign Out */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/50 overflow-hidden mb-8">
+          <button 
+            onClick={logout}
+            className="w-full flex items-center justify-center px-6 py-4 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+          >
+            <LogOut className="h-5 w-5 text-red-600 dark:text-red-400 mr-3" />
+            <span className="font-medium text-red-600 dark:text-red-400">Sign Out</span>
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center space-y-2">
+          <p className="text-sm font-medium text-slate-900 dark:text-white">AI Studio</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400">Powered by Google Imagen 4</p>
+          <p className="text-xs text-slate-500 dark:text-slate-500">Version 1.0</p>
+        </div>
+      </div>
     </div>
   );
 }
