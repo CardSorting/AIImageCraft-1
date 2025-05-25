@@ -76,7 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Calculate credit cost for image generation
       const { aspectRatio = "1:1", numImages = 1 } = req.body;
-      const baseCreditsPerImage = 1; // Base cost per image
+      const baseCreditsPerImage = 3; // Base cost per image
       const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
       const totalCost = Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
       
