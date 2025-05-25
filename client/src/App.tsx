@@ -11,6 +11,7 @@ import History from "@/pages/history";
 import Profile from "@/pages/profile";
 import ModelsPage from "@/pages/models";
 import ModelDetailPage from "@/pages/model-detail";
+import DreamCreditsPage from "@/pages/dreamcredits";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -24,6 +25,8 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/models" component={ModelsPage} />
       <Route path="/models/:id" component={ModelDetailPage} />
+      <Route path="/credits" component={DreamCreditsPage} />
+      <Route path="/dreamcredits" component={DreamCreditsPage} />
       <Route component={NotFound} />
     </Switch>
   );
