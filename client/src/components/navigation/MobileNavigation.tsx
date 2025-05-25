@@ -49,7 +49,7 @@ export function MobileNavigation({
             <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-md">
               <Sparkles className="text-primary-foreground w-4 h-4" />
             </div>
-            <h1 className="text-lg font-bold text-foreground tracking-tight">AI Studio</h1>
+            <h1 className="text-lg font-bold text-foreground tracking-tight">Dream Bees Art</h1>
           </div>
 
           {/* Mobile Actions */}
@@ -86,7 +86,7 @@ export function MobileNavigation({
                         <Sparkles className="text-primary-foreground w-5 h-5" />
                       </div>
                       <div>
-                        <h2 className="font-bold text-foreground">AI Studio</h2>
+                        <h2 className="font-bold text-foreground">Dream Bees Art</h2>
                         <p className="text-sm text-muted-foreground">Create & Explore</p>
                       </div>
                     </div>

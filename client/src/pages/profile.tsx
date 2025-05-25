@@ -32,7 +32,7 @@ export default function Profile() {
               <User className="h-12 w-12 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">
-              Welcome to AI Studio
+              Welcome to Dream Bees Art
             </h1>
             <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
               Sign in to unlock the full creative experience
@@ -227,7 +227,7 @@ export default function Profile() {
 
         {/* Footer */}
         <div className="text-center space-y-2">
-          <p className="text-sm font-medium text-slate-900 dark:text-white">AI Studio</p>
+          <p className="text-sm font-medium text-slate-900 dark:text-white">Dream Bees Art</p>
           <p className="text-xs text-slate-600 dark:text-slate-400">Powered by Google Imagen 4</p>
           <p className="text-xs text-slate-500 dark:text-slate-500">Version 1.0</p>
         </div>

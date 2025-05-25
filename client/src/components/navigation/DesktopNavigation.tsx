@@ -53,7 +53,7 @@ export function DesktopNavigation({
                 <Sparkles className="text-primary-foreground w-5 h-5" />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-xl font-bold text-foreground tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">AI Studio</h1>
+                <h1 className="text-xl font-bold text-foreground tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">Dream Bees Art</h1>
                 <p className="text-xs text-muted-foreground leading-none">Create amazing artwork</p>
               </div>
             </div>
