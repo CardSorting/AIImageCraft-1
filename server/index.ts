@@ -13,6 +13,10 @@ const config = {
   baseURL: process.env.AUTH0_BASE_URL || 'https://dreambeesart.com',
   clientID: process.env.AUTH0_CLIENT_ID || '2hWEeuUIDvQl8L1y5AxqBsEf4GXiOufu',
   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL || 'https://dev-57c4wim3kish0u23.us.auth0.com',
+  session: {
+    rollingDuration: 24 * 60 * 60, // 24 hours
+    absoluteDuration: 7 * 24 * 60 * 60 // 7 days
+  },
   routes: {
     login: '/login',
     logout: '/logout',
@@ -22,6 +26,17 @@ const config = {
 
 // auth router attaches /login, /logout, and /callback routes to the baseURL
 app.use(auth(config));
+
+// Add debugging middleware to see what's happening with auth
+app.use((req, res, next) => {
+  if (req.path === '/callback' || req.path === '/login') {
+    console.log('Auth Route:', req.path);
+    console.log('Headers:', req.headers);
+    console.log('Query:', req.query);
+    console.log('Is Authenticated:', req.oidc?.isAuthenticated());
+  }
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
