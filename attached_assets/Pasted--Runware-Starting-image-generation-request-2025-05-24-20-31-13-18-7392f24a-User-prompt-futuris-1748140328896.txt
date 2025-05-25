@@ -1,0 +1,113 @@
+[Runware] Starting image generation request: {
+2025-05-24 20:31:13.18
+7392f24a
+User
+prompt: 'futuristic frog in the rain...',
+2025-05-24 20:31:13.18
+7392f24a
+User
+aspectRatio: '9:16',
+2025-05-24 20:31:13.18
+7392f24a
+User
+numImages: 1,
+2025-05-24 20:31:13.18
+7392f24a
+User
+hasNegativePrompt: false
+2025-05-24 20:31:13.18
+7392f24a
+User
+}
+2025-05-24 20:31:13.18
+7392f24a
+User
+[Runware] Ensuring connection before making request
+2025-05-24 20:31:13.18
+7392f24a
+User
+[Runware] Calling requestImages with dimensions: 432x768
+2025-05-24 20:31:13.33
+7392f24a
+User
+[Runware] Partial generation error: {
+2025-05-24 20:31:13.33
+7392f24a
+User
+error: {
+2025-05-24 20:31:13.33
+7392f24a
+User
+code: 'invalidWidth',
+2025-05-24 20:31:13.33
+7392f24a
+User
+message: 'Invalid value for width parameter. Image width must be an integer value between 128 and 2048, in multiples of 64.',
+2025-05-24 20:31:13.33
+7392f24a
+User
+parameter: 'width',
+2025-05-24 20:31:13.33
+7392f24a
+User
+type: 'integer',
+2025-05-24 20:31:13.33
+7392f24a
+User
+min: 128,
+2025-05-24 20:31:13.33
+7392f24a
+User
+max: 2048,
+2025-05-24 20:31:13.33
+7392f24a
+User
+documentation: 'https://runware.ai/docs/en/image-inference/api-reference#request-width',
+2025-05-24 20:31:13.33
+7392f24a
+User
+taskUUID: '6cb86535-ce5a-45a3-9c2c-def7ed98dccd'
+2025-05-24 20:31:13.33
+7392f24a
+User
+}
+2025-05-24 20:31:13.33
+7392f24a
+User
+}
+2025-05-24 20:31:14.53
+7392f24a
+User
+[Runware] Partial generation error: {
+2025-05-24 20:31:14.53
+7392f24a
+User
+error: {
+2025-05-24 20:31:14.53
+7392f24a
+User
+code: 'invalidWidth',
+2025-05-24 20:31:14.53
+7392f24a
+User
+message: 'Invalid value for width parameter. Image width must be an integer value between 128 and 2048, in multiples of 64.',
+2025-05-24 20:31:14.53
+7392f24a
+User
+parameter: 'width',
+2025-05-24 20:31:14.53
+7392f24a
+User
+type: 'integer',
+2025-05-24 20:31:14.53
+7392f24a
+User
+min: 128,
+2025-05-24 20:31:14.53
+7392f24a
+User
+max: 2048,
+2025-05-24 20:31:14.53
+7392f24a
+User
+documentation: 'https://runware.ai/docs/en/image-inference/api-reference#request-width',
