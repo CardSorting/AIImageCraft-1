@@ -100,11 +100,22 @@ export default function Generate() {
     }
   }, [location, form, toast]);
 
-  // Fetch existing images for authenticated user
-  const { data: existingImages = [], refetch } = useQuery({
+  // Fetch existing images for authenticated user (today only)
+  const { data: allImages = [], refetch } = useQuery({
     queryKey: ["/api/images/my"],
     queryFn: () => fetch("/api/images/my").then(res => res.json()),
   });
+
+  // Filter images to show only today's generations
+  const existingImages = Array.isArray(allImages) ? allImages.filter((image: any) => {
+    const imageDate = new Date(image.createdAt);
+    const today = new Date();
+    return (
+      imageDate.getDate() === today.getDate() &&
+      imageDate.getMonth() === today.getMonth() &&
+      imageDate.getFullYear() === today.getFullYear()
+    );
+  }) : [];
 
   // Fetch available models
   const { data: modelsResponse } = useQuery({
@@ -129,16 +140,26 @@ export default function Generate() {
         description: "Your masterpiece has been added to the gallery",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/images/my"] });
+      
+      // Clear any existing highlights first
+      setNewlyCreatedImageIds([]);
+      
       refetch().then((result) => {
-        // Mark newly created images for highlighting
+        // Mark newly created images for highlighting (get the most recent ones)
         if (result.data && Array.isArray(result.data) && result.data.length > 0) {
-          const latestImageId = result.data[0].id;
-          setNewlyCreatedImageIds(prev => [...prev, latestImageId]);
+          // Sort by creation time and get the newest images
+          const sortedImages = result.data.sort((a: any, b: any) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
           
-          // Remove the highlight after 5 seconds
+          // Highlight the newest image(s) - assuming we generated 1 image typically
+          const newestImageIds = sortedImages.slice(0, data.images?.length || 1).map((img: any) => img.id);
+          setNewlyCreatedImageIds(newestImageIds);
+          
+          // Remove the highlight after 8 seconds for better visibility
           setTimeout(() => {
-            setNewlyCreatedImageIds(prev => prev.filter(id => id !== latestImageId));
-          }, 5000);
+            setNewlyCreatedImageIds([]);
+          }, 8000);
         }
       });
       form.reset();
@@ -527,9 +548,9 @@ export default function Generate() {
         <div className="flex items-center space-x-2">
           <ImageIcon className="h-5 w-5" />
           <div>
-            <h2 className="text-lg font-semibold">Your Gallery</h2>
+            <h2 className="text-lg font-semibold">Today's Gallery</h2>
             <p className="text-xs text-muted-foreground">
-              {Array.isArray(existingImages) ? existingImages.length : 0} masterpieces
+              {Array.isArray(existingImages) ? existingImages.length : 0} created today
             </p>
           </div>
         </div>
@@ -1271,10 +1292,10 @@ export default function Generate() {
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold flex items-center space-x-2">
                   <ImageIcon className="h-5 w-5" />
-                  <span>Your Gallery</span>
+                  <span>Today's Gallery</span>
                 </h2>
                 <div className="text-sm text-muted-foreground">
-                  {Array.isArray(existingImages) ? existingImages.length : 0} masterpieces created
+                  {Array.isArray(existingImages) ? existingImages.length : 0} created today
                 </div>
               </div>
 
