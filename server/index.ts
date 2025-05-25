@@ -1,5 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { auth } from "express-openid-connect";
+import { auth, requiresAuth } from "express-openid-connect";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 

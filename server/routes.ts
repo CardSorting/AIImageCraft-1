@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { requiresAuth } from "express-openid-connect";
 import { ImageController } from "./presentation/controllers/ImageController";
 import { StatisticsController } from "./presentation/controllers/StatisticsController";
 import { storage } from "./storage";
@@ -13,7 +14,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
   });
 
-  // Get user profile endpoint
+  // Protected profile route - requires authentication
+  app.get('/profile', requiresAuth(), (req, res) => {
+    res.send(JSON.stringify(req.oidc.user));
+  });
+
+  // Get user profile endpoint (API version)
   app.get("/api/auth/profile", (req, res) => {
     if (req.oidc.isAuthenticated()) {
       res.json({
