@@ -663,8 +663,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Webhook endpoint for Stripe events
-  app.post('/api/webhook', async (req, res) => {
+  // Webhook endpoint for Stripe events (also accessible at /webhook/stripe)
+  const handleStripeWebhook = async (req: any, res: any) => {
     const sig = req.headers['stripe-signature'];
     let event;
 
@@ -704,7 +704,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     res.json({ received: true });
-  });
+  };
+
+  // Register webhook handlers for both routes
+  app.post('/api/webhook', handleStripeWebhook);
+  app.post('/webhook/stripe', handleStripeWebhook);
 
   const httpServer = createServer(app);
   return httpServer;
