@@ -23,30 +23,27 @@ export default function Profile() {
   });
 
   return (
-    <div className="container-responsive py-6">
-      {/* Mobile Credits Section - Only show when authenticated */}
+    <div className={`container-responsive ${isMobile ? 'py-3 px-4' : 'py-6'}`}>
+      {/* Mobile Credits Section - Compact for mobile */}
       {isMobile && isAuthenticated && (
-        <section className="mb-6">
-          <div className="card-ios p-4">
-            {/* Credits Display */}
-            <div 
-              onClick={() => navigate('/dreamcredits')}
-              className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-xl border border-amber-200 dark:border-amber-800 cursor-pointer hover:scale-[1.02] transition-transform"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Coins className="h-5 w-5 text-amber-900" />
-                </div>
-                <div>
-                  <div className="text-lg font-bold text-foreground">
-                    {creditBalance?.balance?.toLocaleString() || '150'}
-                  </div>
-                  <div className="text-sm text-muted-foreground">DreamBee Credits</div>
-                </div>
+        <section className="mb-3">
+          <div 
+            onClick={() => navigate('/dreamcredits')}
+            className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-lg border border-amber-200 dark:border-amber-800 cursor-pointer hover:scale-[1.02] transition-transform"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
+                <Coins className="h-4 w-4 text-amber-900" />
               </div>
-              <div className="text-xs text-amber-700 dark:text-amber-300 font-medium">
-                Tap to buy more →
+              <div>
+                <div className="text-base font-bold text-foreground">
+                  {creditBalance?.balance?.toLocaleString() || '150'}
+                </div>
+                <div className="text-xs text-muted-foreground">DreamBee Credits</div>
               </div>
+            </div>
+            <div className="text-xs text-amber-700 dark:text-amber-300 font-medium">
+              Buy →
             </div>
           </div>
         </section>
@@ -55,18 +52,18 @@ export default function Profile() {
       {isAuthenticated ? (
         <>
           {/* User Profile Card - Only show when authenticated */}
-          <section className="mb-8">
+          <section className="mb-6 px-2">
             <UserProfile />
           </section>
 
           {/* Account Information */}
-          <section className="mb-8">
+          <section className="mb-6 px-2">
             <h2 className="text-xl font-semibold text-foreground mb-4">Account Information</h2>
             
-            <div className="card-ios space-y-4">
-              <div className="space-y-2">
+            <div className="card-ios space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="username">Username</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   <Input 
                     id="username" 
                     defaultValue={user?.nickname || ""} 
@@ -76,9 +73,9 @@ export default function Profile() {
                 </div>
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="email">Email</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   <Input 
                     id="email" 
                     type="email" 
@@ -89,9 +86,9 @@ export default function Profile() {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="name">Full Name</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   <Input 
                     id="name" 
                     defaultValue={user?.name || ""} 
@@ -104,7 +101,7 @@ export default function Profile() {
           </section>
 
           {/* Privacy & Security */}
-          <section className="mb-8">
+          <section className="mb-6 px-2">
             <h2 className="text-xl font-semibold text-foreground mb-4">Privacy & Security</h2>
             
             <div className="card-ios">
@@ -119,7 +116,7 @@ export default function Profile() {
           </section>
 
           {/* Preferences */}
-          <section className="mb-8">
+          <section className="mb-6 px-2">
             <h2 className="text-xl font-semibold text-foreground mb-4">Preferences</h2>
             
             <div className="card-ios">
@@ -143,10 +140,10 @@ export default function Profile() {
             </div>
           </section>
 
-          <Separator className="my-6" />
+          <Separator className="my-4" />
 
           {/* Sign Out */}
-          <div className="text-center">
+          <div className="text-center px-2">
             <Button 
               variant="outline" 
               className="w-full max-w-sm"
@@ -160,26 +157,26 @@ export default function Profile() {
       ) : (
         <>
           {/* Enhanced Sign-In Section for Non-Authenticated Users */}
-          <section className="mb-8">
-            <div className="text-center space-y-6">
-              <div className="space-y-3">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                  <User className="h-10 w-10 text-primary-foreground" />
+          <section className={`${isMobile ? 'mb-4' : 'mb-6'}`}>
+            <div className={`text-center ${isMobile ? 'space-y-3' : 'space-y-4'}`}>
+              <div className={`${isMobile ? 'space-y-2' : 'space-y-3'}`}>
+                <div className={`${isMobile ? 'w-12 h-12' : 'w-16 h-16'} bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center mx-auto shadow-lg`}>
+                  <User className={`${isMobile ? 'h-6 w-6' : 'h-8 w-8'} text-primary-foreground`} />
                 </div>
-                <h1 className="text-2xl font-bold text-foreground">Welcome to AI Studio</h1>
-                <p className="text-muted-foreground max-w-md mx-auto">
+                <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-foreground`}>Welcome to AI Studio</h1>
+                <p className={`text-muted-foreground ${isMobile ? 'text-sm max-w-xs' : 'max-w-sm'} mx-auto`}>
                   Sign in to unlock all features, save your creations, and track your credit usage
                 </p>
               </div>
 
-              <div className="card-ios p-6 max-w-md mx-auto">
-                <div className="space-y-4">
+              <div className={`card-ios ${isMobile ? 'p-3' : 'p-4'} max-w-sm mx-auto`}>
+                <div className={`${isMobile ? 'space-y-2' : 'space-y-3'}`}>
                   <Button 
                     onClick={() => window.location.href = '/login'}
-                    className="w-full h-12 text-base"
-                    size="lg"
+                    className={`w-full ${isMobile ? 'h-10 text-sm' : 'h-12 text-base'}`}
+                    size={isMobile ? "default" : "lg"}
                   >
-                    <LogIn className="h-5 w-5 mr-3" />
+                    <LogIn className={`${isMobile ? 'h-4 w-4 mr-2' : 'h-5 w-5 mr-3'}`} />
                     Sign In with Auth0
                   </Button>
                   
@@ -192,12 +189,12 @@ export default function Profile() {
               </div>
 
               {/* Benefits of Signing In */}
-              <div className="card-ios p-6 max-w-md mx-auto">
+              <div className="card-ios p-4 max-w-sm mx-auto">
                 <h3 className="font-semibold text-foreground mb-4 text-center">What you get when signed in:</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                      <Settings className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-7 h-7 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                      <Settings className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
                     </div>
                     <div className="text-sm">
                       <div className="font-medium text-foreground">Save Your Creations</div>
@@ -205,9 +202,9 @@ export default function Profile() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                      <Coins className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <div className="flex items-center space-x-2">
+                    <div className="w-7 h-7 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                      <Coins className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div className="text-sm">
                       <div className="font-medium text-foreground">Track Credits</div>
@@ -215,9 +212,9 @@ export default function Profile() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                      <Bell className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <div className="flex items-center space-x-2">
+                    <div className="w-7 h-7 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                      <Bell className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div className="text-sm">
                       <div className="font-medium text-foreground">Personal Settings</div>
@@ -231,14 +228,6 @@ export default function Profile() {
         </>
       )}
 
-      {/* App Info */}
-      <section className="mt-8 pt-6 border-t border-border/50">
-        <div className="text-center text-sm text-muted-foreground space-y-2">
-          <p>AI Studio v1.0</p>
-          <p>Powered by Google Imagen 4</p>
-          <p className="text-xs">Made with ❤️ for creators</p>
-        </div>
-      </section>
     </div>
   );
 }
