@@ -242,7 +242,7 @@ export default function CheckoutPage() {
   if (!clientSecret || !packageData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 dark:from-purple-950 dark:via-pink-950 dark:to-yellow-950">
-        <NavigationHeader activeItem="credits" credits={1250} />
+        <NavigationHeader activeItem="credits"  />
         <div className="container mx-auto px-4 py-16">
           <div className="flex items-center justify-center">
             <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full" />
@@ -255,7 +255,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 dark:from-purple-950 dark:via-pink-950 dark:to-yellow-950">
-      <NavigationHeader activeItem="credits" credits={1250} />
+      <NavigationHeader activeItem="credits"  />
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}

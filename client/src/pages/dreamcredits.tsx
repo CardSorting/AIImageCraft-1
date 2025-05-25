@@ -101,7 +101,7 @@ export default function DreamCreditsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 dark:from-purple-950 dark:via-pink-950 dark:to-yellow-950">
       {/* Desktop Navigation */}
-      <NavigationHeader activeItem="credits" credits={1250} />
+      <NavigationHeader activeItem="credits"  />
       
       <div className="container mx-auto px-4 py-8 md:py-16">
         {/* Header Section */}
