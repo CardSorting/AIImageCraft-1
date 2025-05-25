@@ -57,6 +57,7 @@ export default function Generate() {
       model: "rundiffusion:130@100",
       steps: 30,
       cfgScale: 7,
+      scheduler: "DPMSolverMultistepScheduler",
     },
   });
 
