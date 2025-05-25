@@ -12,21 +12,38 @@ interface NavigationHeaderProps {
 export function NavigationHeader({ 
   credits = 1250, 
   onNavigationClick = () => {}, 
-  activeItem = "for-you" 
+  activeItem 
 }: NavigationHeaderProps) {
   const isMobile = useIsMobile();
   const [location, setLocation] = useLocation();
+  
+  // Determine active item based on current route if not provided
+  const getCurrentActiveItem = () => {
+    if (activeItem) return activeItem;
+    
+    if (location === '/') return 'home';
+    if (location === '/create') return 'create';
+    if (location === '/gallery') return 'gallery';
+    if (location === '/models') return 'models';
+    return 'home';
+  };
   
   const handleNavClick = (itemId: string) => {
     onNavigationClick(itemId);
     
     // Handle routing
     switch (itemId) {
-      case "for-you":
+      case "home":
         setLocation("/");
         break;
-      case "following":
-        setLocation("/following");
+      case "create":
+        setLocation("/create");
+        break;
+      case "gallery":
+        setLocation("/gallery");
+        break;
+      case "models":
+        setLocation("/models");
         break;
       default:
         break;
@@ -40,7 +57,7 @@ export function NavigationHeader({
         <DesktopNavigation 
           credits={credits}
           onNavigationClick={handleNavClick}
-          activeItem={activeItem}
+          activeItem={getCurrentActiveItem()}
         />
       </div>
       

@@ -87,6 +87,28 @@
 }
 
 @layer components {
+  /* Modern Desktop Header */
+  .desktop-header {
+    @apply sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .desktop-header:hover {
+    @apply shadow-md;
+  }
+
+  /* Enhanced Navigation Buttons */
+  .nav-button {
+    @apply relative flex items-center space-x-2.5 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 group;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2;
+  }
+
+  .nav-button:focus-visible {
+    @apply ring-2 ring-primary/50 ring-offset-2;
+  }
+
   /* iOS Native Components */
   .ios-header {
     @apply sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800;

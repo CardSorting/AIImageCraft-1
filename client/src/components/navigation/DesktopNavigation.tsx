@@ -1,5 +1,7 @@
-import { Heart, Users, Gavel, User, Coins, Sparkles, Plus } from "lucide-react";
+import { Heart, Users, Gavel, User, Coins, Sparkles, Plus, Search, Bell, Settings, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
 
 interface NavigationItem {
@@ -16,8 +18,10 @@ interface DesktopNavigationProps {
 }
 
 const navigationItems: NavigationItem[] = [
-  { id: "for-you", label: "For You", icon: Heart },
-  { id: "following", label: "Following", icon: Users },
+  { id: "home", label: "Home", icon: Heart },
+  { id: "create", label: "Create", icon: Plus },
+  { id: "gallery", label: "Gallery", icon: Users },
+  { id: "models", label: "Models", icon: Sparkles },
 ];
 
 export function DesktopNavigation({ 
@@ -32,24 +36,34 @@ export function DesktopNavigation({
   };
 
   return (
-    <header className="sticky top-0 z-50 glass-effect border-b border-border/30 safe-area-top">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo and Brand */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-md transition-transform duration-200 hover:scale-105">
-                <Sparkles className="text-primary-foreground w-4 h-4" />
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-[70px]">
+          {/* Logo and Brand - Enhanced */}
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => setLocation("/")}>
+              <div className="w-10 h-10 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
+                <Sparkles className="text-primary-foreground w-5 h-5" />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-foreground tracking-tight">AI Studio</h1>
+                <h1 className="text-xl font-bold text-foreground tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">AI Studio</h1>
+                <p className="text-xs text-muted-foreground leading-none">Create amazing artwork</p>
               </div>
+            </div>
+
+            {/* Search Bar - Desktop */}
+            <div className="hidden lg:flex relative w-80">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search models, prompts, or artists..." 
+                className="pl-10 h-10 bg-background/60 border-border/60 focus:border-primary/50 rounded-xl transition-all duration-200"
+              />
             </div>
           </div>
 
-          {/* Navigation Items - Desktop */}
+          {/* Navigation Items - Enhanced */}
           <nav className="hidden md:flex items-center">
-            <div className="flex items-center bg-background/60 backdrop-blur-xl border border-border/40 rounded-2xl p-1 shadow-lg">
+            <div className="flex items-center bg-background/80 backdrop-blur-xl border border-border/60 rounded-2xl p-1.5 shadow-lg">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeItem === item.id;
@@ -57,20 +71,25 @@ export function DesktopNavigation({
                 return (
                   <button
                     key={item.id}
-                    onClick={() => onNavigationClick(item.id)}
+                    onClick={() => {
+                      onNavigationClick(item.id);
+                      setLocation(item.id === 'home' ? '/' : `/${item.id}`);
+                    }}
                     className={`
-                      relative flex items-center space-x-2 px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105
+                      relative flex items-center space-x-2.5 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 group
                       ${isActive 
-                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' 
-                        : 'text-foreground hover:text-primary hover:bg-background/80'
+                        ? 'bg-primary text-primary-foreground shadow-md' 
+                        : 'text-foreground hover:text-primary hover:bg-background/90'
                       }
                     `}
+                    aria-label={item.label}
+                    aria-current={isActive ? 'page' : undefined}
                   >
-                    <Icon className={`h-4 w-4 ${isActive ? 'text-primary-foreground' : ''}`} />
-                    <span>{item.label}</span>
+                    <Icon className={`h-4 w-4 transition-transform duration-200 ${isActive ? 'text-primary-foreground' : 'group-hover:scale-110'}`} />
+                    <span className="font-medium">{item.label}</span>
                     
                     {isActive && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-xl" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-xl pointer-events-none" />
                     )}
                   </button>
                 );
@@ -78,26 +97,34 @@ export function DesktopNavigation({
             </div>
           </nav>
 
-          {/* Credits and Sign In */}
-          <div className="flex items-center space-x-4">
-            {/* Enhanced Credits Display */}
-            <div className="hidden sm:flex items-center space-x-3 bg-gradient-to-r from-background/80 to-background/60 backdrop-blur-xl border border-border/50 rounded-2xl px-5 py-3 shadow-lg hover:shadow-xl transition-all duration-300 group">
+          {/* Right Side Actions - Enhanced */}
+          <div className="flex items-center space-x-3">
+            {/* Notifications */}
+            <Button variant="ghost" size="sm" className="relative h-10 w-10 rounded-xl hover:bg-background/80 transition-colors duration-200">
+              <Bell className="h-4 w-4" />
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-red-500 text-white">3</Badge>
+            </Button>
+
+            {/* Credits Display - Enhanced */}
+            <div className="hidden sm:flex items-center space-x-3 bg-gradient-to-r from-background/90 to-background/70 backdrop-blur-xl border border-border/60 rounded-xl px-4 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 group cursor-pointer">
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                  <Coins className="h-3 w-3 text-yellow-900" />
+                <div className="w-7 h-7 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-sm">
+                  <Coins className="h-3.5 w-3.5 text-amber-900" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-bold text-foreground">{credits.toLocaleString()}</span>
+                  <span className="text-sm font-bold text-foreground leading-none">{credits.toLocaleString()}</span>
                   <span className="text-xs text-muted-foreground leading-none">credits</span>
                 </div>
               </div>
             </div>
             
-            {/* Enhanced Sign In Button */}
-            <Button className="btn-ios-primary px-6 py-3 h-11 text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95">
-              <User className="h-4 w-4 mr-2" />
-              Sign In
-            </Button>
+            {/* User Menu */}
+            <div className="flex items-center space-x-2">
+              <Button className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95">
+                <User className="h-4 w-4 mr-2" />
+                Sign In
+              </Button>
+            </div>
           </div>
         </div>
       </div>
