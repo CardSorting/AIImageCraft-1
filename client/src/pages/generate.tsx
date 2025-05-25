@@ -68,8 +68,6 @@ export default function Generate() {
     const modelParam = urlParams.get('model');
     const aspectRatioParam = urlParams.get('aspectRatio');
     
-    console.log('URL Parameters:', { promptParam, modelParam, aspectRatioParam });
-    
     // Only trigger highlighting and toast if there are actual parameters from home feed
     if (promptParam || modelParam || aspectRatioParam) {
       // Set form values from URL parameters
@@ -77,7 +75,6 @@ export default function Generate() {
         form.setValue('prompt', promptParam);
       }
       if (modelParam) {
-        console.log('Setting model from URL:', modelParam);
         form.setValue('model', modelParam);
       }
       if (aspectRatioParam && ['1:1', '16:9', '9:16', '3:4', '4:3'].includes(aspectRatioParam)) {
@@ -177,8 +174,6 @@ export default function Generate() {
   });
 
   const onSubmit = (data: GenerateImageRequest) => {
-    console.log('Form submission data:', data);
-    console.log('Model ID being sent:', data.model);
     generateImagesMutation.mutate(data);
   };
 
