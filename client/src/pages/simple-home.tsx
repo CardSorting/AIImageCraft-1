@@ -187,7 +187,7 @@ export default function SimpleHome() {
 
           {/* Subtle brand presence */}
           <div className="absolute bottom-8 text-white/40 text-xs font-light tracking-wider">
-            AI Image Studio
+            Dream Bees Art
           </div>
         </div>
       </div>
