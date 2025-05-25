@@ -113,12 +113,13 @@ export class RunwareImageGenerationService implements IImageGenerationService {
   }
 
   private parseAspectRatio(aspectRatio: string): [number, number] {
+    // All dimensions must be multiples of 64 for Runware API
     const aspectRatioMap: Record<string, [number, number]> = {
       "1:1": [512, 512],
-      "16:9": [768, 432],
-      "9:16": [432, 768],
-      "3:4": [432, 576],
-      "4:3": [576, 432],
+      "16:9": [768, 448],  // 768/448 = 1.714 ≈ 16:9
+      "9:16": [448, 768],  // 448/768 = 0.583 ≈ 9:16
+      "3:4": [448, 576],   // 448/576 = 0.778 ≈ 3:4
+      "4:3": [576, 448],   // 576/448 = 1.286 ≈ 4:3
     };
 
     return aspectRatioMap[aspectRatio] || [512, 512];
