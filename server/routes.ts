@@ -638,7 +638,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         INSERT INTO credit_balances (user_id, amount) 
         VALUES ($1, $2)
         ON CONFLICT (user_id) 
-        DO UPDATE SET amount = credit_balances.amount + $2
+        DO UPDATE SET amount = credit_balances.amount + EXCLUDED.amount
       `, [userId, totalCredits]);
       
       // Record the transaction
@@ -709,7 +709,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 INSERT INTO credit_balances (user_id, amount) 
                 VALUES ($1, $2)
                 ON CONFLICT (user_id) 
-                DO UPDATE SET amount = credit_balances.amount + $2
+                DO UPDATE SET amount = credit_balances.amount + EXCLUDED.amount
               `, [userId, totalCredits]);
               
               // Record the transaction

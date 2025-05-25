@@ -1,0 +1,129 @@
+5:18:06 PM [express] GET /api/auth/profile 304 in 3ms :: {"isAuthenticated":true,"user":{"sid":"y54E…
+2025-05-25 11:18:06.49
+7926ddb3
+User
+5:18:06 PM [express] GET /api/images 304 in 132ms :: [{"id":9,"userId":1,"modelId":"rundiffusion:130…
+2025-05-25 11:18:06.54
+7926ddb3
+User
+5:18:06 PM [express] GET /api/credit-balance/1 304 in 163ms :: {"balance":150}
+2025-05-25 11:18:10.52
+7926ddb3
+User
+STRIPE PAYMENT REQUEST: { amount: 1, packageId: 'starter' }
+2025-05-25 11:18:10.87
+7926ddb3
+User
+STRIPE SUCCESS: pi_3RSiBaIA2zQnWbn502eRowSO
+2025-05-25 11:18:32.70
+7926ddb3
+User
+Error adding credits: error: operator does not exist: text + text
+2025-05-25 11:18:32.70
+7926ddb3
+User
+at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+2025-05-25 11:18:32.70
+7926ddb3
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-05-25 11:18:32.70
+7926ddb3
+User
+at async file:///home/runner/workspace/dist/index.js:2122:7 {
+2025-05-25 11:18:32.70
+7926ddb3
+User
+length: 197,
+2025-05-25 11:18:32.70
+7926ddb3
+User
+severity: 'ERROR',
+2025-05-25 11:18:32.70
+7926ddb3
+User
+code: '42883',
+2025-05-25 11:18:32.70
+7926ddb3
+User
+detail: undefined,
+2025-05-25 11:18:32.70
+7926ddb3
+User
+hint: 'No operator matches the given name and argument types. You might need to add explicit type casts.',
+2025-05-25 11:18:32.70
+7926ddb3
+User
+position: '166',
+2025-05-25 11:18:32.70
+7926ddb3
+User
+internalPosition: undefined,
+2025-05-25 11:18:32.70
+7926ddb3
+User
+internalQuery: undefined,
+2025-05-25 11:18:32.70
+7926ddb3
+User
+where: undefined,
+2025-05-25 11:18:32.70
+7926ddb3
+User
+schema: undefined,
+2025-05-25 11:18:32.70
+7926ddb3
+User
+table: undefined,
+2025-05-25 11:18:32.70
+7926ddb3
+User
+column: undefined,
+2025-05-25 11:18:32.70
+7926ddb3
+User
+dataType: undefined,
+2025-05-25 11:18:32.70
+7926ddb3
+User
+constraint: undefined,
+2025-05-25 11:18:32.70
+7926ddb3
+User
+file: 'parse_oper.c',
+2025-05-25 11:18:32.70
+7926ddb3
+User
+line: '647',
+2025-05-25 11:18:32.70
+7926ddb3
+User
+routine: 'op_error'
+2025-05-25 11:18:32.70
+7926ddb3
+User
+}
+2025-05-25 11:18:32.70
+7926ddb3
+User
+5:18:32 PM [express] POST /api/add-credits 500 in 138ms :: {"error":"Failed to add credits"}
+2025-05-25 11:18:32.96
+7926ddb3
+User
+Unhandled event type charge.succeeded
+2025-05-25 11:18:35.19
+7926ddb3
+User
+Unhandled event type charge.updated
+2025-05-25 11:18:36.47
+7926ddb3
+User
+5:18:36 PM [express] GET /api/auth/profile 304 in 1ms :: {"isAuthenticated":true,"user":{"sid":"y54E…
+2025-05-25 11:18:36.73
+7926ddb3
+User
+5:18:36 PM [express] GET /api/credit-balance/1 304 in 96ms :: {"balance":150}
+2025-05-25 11:18:59.87
+0c057801
+System
+system: received signal terminated
