@@ -10,14 +10,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const imageController = new ImageController();
   const statisticsController = new StatisticsController();
 
-  // Auth0 test endpoint
-  app.get("/", (req, res) => {
-    res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
+  // Auth0 test endpoint (moved to API route)
+  app.get("/api/auth/status", (req, res) => {
+    res.json({ 
+      message: req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out',
+      isAuthenticated: req.oidc.isAuthenticated()
+    });
   });
 
-  // Protected profile route - requires authentication
-  app.get('/profile', requiresAuth(), (req, res) => {
-    res.send(JSON.stringify(req.oidc.user));
+  // Protected profile route - requires authentication (moved to API route)
+  app.get('/api/profile', requiresAuth(), (req, res) => {
+    res.json(req.oidc.user);
   });
 
   // Get user profile endpoint (API version)
