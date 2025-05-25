@@ -1,8 +1,23 @@
 import express, { type Request, Response, NextFunction } from "express";
+import { auth } from "express-openid-connect";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+
+// Auth0 configuration
+const config = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env.AUTH0_SECRET || 'a-long-randomly-generated-string-stored-in-env',
+  baseURL: process.env.AUTH0_BASE_URL || 'https://ai-image-craft-1-0xjzy.replit.app',
+  clientID: process.env.AUTH0_CLIENT_ID || '2hWEeuUIDvQl8L1y5AxqBsEf4GXiOufu',
+  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL || 'https://dev-57c4wim3kish0u23.us.auth0.com'
+};
+
+// auth router attaches /login, /logout, and /callback routes to the baseURL
+app.use(auth(config));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

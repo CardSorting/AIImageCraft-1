@@ -8,6 +8,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const imageController = new ImageController();
   const statisticsController = new StatisticsController();
 
+  // Auth0 test endpoint
+  app.get("/", (req, res) => {
+    res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
+  });
+
+  // Get user profile endpoint
+  app.get("/api/auth/profile", (req, res) => {
+    if (req.oidc.isAuthenticated()) {
+      res.json({
+        isAuthenticated: true,
+        user: req.oidc.user
+      });
+    } else {
+      res.json({
+        isAuthenticated: false,
+        user: null
+      });
+    }
+  });
+
   // Image generation and management endpoints using Clean Architecture
   app.post("/api/generate-images", (req, res) => imageController.generateImages(req, res));
   app.get("/api/images", (req, res) => imageController.getImages(req, res));
