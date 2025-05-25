@@ -1,8 +1,9 @@
-import { Heart, Users, Gavel, User, Coins, Sparkles, Plus, Search, Bell, Settings, ChevronDown } from "lucide-react";
+import { Heart, Users, Gavel, User, Coins, Sparkles, Plus, Search, Bell, Settings, ChevronDown, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 
 interface NavigationItem {
   id: string;
@@ -30,6 +31,12 @@ export function DesktopNavigation({
   activeItem = "for-you" 
 }: DesktopNavigationProps) {
   const [location, setLocation] = useLocation();
+
+  // Fetch user authentication status
+  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
+    queryKey: ['/api/auth/profile'],
+    refetchInterval: 30000, // Check auth status every 30 seconds
+  });
 
   const handleCreateClick = () => {
     setLocation("/create");
@@ -123,13 +130,40 @@ export function DesktopNavigation({
             
             {/* User Menu */}
             <div className="flex items-center space-x-2">
-              <Button 
-                onClick={() => window.location.href = '/login'}
-                className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
-              >
-                <User className="h-4 w-4 mr-2" />
-                Sign In
-              </Button>
+              {authStatus?.isAuthenticated ? (
+                <div className="flex items-center space-x-3">
+                  {/* User Profile */}
+                  <div className="flex items-center space-x-3 bg-background/90 backdrop-blur-xl border border-border/60 rounded-xl px-4 py-2.5 shadow-md">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-foreground leading-none">
+                        {authStatus.user?.email?.split('@')[0] || 'User'}
+                      </span>
+                      <span className="text-xs text-muted-foreground leading-none">Signed in</span>
+                    </div>
+                  </div>
+                  
+                  {/* Logout Button */}
+                  <Button 
+                    onClick={() => window.location.href = '/logout'}
+                    variant="ghost"
+                    size="sm"
+                    className="h-10 w-10 rounded-xl hover:bg-background/80 transition-colors duration-200"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  onClick={() => window.location.href = '/login'}
+                  className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
             </div>
           </div>
         </div>
