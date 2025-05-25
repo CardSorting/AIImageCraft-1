@@ -12,6 +12,7 @@ import Profile from "@/pages/profile";
 import ModelsPage from "@/pages/models";
 import ModelDetailPage from "@/pages/model-detail";
 import DreamCreditsPage from "@/pages/dreamcredits";
+import CheckoutPage from "@/pages/checkout";
 import NotFound from "@/pages/not-found";
 
 function Router() {
