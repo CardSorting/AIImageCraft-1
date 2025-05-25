@@ -99,10 +99,10 @@ export default function Generate() {
     }
   }, [location, form, toast]);
 
-  // Fetch existing images
+  // Fetch existing images for authenticated user
   const { data: existingImages = [], refetch } = useQuery({
-    queryKey: ["/api/images"],
-    queryFn: () => fetch("/api/images").then(res => res.json()),
+    queryKey: ["/api/images/my"],
+    queryFn: () => fetch("/api/images/my").then(res => res.json()),
   });
 
   // Fetch available models
@@ -127,7 +127,7 @@ export default function Generate() {
         title: "Images Generated Successfully! 🎨",
         description: "Your masterpiece has been added to the gallery",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/images"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/images/my"] });
       refetch().then((result) => {
         // Mark newly created images for highlighting
         if (result.data && Array.isArray(result.data) && result.data.length > 0) {

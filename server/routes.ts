@@ -74,7 +74,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint for all images (home page)
   app.get("/api/images", async (req, res) => {
+    try {
+      const { limit = 50 } = req.query;
+      const images = await storage.getImages(Number(limit));
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+      res.status(500).json({ error: "Failed to fetch images" });
+    }
+  });
+
+  // User-specific endpoint for authenticated user's images
+  app.get("/api/images/my", async (req, res) => {
     try {
       if (!req.oidc.isAuthenticated()) {
         return res.status(401).json({ error: "Authentication required" });

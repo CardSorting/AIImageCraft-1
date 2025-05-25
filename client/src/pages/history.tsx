@@ -11,7 +11,7 @@ export default function History() {
   const { toast } = useToast();
 
   const { data: images = [], isLoading } = useQuery<GeneratedImage[]>({
-    queryKey: ["/api/images"],
+    queryKey: ["/api/images/my"],
   });
 
   const filteredImages = images.filter(image => 
