@@ -92,13 +92,13 @@ export default function Profile() {
         </section>
       )}
 
-      {/* User Profile Card */}
-      <section className="mb-8">
-        <UserProfile />
-      </section>
-
-      {isAuthenticated && (
+      {isAuthenticated ? (
         <>
+          {/* User Profile Card - Only show when authenticated */}
+          <section className="mb-8">
+            <UserProfile />
+          </section>
+
           {/* Account Information */}
           <section className="mb-8">
             <h2 className="text-xl font-semibold text-foreground mb-4">Account Information</h2>
@@ -142,63 +142,133 @@ export default function Profile() {
               </div>
             </div>
           </section>
+
+          {/* Privacy & Security */}
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Privacy & Security</h2>
+            
+            <div className="card-ios">
+              <button className="list-item-ios w-full text-left">
+                <Key className="h-5 w-5 text-muted-foreground mr-3" />
+                <div className="flex-1">
+                  <div className="font-medium text-foreground">Change Password</div>
+                  <div className="text-sm text-muted-foreground">Update your password</div>
+                </div>
+              </button>
+            </div>
+          </section>
+
+          {/* Preferences */}
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Preferences</h2>
+            
+            <div className="card-ios">
+              <div className="list-item-ios">
+                <Bell className="h-5 w-5 text-muted-foreground mr-3" />
+                <div className="flex-1">
+                  <div className="font-medium text-foreground">Email Notifications</div>
+                  <div className="text-sm text-muted-foreground">Get updates about your account</div>
+                </div>
+                <Switch defaultChecked />
+              </div>
+              
+              <div className="list-item-ios">
+                <Settings className="h-5 w-5 text-muted-foreground mr-3" />
+                <div className="flex-1">
+                  <div className="font-medium text-foreground">Auto-save Images</div>
+                  <div className="text-sm text-muted-foreground">Automatically save generated images</div>
+                </div>
+                <Switch defaultChecked />
+              </div>
+            </div>
+          </section>
+
+          <Separator className="my-6" />
+
+          {/* Sign Out */}
+          <div className="text-center">
+            <Button 
+              variant="outline" 
+              className="w-full max-w-sm"
+              onClick={logout}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </>
-      )}
+      ) : (
+        <>
+          {/* Enhanced Sign-In Section for Non-Authenticated Users */}
+          <section className="mb-8">
+            <div className="text-center space-y-6">
+              <div className="space-y-3">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                  <User className="h-10 w-10 text-primary-foreground" />
+                </div>
+                <h1 className="text-2xl font-bold text-foreground">Welcome to AI Studio</h1>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Sign in to unlock all features, save your creations, and track your credit usage
+                </p>
+              </div>
 
-      {/* Privacy & Security */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Privacy & Security</h2>
-        
-        <div className="card-ios">
-          <button className="list-item-ios w-full text-left">
-            <Key className="h-5 w-5 text-muted-foreground mr-3" />
-            <div className="flex-1">
-              <div className="font-medium text-foreground">Change Password</div>
-              <div className="text-sm text-muted-foreground">Update your password</div>
+              <div className="card-ios p-6 max-w-md mx-auto">
+                <div className="space-y-4">
+                  <Button 
+                    onClick={() => window.location.href = '/login'}
+                    className="w-full h-12 text-base"
+                    size="lg"
+                  >
+                    <LogIn className="h-5 w-5 mr-3" />
+                    Sign In with Auth0
+                  </Button>
+                  
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">
+                      New to AI Studio? Sign in to get started
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Benefits of Signing In */}
+              <div className="card-ios p-6 max-w-md mx-auto">
+                <h3 className="font-semibold text-foreground mb-4 text-center">What you get when signed in:</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                      <Settings className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="text-sm">
+                      <div className="font-medium text-foreground">Save Your Creations</div>
+                      <div className="text-muted-foreground">Access your images from any device</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                      <Coins className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="text-sm">
+                      <div className="font-medium text-foreground">Track Credits</div>
+                      <div className="text-muted-foreground">Monitor your DreamBee Credit usage</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                      <Bell className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div className="text-sm">
+                      <div className="font-medium text-foreground">Personal Settings</div>
+                      <div className="text-muted-foreground">Customize your AI Studio experience</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </button>
-        </div>
-      </section>
-
-      {/* Preferences */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Preferences</h2>
-        
-        <div className="card-ios">
-          <div className="list-item-ios">
-            <Bell className="h-5 w-5 text-muted-foreground mr-3" />
-            <div className="flex-1">
-              <div className="font-medium text-foreground">Email Notifications</div>
-              <div className="text-sm text-muted-foreground">Get updates about your account</div>
-            </div>
-            <Switch defaultChecked />
-          </div>
-          
-          <div className="list-item-ios">
-            <Settings className="h-5 w-5 text-muted-foreground mr-3" />
-            <div className="flex-1">
-              <div className="font-medium text-foreground">Auto-save Images</div>
-              <div className="text-sm text-muted-foreground">Automatically save generated images</div>
-            </div>
-            <Switch defaultChecked />
-          </div>
-        </div>
-      </section>
-
-      <Separator className="my-6" />
-
-      {/* Sign Out */}
-      {isAuthenticated && (
-        <div className="text-center">
-          <Button 
-            variant="outline" 
-            className="w-full max-w-sm"
-            onClick={logout}
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
-        </div>
+          </section>
+        </>
       )}
 
       {/* App Info */}
