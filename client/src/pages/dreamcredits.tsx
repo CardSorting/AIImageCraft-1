@@ -91,8 +91,8 @@ export default function DreamCreditsPage() {
 
   const handlePurchase = (packageId: string) => {
     setSelectedPackage(packageId);
-    // Here you would integrate with payment processing
-    console.log(`Purchasing package: ${packageId}`);
+    // Navigate to checkout with package ID
+    setLocation(`/checkout?package=${packageId}`);
   };
 
   return (

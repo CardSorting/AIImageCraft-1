@@ -28,6 +28,7 @@ function Router() {
       <Route path="/models/:id" component={ModelDetailPage} />
       <Route path="/credits" component={DreamCreditsPage} />
       <Route path="/dreamcredits" component={DreamCreditsPage} />
+      <Route path="/checkout" component={CheckoutPage} />
       <Route component={NotFound} />
     </Switch>
   );
