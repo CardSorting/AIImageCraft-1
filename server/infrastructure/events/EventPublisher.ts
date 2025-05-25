@@ -12,10 +12,10 @@ export class EventPublisher implements IEventPublisher {
   async publish(eventType: string, data: Record<string, any>): Promise<void> {
     const event: DomainEvent = {
       eventType,
-      eventId: nanoid(),
-      userId: data.userId || 0,
+      aggregateId: nanoid(),
+      data,
       timestamp: new Date(),
-      data
+      version: 1
     };
 
     console.log(`Publishing event: ${eventType}`, event);

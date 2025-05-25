@@ -1,32 +1,26 @@
 /**
  * Payment Service Interface
- * Abstraction for payment processing following Dependency Inversion Principle
+ * Defines contract for payment processing
  */
 
-export interface PaymentVerification {
+export interface PaymentIntent {
+  id: string;
+  clientSecret: string;
+  amount: number;
+  currency: string;
+  status: string;
+}
+
+export interface PaymentResult {
   success: boolean;
   paymentIntentId: string;
   amount: number;
   currency: string;
-  status: string;
-  error?: string;
-}
-
-export interface CreatePaymentIntentRequest {
-  amount: number;
-  currency: string;
-  metadata?: Record<string, string>;
-}
-
-export interface CreatePaymentIntentResult {
-  success: boolean;
-  clientSecret?: string;
-  paymentIntentId?: string;
-  error?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface IPaymentService {
-  createPaymentIntent(request: CreatePaymentIntentRequest): Promise<CreatePaymentIntentResult>;
-  verifyPayment(paymentIntentId: string, expectedAmount: number): Promise<PaymentVerification>;
-  refundPayment(paymentIntentId: string, amount?: number): Promise<{ success: boolean; error?: string }>;
+  createPaymentIntent(amount: number, currency: string, metadata?: Record<string, any>): Promise<PaymentIntent>;
+  confirmPayment(paymentIntentId: string): Promise<PaymentResult>;
+  refundPayment(paymentIntentId: string, amount?: number): Promise<PaymentResult>;
 }

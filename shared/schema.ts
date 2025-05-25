@@ -117,34 +117,34 @@ export const userLikes = pgTable("user_likes", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Credit System Tables - Clean Architecture Implementation
+// Credit System Tables - Clean Architecture Implementation  
 export const creditBalances = pgTable("credit_balances", {
   userId: integer("user_id").primaryKey().references(() => users.id),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull().default("0"),
+  amount: text("amount").notNull().default("0"), // Store as text for precision
   lastUpdated: timestamp("last_updated").defaultNow().notNull(),
   version: integer("version").notNull().default(0),
 });
 
 export const creditTransactions = pgTable("credit_transactions", {
-  id: varchar("id", { length: 21 }).primaryKey(), // nanoid
+  id: text("id").primaryKey(), // nanoid
   userId: integer("user_id").notNull().references(() => users.id),
-  type: varchar("type", { length: 20 }).notNull(), // PURCHASE, SPEND, REFUND, BONUS
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  type: text("type").notNull(), // PURCHASE, SPEND, REFUND, BONUS
+  amount: text("amount").notNull(), // Store as text for precision
   description: text("description").notNull(),
-  metadata: jsonb("metadata"),
+  metadata: text("metadata"), // JSON as text
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  balanceAfter: decimal("balance_after", { precision: 10, scale: 2 }).notNull(),
+  balanceAfter: text("balance_after").notNull(), // Store as text for precision
 });
 
 export const creditPackages = pgTable("credit_packages", {
-  id: varchar("id", { length: 50 }).primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(),
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
   credits: integer("credits").notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  price: text("price").notNull(), // Store as text for precision
   bonusCredits: integer("bonus_credits").notNull().default(0),
-  isActive: boolean("is_active").notNull().default(true),
+  isActive: integer("is_active").notNull().default(1), // Use integer for boolean
   displayOrder: integer("display_order").notNull().default(0),
-  metadata: jsonb("metadata"),
+  metadata: text("metadata"), // JSON as text
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
