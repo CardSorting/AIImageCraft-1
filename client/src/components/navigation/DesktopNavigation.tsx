@@ -123,7 +123,10 @@ export function DesktopNavigation({
             
             {/* User Menu */}
             <div className="flex items-center space-x-2">
-              <Button className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95">
+              <Button 
+                onClick={() => window.location.href = '/login'}
+                className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
+              >
                 <User className="h-4 w-4 mr-2" />
                 Sign In
               </Button>
