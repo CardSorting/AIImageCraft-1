@@ -669,7 +669,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     let event;
 
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET || '');
+      if (!process.env.STRIPE_WEBHOOK_SECRET) {
+        throw new Error('Webhook secret not configured');
+      }
+      event = stripe.webhooks.constructEvent(req.body, sig as string, process.env.STRIPE_WEBHOOK_SECRET);
     } catch (err: any) {
       console.log(`Webhook signature verification failed.`, err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -679,21 +682,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntent = event.data.object;
-        console.log('PaymentIntent was successful!');
+        console.log('PaymentIntent was successful via webhook!');
         
-        // Add credits to user account (you'll need to determine userId from your system)
+        // Add credits to user account
         const packageId = paymentIntent.metadata?.packageId;
         const amount = paymentIntent.amount / 100; // Convert from cents
         
         if (packageId) {
           console.log('Adding credits for package:', packageId);
-          // In a real system, you'd get the userId from your session or customer mapping
-          // For now, we'll use userId 1 as placeholder
+          // Using userId 1 as default - in production, map customer to userId
           const userId = 1;
           
           try {
-            // This would typically call your add-credits endpoint internally
-            console.log(`Would add credits for user ${userId}, package ${packageId}, amount ${amount}`);
+            // Get package details from database
+            const packageResult = await pool.query(
+              'SELECT credits, bonus_credits FROM credit_packages WHERE id = $1',
+              [packageId]
+            );
+            
+            if (packageResult.rows.length > 0) {
+              const package_data = packageResult.rows[0];
+              const totalCredits = package_data.credits + (package_data.bonus_credits || 0);
+              
+              // Add credits to user's balance
+              await pool.query(`
+                INSERT INTO credit_balances (user_id, amount) 
+                VALUES ($1, $2)
+                ON CONFLICT (user_id) 
+                DO UPDATE SET amount = credit_balances.amount + $2
+              `, [userId, totalCredits]);
+              
+              // Record the transaction
+              await pool.query(`
+                INSERT INTO credit_transactions (user_id, type, amount, description, metadata)
+                VALUES ($1, 'purchase', $2, $3, $4)
+              `, [
+                userId, 
+                totalCredits, 
+                `Purchased ${package_data.credits} credits via webhook`,
+                JSON.stringify({ packageId, paymentAmount: amount, paymentIntentId: paymentIntent.id })
+              ]);
+              
+              console.log(`Successfully added ${totalCredits} credits to user ${userId} via webhook`);
+            } else {
+              console.error('Package not found:', packageId);
+            }
           } catch (error) {
             console.error('Error adding credits via webhook:', error);
           }
