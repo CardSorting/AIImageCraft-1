@@ -73,11 +73,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      
+      // Calculate credit cost for image generation
+      const { aspectRatio = "1:1", numImages = 1 } = req.body;
+      const baseCreditsPerImage = 15; // Base cost per image
+      const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
+      const totalCost = Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
+      
+      // Check user's credit balance
+      const balanceResult = await pool.query(
+        'SELECT amount FROM credit_balances WHERE user_id = $1',
+        [userId]
+      );
+      
+      let currentBalance = 0;
+      if (balanceResult.rows.length > 0) {
+        currentBalance = parseFloat(balanceResult.rows[0].amount);
+      } else {
+        // Create initial balance for new user with 20 credits
+        await pool.query(
+          'INSERT INTO credit_balances (user_id, amount) VALUES ($1, $2)',
+          [userId, '20.0']
+        );
+        currentBalance = 20;
+      }
+      
+      // Check if user has sufficient credits
+      if (currentBalance < totalCost) {
+        return res.status(402).json({ 
+          error: "Insufficient credits", 
+          required: totalCost,
+          available: currentBalance,
+          message: `You need ${totalCost} credits but only have ${currentBalance}. Please purchase more credits.`
+        });
+      }
+      
+      // Deduct credits before generation
+      const newBalance = currentBalance - totalCost;
+      await pool.query(
+        'UPDATE credit_balances SET amount = $1, last_updated = NOW(), version = version + 1 WHERE user_id = $2',
+        [newBalance.toString(), userId]
+      );
+      
+      // Record the credit transaction
+      const transactionId = require('nanoid').nanoid();
+      await pool.query(
+        'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())',
+        [
+          transactionId,
+          userId,
+          'SPEND',
+          (-totalCost).toString(),
+          `Generated ${numImages} image(s) with ${aspectRatio} aspect ratio`,
+          newBalance.toString()
+        ]
+      );
+      
       req.body.userId = userId;
+      req.body.creditsCost = totalCost;
+      req.body.newBalance = newBalance;
       
       imageController.generateImages(req, res);
     } catch (error) {
-      res.status(500).json({ error: "Failed to authenticate user" });
+      console.error("Credit deduction error:", error);
+      res.status(500).json({ error: "Failed to process credit deduction" });
     }
   });
 
