@@ -1,4 +1,4 @@
-import { User, Settings, Key, Bell, LogOut, Edit3 } from "lucide-react";
+import { User, Settings, Key, Bell, LogOut, Edit3, Coins, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,12 +6,92 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { UserProfile } from "@/components/AuthStatus";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Profile() {
   const { user, isAuthenticated, logout } = useAuth();
+  const [, navigate] = useLocation();
+  const isMobile = useIsMobile();
+
+  // Fetch credit balance for mobile display
+  const { data: creditBalance } = useQuery<{ balance: number }>({
+    queryKey: ['/api/credit-balance/1'],
+    enabled: isMobile,
+    refetchInterval: 30000,
+  });
 
   return (
     <div className="container-responsive py-6">
+      {/* Mobile Credits and Auth Section */}
+      {isMobile && (
+        <section className="mb-6">
+          <div className="card-ios p-4">
+            {/* Credits Display */}
+            <div 
+              onClick={() => navigate('/dreamcredits')}
+              className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-xl border border-amber-200 dark:border-amber-800 cursor-pointer hover:scale-[1.02] transition-transform"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Coins className="h-5 w-5 text-amber-900" />
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-foreground">
+                    {creditBalance?.balance?.toLocaleString() || '150'}
+                  </div>
+                  <div className="text-sm text-muted-foreground">DreamBee Credits</div>
+                </div>
+              </div>
+              <div className="text-xs text-amber-700 dark:text-amber-300 font-medium">
+                Tap to buy more →
+              </div>
+            </div>
+
+            {/* Authentication Section */}
+            <div className="mt-4 pt-4 border-t border-border/50">
+              {isAuthenticated ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center">
+                      <User className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-foreground">
+                        {user?.email?.split('@')[0] || 'User'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Signed in</div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => window.location.href = '/logout'}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <Button 
+                    onClick={() => window.location.href = '/login'}
+                    className="w-full"
+                  >
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In to Access All Features
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Sign in to save your images and track your credit usage
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* User Profile Card */}
       <section className="mb-8">
         <UserProfile />

@@ -66,59 +66,7 @@ export function BottomNavigation() {
   };
 
   return (
-    <>
-      {/* Mobile Credits and Auth Bar */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-border/50 px-4 py-3 safe-area-top">
-        <div className="flex items-center justify-between">
-          {/* Credits Display */}
-          <div 
-            onClick={() => navigate('/dreamcredits')}
-            className="flex items-center space-x-2 bg-gradient-to-r from-background/90 to-background/70 backdrop-blur-xl border border-border/60 rounded-xl px-3 py-2 shadow-sm cursor-pointer"
-          >
-            <div className="w-6 h-6 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
-              <Coins className="h-3 w-3 text-amber-900" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-foreground leading-none">
-                {creditBalance?.balance?.toLocaleString() || '0'}
-              </span>
-              <span className="text-xs text-muted-foreground leading-none">credits</span>
-            </div>
-          </div>
-
-          {/* User Auth Status */}
-          <div className="flex items-center space-x-2">
-            {authStatus?.isAuthenticated ? (
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2 bg-background/90 backdrop-blur-xl border border-border/60 rounded-xl px-3 py-2 shadow-sm">
-                  <div className="w-6 h-6 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center">
-                    <User className="h-3 w-3 text-primary-foreground" />
-                  </div>
-                  <span className="text-sm font-medium text-foreground">
-                    {authStatus.user?.email?.split('@')[0] || 'User'}
-                  </span>
-                </div>
-                <button 
-                  onClick={() => window.location.href = '/logout'}
-                  className="w-8 h-8 rounded-lg bg-background/90 border border-border/60 flex items-center justify-center"
-                >
-                  <LogIn className="h-4 w-4 transform rotate-180" />
-                </button>
-              </div>
-            ) : (
-              <button 
-                onClick={() => window.location.href = '/login'}
-                className="flex items-center space-x-2 bg-primary text-primary-foreground rounded-xl px-3 py-2 shadow-sm"
-              >
-                <LogIn className="h-4 w-4" />
-                <span className="text-sm font-medium">Sign In</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
         {/* Glass morphism background */}
         <div className="glass-effect border-t border-border/50 px-2 py-2">
         <div className="flex items-center justify-around max-w-md mx-auto">
@@ -192,6 +140,5 @@ export function BottomNavigation() {
         </div>
       </div>
     </nav>
-    </>
   );
 }
