@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, bigint } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, bigint, decimal, varchar, jsonb, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -115,6 +115,38 @@ export const userLikes = pgTable("user_likes", {
   userId: integer("user_id").notNull(),
   modelId: integer("model_id").notNull().references(() => aiModels.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Credit System Tables - Clean Architecture Implementation
+export const creditBalances = pgTable("credit_balances", {
+  userId: integer("user_id").primaryKey().references(() => users.id),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull().default("0"),
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+  version: integer("version").notNull().default(0),
+});
+
+export const creditTransactions = pgTable("credit_transactions", {
+  id: varchar("id", { length: 21 }).primaryKey(), // nanoid
+  userId: integer("user_id").notNull().references(() => users.id),
+  type: varchar("type", { length: 20 }).notNull(), // PURCHASE, SPEND, REFUND, BONUS
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  description: text("description").notNull(),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  balanceAfter: decimal("balance_after", { precision: 10, scale: 2 }).notNull(),
+});
+
+export const creditPackages = pgTable("credit_packages", {
+  id: varchar("id", { length: 50 }).primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  credits: integer("credits").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  bonusCredits: integer("bonus_credits").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  displayOrder: integer("display_order").notNull().default(0),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
