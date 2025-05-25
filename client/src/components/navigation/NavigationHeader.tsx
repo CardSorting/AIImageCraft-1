@@ -52,21 +52,12 @@ export function NavigationHeader({
   
   return (
     <>
-      {/* Desktop Navigation */}
+      {/* Desktop Navigation Only */}
       <div className="hidden md:block">
         <DesktopNavigation 
           credits={credits}
           onNavigationClick={handleNavClick}
           activeItem={getCurrentActiveItem()}
-        />
-      </div>
-      
-      {/* Mobile Navigation */}
-      <div className="block md:hidden">
-        <MobileNavigation 
-          credits={credits}
-          onNavigationClick={handleNavClick}
-          activeItem={activeItem}
         />
       </div>
     </>
