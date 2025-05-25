@@ -228,7 +228,7 @@ export default function SimpleHome() {
     <>
       {/* Enhanced Navigation Header - Desktop Only */}
       <div className="hidden md:block">
-        <NavigationHeader activeItem="home" credits={1250} />
+        <NavigationHeader activeItem="home" />
       </div>
       
       {/* Mobile Layout - Full Screen Single Image */}

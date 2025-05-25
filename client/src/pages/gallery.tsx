@@ -67,7 +67,7 @@ export default function Gallery() {
   return (
     <div className="min-h-screen bg-background">
       {/* Enhanced Navigation Header */}
-      <NavigationHeader activeItem="gallery" credits={1250} />
+      <NavigationHeader activeItem="gallery"  />
       
       <div className="container-responsive py-6">
 

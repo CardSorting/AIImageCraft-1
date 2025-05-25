@@ -1070,7 +1070,7 @@ export default function Generate() {
   return (
     <div className="min-h-screen bg-background">
       {/* Enhanced Navigation Header */}
-      <NavigationHeader activeItem="create" credits={1250} />
+      <NavigationHeader activeItem="create"  />
 
       {/* Desktop Layout */}
       <div className="container mx-auto px-6 py-6">

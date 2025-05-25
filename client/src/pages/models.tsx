@@ -97,7 +97,7 @@ export default function ModelsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Enhanced Navigation Header */}
-      <NavigationHeader activeItem="models" credits={1250} />
+      <NavigationHeader activeItem="models"  />
 
       <div className="pb-20">
         {/* Main Tabs - iOS Style */}
