@@ -5,6 +5,7 @@ const { requiresAuth } = pkg;
 import { ImageController } from "./presentation/controllers/ImageController";
 import { StatisticsController } from "./presentation/controllers/StatisticsController";
 import { storage } from "./storage";
+import { pool } from "./infrastructure/db";
 import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {

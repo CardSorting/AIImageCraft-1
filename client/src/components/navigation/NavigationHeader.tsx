@@ -2,6 +2,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { DesktopNavigation } from "./DesktopNavigation";
 import { MobileNavigation } from "./MobileNavigation";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 
 interface NavigationHeaderProps {
   credits?: number;
@@ -10,12 +11,22 @@ interface NavigationHeaderProps {
 }
 
 export function NavigationHeader({ 
-  credits = 1250, 
+  credits, 
   onNavigationClick = () => {}, 
   activeItem 
 }: NavigationHeaderProps) {
   const isMobile = useIsMobile();
   const [location, setLocation] = useLocation();
+  
+  // Fetch current user's credit balance
+  const { data: creditBalance } = useQuery<{ balance: number }>({
+    queryKey: ['/api/credit-balance/1'], // Using user ID 1 for now
+    enabled: true,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+  
+  // Use fetched balance or fallback to props
+  const displayCredits = creditBalance?.balance ?? credits ?? 0;
   
   // Determine active item based on current route if not provided
   const getCurrentActiveItem = () => {
@@ -58,7 +69,7 @@ export function NavigationHeader({
       {/* Desktop Navigation Only */}
       <div className="hidden md:block">
         <DesktopNavigation 
-          credits={credits}
+          credits={displayCredits}
           onNavigationClick={handleNavClick}
           activeItem={getCurrentActiveItem()}
         />
