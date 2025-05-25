@@ -45,6 +45,9 @@ export function NavigationHeader({
       case "models":
         setLocation("/models");
         break;
+      case "credits":
+        setLocation("/credits");
+        break;
       default:
         break;
     }

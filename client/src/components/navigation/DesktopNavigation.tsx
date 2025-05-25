@@ -106,7 +106,10 @@ export function DesktopNavigation({
             </Button>
 
             {/* Credits Display - Enhanced */}
-            <div className="hidden sm:flex items-center space-x-3 bg-gradient-to-r from-background/90 to-background/70 backdrop-blur-xl border border-border/60 rounded-xl px-4 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 group cursor-pointer">
+            <div 
+              onClick={() => onNavigationClick('credits')}
+              className="hidden sm:flex items-center space-x-3 bg-gradient-to-r from-background/90 to-background/70 backdrop-blur-xl border border-border/60 rounded-xl px-4 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 group cursor-pointer"
+            >
               <div className="flex items-center space-x-2">
                 <div className="w-7 h-7 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-sm">
                   <Coins className="h-3.5 w-3.5 text-amber-900" />
