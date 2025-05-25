@@ -19,8 +19,7 @@ async function getOrCreateUserFromAuth0(oidcUser: any): Promise<number> {
     // Create new user if doesn't exist
     user = await storage.createUser({
       username: oidcUser.sub, // Using Auth0 sub as unique identifier
-      email: oidcUser.email,
-      displayName: oidcUser.name || oidcUser.nickname || oidcUser.email,
+      password: 'auth0-user', // Placeholder since Auth0 handles authentication
     });
   }
   
