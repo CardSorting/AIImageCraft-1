@@ -9,10 +9,15 @@ const app = express();
 const config = {
   authRequired: false,
   auth0Logout: true,
-  secret: process.env.AUTH0_SECRET || 'a-long-randomly-generated-string-stored-in-env',
+  secret: process.env.AUTH0_SECRET,
   baseURL: process.env.AUTH0_BASE_URL || 'https://dreambeesart.com',
   clientID: process.env.AUTH0_CLIENT_ID || '2hWEeuUIDvQl8L1y5AxqBsEf4GXiOufu',
-  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL || 'https://dev-57c4wim3kish0u23.us.auth0.com'
+  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL || 'https://dev-57c4wim3kish0u23.us.auth0.com',
+  routes: {
+    login: '/login',
+    logout: '/logout',
+    callback: '/callback'
+  }
 };
 
 // auth router attaches /login, /logout, and /callback routes to the baseURL
