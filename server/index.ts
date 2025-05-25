@@ -21,6 +21,43 @@ app.use(auth(config));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Add Stripe payment endpoint before other middleware
+import Stripe from "stripe";
+
+if (process.env.STRIPE_SECRET_KEY) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  
+  app.post("/api/create-payment-intent", async (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    
+    try {
+      console.log("STRIPE PAYMENT REQUEST:", req.body);
+      const { amount, packageId } = req.body;
+      
+      if (!amount || !packageId) {
+        return res.status(400).json({ error: "Amount and package ID are required" });
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+        metadata: {
+          packageId,
+          type: "dreamcredits"
+        },
+      });
+      
+      console.log("STRIPE SUCCESS:", paymentIntent.id);
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error("STRIPE ERROR:", error.message);
+      res.status(500).json({ 
+        error: "Error creating payment intent: " + error.message 
+      });
+    }
+  });
+}
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;

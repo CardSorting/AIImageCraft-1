@@ -525,58 +525,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Test endpoint to verify Stripe connection
-  app.post("/api/test-stripe", async (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    try {
-      // Simple test to verify Stripe is configured
-      res.json({ 
-        status: "ok", 
-        stripe_configured: !!process.env.STRIPE_SECRET_KEY,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Stripe payment endpoint for DreamBee Credits
-  app.post("/api/create-payment-intent", async (req, res) => {
+  // Stripe payment endpoint for DreamBee Credits - moved to top priority
+  app.post("/api/create-payment-intent", (req, res) => {
+    console.log("=== STRIPE PAYMENT INTENT REQUEST ===");
+    console.log("Request body:", req.body);
+    console.log("Headers:", req.headers);
+    
     res.setHeader('Content-Type', 'application/json');
     
-    try {
-      log("Payment intent request received");
-      const { amount, packageId } = req.body;
-      
-      if (!amount || !packageId) {
-        log("Missing amount or packageId");
-        return res.status(400).json({ error: "Amount and package ID are required" });
-      }
+    const { amount, packageId } = req.body;
+    
+    if (!amount || !packageId) {
+      console.log("Missing required fields");
+      return res.status(400).json({ error: "Amount and package ID are required" });
+    }
 
-      log(`Creating payment intent for amount: ${amount}, package: ${packageId}`);
-      
-      if (!process.env.STRIPE_SECRET_KEY) {
-        log("Stripe secret key not configured");
-        return res.status(500).json({ error: "Stripe not configured" });
-      }
-      
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: "usd",
-        metadata: {
-          packageId,
-          type: "dreamcredits"
-        },
-      });
-      
-      log("Payment intent created successfully");
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.log("Stripe not configured");
+      return res.status(500).json({ error: "Stripe not configured" });
+    }
+    
+    console.log(`Creating payment intent for $${amount}, package: ${packageId}`);
+    
+    stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency: "usd",
+      metadata: {
+        packageId,
+        type: "dreamcredits"
+      },
+    })
+    .then(paymentIntent => {
+      console.log("Payment intent created successfully");
       res.json({ clientSecret: paymentIntent.client_secret });
-    } catch (error: any) {
-      log(`Error creating payment intent: ${error.message}`);
+    })
+    .catch(error => {
+      console.error("Stripe error:", error);
       res.status(500).json({ 
         error: "Error creating payment intent: " + error.message 
       });
-    }
+    });
   });
 
   // Webhook endpoint for Stripe events
