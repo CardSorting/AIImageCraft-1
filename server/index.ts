@@ -38,6 +38,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// For Stripe webhooks, we need raw body
+app.use('/webhook/stripe', express.raw({type: 'application/json'}));
+app.use('/api/webhook', express.raw({type: 'application/json'}));
+
+// Regular JSON parsing for other routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

@@ -1,0 +1,53 @@
+2025-05-25 11:10:54.41
+0c057801
+User
+5:10:54 PM [express] GET /api/auth/profile 304 in 2ms :: {"isAuthenticated":true,"user":{"sid":"y54E…
+2025-05-25 11:10:54.53
+0c057801
+User
+5:10:54 PM [express] GET /api/credit-balance/1 304 in 109ms :: {"balance":150}
+2025-05-25 11:11:09.39
+0c057801
+User
+5:11:09 PM [express] POST /api/add-credits 404 in 109ms :: {"error":"Package not found"}
+2025-05-25 11:11:09.54
+0c057801
+User
+Webhook signature verification failed. Webhook payload must be provided as a string or a Buffer (https://nodejs.org/api/buffer.html) instance representing the _raw_ request body.Payload was provided as a parsed JavaScript object instead.
+2025-05-25 11:11:09.54
+0c057801
+User
+Signature verification is impossible without access to the original signed material.
+2025-05-25 11:11:09.54
+0c057801
+User
+2025-05-25 11:11:09.54
+0c057801
+User
+Learn more about webhook signing and explore webhook integration examples for various frameworks at https://docs.stripe.com/webhooks/signature
+2025-05-25 11:11:11.88
+0c057801
+User
+Webhook signature verification failed. Webhook payload must be provided as a string or a Buffer (https://nodejs.org/api/buffer.html) instance representing the _raw_ request body.Payload was provided as a parsed JavaScript object instead.
+2025-05-25 11:11:11.88
+0c057801
+User
+Signature verification is impossible without access to the original signed material.
+2025-05-25 11:11:11.88
+0c057801
+User
+2025-05-25 11:11:11.88
+0c057801
+User
+Learn more about webhook signing and explore webhook integration examples for various frameworks at https://docs.stripe.com/webhooks/signature
+2025-05-25 11:11:23.94
+0c057801
+User
+Webhook signature verification failed. Webhook payload must be provided as a string or a Buffer (https://nodejs.org/api/buffer.html) instance representing the _raw_ request body.Payload was provided as a parsed JavaScript object instead.
+2025-05-25 11:11:23.94
+0c057801
+User
+Signature verification is impossible without access to the original signed material.
+2025-05-25 11:11:23.94
+0c057801
+User
