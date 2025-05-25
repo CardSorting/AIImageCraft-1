@@ -525,6 +525,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Credit system API endpoints
+  app.get("/api/credit-packages", async (req, res) => {
+    try {
+      const result = await pool.query(
+        'SELECT id, name, credits, price, bonus_credits, metadata FROM credit_packages WHERE is_active = 1 ORDER BY display_order'
+      );
+      
+      const packages = result.rows.map(row => ({
+        id: row.id,
+        name: row.name,
+        credits: row.credits,
+        price: parseFloat(row.price),
+        bonusCredits: row.bonus_credits,
+        metadata: row.metadata ? JSON.parse(row.metadata) : {}
+      }));
+      
+      res.json({ packages });
+    } catch (error: any) {
+      console.error('Error fetching credit packages:', error);
+      res.status(500).json({ error: 'Failed to fetch credit packages' });
+    }
+  });
+
+  app.get("/api/credit-balance/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+
+      const result = await pool.query(
+        'SELECT amount FROM credit_balances WHERE user_id = $1',
+        [userId]
+      );
+      
+      const balance = result.rows.length > 0 ? parseFloat(result.rows[0].amount) : 0;
+      res.json({ balance });
+    } catch (error: any) {
+      console.error('Error fetching credit balance:', error);
+      res.status(500).json({ error: 'Failed to fetch credit balance' });
+    }
+  });
+
   // Stripe payment endpoint for DreamBee Credits - moved to top priority
   app.post("/api/create-payment-intent", (req, res) => {
     console.log("=== STRIPE PAYMENT INTENT REQUEST ===");
