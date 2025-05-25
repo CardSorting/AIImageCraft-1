@@ -5,6 +5,7 @@ import { Download, Search, Filter, Grid3X3, List } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { useToast } from "@/hooks/use-toast";
 import { TradingCard } from "@/components/TradingCard";
 
@@ -64,12 +65,11 @@ export default function Gallery() {
   };
 
   return (
-    <div className="container-responsive py-6">
-      {/* Header */}
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Gallery</h1>
-        <p className="text-muted-foreground">Your AI-generated masterpieces</p>
-      </header>
+    <div className="min-h-screen bg-background">
+      {/* Enhanced Navigation Header */}
+      <NavigationHeader activeItem="gallery" credits={1250} />
+      
+      <div className="container-responsive py-6">
 
       {/* Search and Controls */}
       <div className="card-ios p-4 mb-6 space-y-4">
@@ -225,6 +225,7 @@ export default function Gallery() {
           )}
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

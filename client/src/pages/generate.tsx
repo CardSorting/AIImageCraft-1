@@ -24,6 +24,7 @@ import {
   Square, RectangleHorizontal, MonitorSpeaker, Smartphone, Tablet
 } from "lucide-react";
 import { TradingCard } from "@/components/TradingCard";
+import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { generateImageRequestSchema, type GenerateImageRequest } from "@shared/schema";
 import { apiRequest, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -1068,26 +1069,8 @@ export default function Generate() {
   // Desktop Layout
   return (
     <div className="min-h-screen bg-background">
-      {/* Desktop Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                AI Image Studio
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Professional AI artwork creation
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800">
-                {Array.isArray(existingImages) ? existingImages.length : 0} Images Created
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Enhanced Navigation Header */}
+      <NavigationHeader activeItem="create" credits={1250} />
 
       {/* Desktop Layout */}
       <div className="container mx-auto px-6 py-6">

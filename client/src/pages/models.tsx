@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useModelsQuery, useModelsSearchQuery, ModelFilter } from "@/hooks/useModelsQuery";
+import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { Link, useParams } from "wouter";
 import { 
   Search, 
@@ -94,30 +95,9 @@ export default function ModelsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* iOS-style Header */}
-      <div className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
-        <div className="safe-area-top" />
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">AI Models</h1>
-            <Button variant="ghost" size="sm" className="ios-button">
-              <Filter className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          {/* Search Bar - iOS Style */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search models..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 ios-input bg-gray-100 dark:bg-gray-800 border-none rounded-xl"
-            />
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* Enhanced Navigation Header */}
+      <NavigationHeader activeItem="models" credits={1250} />
 
       <div className="pb-20">
         {/* Main Tabs - iOS Style */}
