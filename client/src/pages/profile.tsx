@@ -24,8 +24,8 @@ export default function Profile() {
 
   return (
     <div className="container-responsive py-6">
-      {/* Mobile Credits and Auth Section */}
-      {isMobile && (
+      {/* Mobile Credits Section - Only show when authenticated */}
+      {isMobile && isAuthenticated && (
         <section className="mb-6">
           <div className="card-ios p-4">
             {/* Credits Display */}
@@ -47,46 +47,6 @@ export default function Profile() {
               <div className="text-xs text-amber-700 dark:text-amber-300 font-medium">
                 Tap to buy more →
               </div>
-            </div>
-
-            {/* Authentication Section */}
-            <div className="mt-4 pt-4 border-t border-border/50">
-              {isAuthenticated ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center">
-                      <User className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-foreground">
-                        {user?.email?.split('@')[0] || 'User'}
-                      </div>
-                      <div className="text-sm text-muted-foreground">Signed in</div>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => window.location.href = '/logout'}
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <Button 
-                    onClick={() => window.location.href = '/login'}
-                    className="w-full"
-                  >
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Sign In to Access All Features
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Sign in to save your images and track your credit usage
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         </section>
