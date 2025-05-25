@@ -10,7 +10,7 @@ const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET || 'a-long-randomly-generated-string-stored-in-env',
-  baseURL: process.env.AUTH0_BASE_URL || 'https://ai-image-craft-1-0xjzy.replit.app',
+  baseURL: process.env.AUTH0_BASE_URL || 'https://dreambeesart.com',
   clientID: process.env.AUTH0_CLIENT_ID || '2hWEeuUIDvQl8L1y5AxqBsEf4GXiOufu',
   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL || 'https://dev-57c4wim3kish0u23.us.auth0.com'
 };
