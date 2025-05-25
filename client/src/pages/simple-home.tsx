@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { type GeneratedImage } from "@shared/schema";
+import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { useRandomizedImageFeed } from "../hooks/useRandomizedImageFeed";
 
 export default function SimpleHome() {
