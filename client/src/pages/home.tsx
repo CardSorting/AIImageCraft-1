@@ -45,7 +45,7 @@ export default function Home() {
   const numImages = form.watch("numImages") || 1;
   
   // Calculate credit cost dynamically
-  const baseCreditsPerImage = 3; // Base cost per image
+  const baseCreditsPerImage = 1; // Base cost per image
   const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
   const currentCost = Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
 
