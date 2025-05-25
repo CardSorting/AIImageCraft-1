@@ -29,9 +29,9 @@ const creditPackages: CreditPackage[] = [
     icon: Sparkles,
     features: [
       "125 DreamBee Credits",
-      "Perfect for trying out models",
-      "All AI models available",
-      "High-quality generations"
+      "All AI models included",
+      "High-quality generations",
+      "Perfect for beginners"
     ]
   },
   {
@@ -46,10 +46,9 @@ const creditPackages: CreditPackage[] = [
     savings: "10% off",
     features: [
       "625 DreamBee Credits",
-      "100 bonus credits included",
-      "Perfect for regular creators",
-      "Priority generation queue",
-      "All premium models"
+      "100 bonus credits",
+      "Priority generation",
+      "Great for creators"
     ]
   },
   {
@@ -63,11 +62,9 @@ const creditPackages: CreditPackage[] = [
     savings: "20% off",
     features: [
       "1,875 DreamBee Credits",
-      "375 bonus credits included",
-      "Best for professionals",
-      "Fastest generation speeds",
-      "Premium model access",
-      "Advanced customization"
+      "375 bonus credits",
+      "Fastest speeds",
+      "Best for professionals"
     ]
   },
   {
@@ -81,12 +78,9 @@ const creditPackages: CreditPackage[] = [
     savings: "30% off",
     features: [
       "5,000 DreamBee Credits",
-      "1,500 bonus credits included",
-      "Enterprise-level access",
-      "Unlimited model access",
-      "Priority support",
-      "Bulk generation tools",
-      "API access included"
+      "1,500 bonus credits",
+      "Enterprise access",
+      "Priority support"
     ]
   }
 ];
@@ -134,7 +128,7 @@ export default function DreamCreditsPage() {
             return (
               <Card 
                 key={pkg.id}
-                className={`relative transition-all duration-300 hover:scale-105 cursor-pointer ${
+                className={`relative h-full flex flex-col transition-all duration-300 hover:scale-105 cursor-pointer ${
                   pkg.popular 
                     ? 'ring-2 ring-purple-500 shadow-lg shadow-purple-500/25' 
                     : 'hover:shadow-lg'
@@ -175,8 +169,8 @@ export default function DreamCreditsPage() {
                   </div>
                 </CardHeader>
                 
-                <CardContent className="space-y-4">
-                  <div className="text-center">
+                <CardContent className="flex-1 flex flex-col">
+                  <div className="text-center mb-4">
                     <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                       {totalCredits.toLocaleString()}
                     </div>
@@ -190,7 +184,7 @@ export default function DreamCreditsPage() {
                     )}
                   </div>
                   
-                  <ul className="space-y-2 text-sm">
+                  <ul className="space-y-2 text-sm flex-1 mb-6">
                     {pkg.features.map((feature, index) => (
                       <li key={index} className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -200,7 +194,7 @@ export default function DreamCreditsPage() {
                   </ul>
                   
                   <Button 
-                    className={`w-full ${
+                    className={`w-full mt-auto ${
                       pkg.popular 
                         ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' 
                         : ''
