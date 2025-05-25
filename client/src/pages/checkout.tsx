@@ -41,11 +41,12 @@ const CheckoutForm = ({ packageData }: { packageData: CreditPackage }) => {
 
     setIsProcessing(true);
 
-    const { error } = await stripe.confirmPayment({
+    const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       confirmParams: {
         return_url: `${window.location.origin}/credits?success=true`,
       },
+      redirect: 'if_required'
     });
 
     if (error) {
@@ -54,11 +55,32 @@ const CheckoutForm = ({ packageData }: { packageData: CreditPackage }) => {
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Payment Successful",
-        description: `Successfully purchased ${packageData.name}!`,
-      });
+    } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+      // Payment succeeded, add credits to user account
+      try {
+        await apiRequest("POST", "/api/add-credits", {
+          userId: 1, // Using default user ID - in real app, get from auth
+          packageId: packageData.id,
+          amount: packageData.price
+        });
+        
+        toast({
+          title: "Purchase Successful!",
+          description: `${packageData.credits + (packageData.bonus || 0)} credits have been added to your account!`,
+        });
+        
+        // Redirect to credits page after successful purchase
+        setTimeout(() => {
+          setLocation('/credits?success=true');
+        }, 2000);
+      } catch (creditError) {
+        console.error('Error adding credits:', creditError);
+        toast({
+          title: "Payment Processed",
+          description: "Payment successful, but there was an issue adding credits. Please contact support.",
+          variant: "destructive",
+        });
+      }
     }
 
     setIsProcessing(false);

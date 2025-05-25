@@ -91,10 +91,10 @@ export default function DreamCreditsPage() {
 
   const handlePurchase = (packageId: string) => {
     setSelectedPackage(packageId);
-    // For now, show a success message while Stripe is being configured
     const pkg = creditPackages.find(p => p.id === packageId);
     if (pkg) {
-      alert(`Great choice! You selected ${pkg.name} for $${pkg.price.toFixed(2)}. Payment integration is being finalized - you'll be able to complete purchases very soon!`);
+      // Navigate to checkout page with package data
+      setLocation(`/checkout?package=${packageId}`);
     }
   };
 

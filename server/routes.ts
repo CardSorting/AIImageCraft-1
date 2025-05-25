@@ -611,6 +611,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Add credits to user account after successful payment
+  app.post("/api/add-credits", async (req, res) => {
+    try {
+      const { userId, packageId, amount } = req.body;
+      
+      if (!userId || !packageId || !amount) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      // Get package details from database
+      const packageResult = await pool.query(
+        'SELECT credits, bonus_credits FROM credit_packages WHERE id = $1',
+        [packageId]
+      );
+      
+      if (packageResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Package not found' });
+      }
+      
+      const package_data = packageResult.rows[0];
+      const totalCredits = package_data.credits + (package_data.bonus_credits || 0);
+      
+      // Add credits to user's balance
+      await pool.query(`
+        INSERT INTO credit_balances (user_id, amount) 
+        VALUES ($1, $2)
+        ON CONFLICT (user_id) 
+        DO UPDATE SET amount = credit_balances.amount + $2
+      `, [userId, totalCredits]);
+      
+      // Record the transaction
+      await pool.query(`
+        INSERT INTO credit_transactions (user_id, type, amount, description, metadata)
+        VALUES ($1, 'purchase', $2, $3, $4)
+      `, [
+        userId, 
+        totalCredits, 
+        `Purchased ${package_data.credits} credits`,
+        JSON.stringify({ packageId, paymentAmount: amount })
+      ]);
+      
+      res.json({ 
+        success: true, 
+        creditsAdded: totalCredits,
+        message: `Successfully added ${totalCredits} credits to your account`
+      });
+    } catch (error: any) {
+      console.error('Error adding credits:', error);
+      res.status(500).json({ error: 'Failed to add credits' });
+    }
+  });
+
   // Webhook endpoint for Stripe events
   app.post('/api/webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];
@@ -629,9 +681,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const paymentIntent = event.data.object;
         console.log('PaymentIntent was successful!');
         
-        // Here you would add credits to the user's account
-        // For now, we'll just log it
-        console.log('Adding credits for package:', paymentIntent.metadata?.packageId);
+        // Add credits to user account (you'll need to determine userId from your system)
+        const packageId = paymentIntent.metadata?.packageId;
+        const amount = paymentIntent.amount / 100; // Convert from cents
+        
+        if (packageId) {
+          console.log('Adding credits for package:', packageId);
+          // In a real system, you'd get the userId from your session or customer mapping
+          // For now, we'll use userId 1 as placeholder
+          const userId = 1;
+          
+          try {
+            // This would typically call your add-credits endpoint internally
+            console.log(`Would add credits for user ${userId}, package ${packageId}, amount ${amount}`);
+          } catch (error) {
+            console.error('Error adding credits via webhook:', error);
+          }
+        }
         break;
       default:
         console.log(`Unhandled event type ${event.type}`);
