@@ -4,54 +4,66 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { UserProfile } from "@/components/AuthStatus";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Profile() {
+  const { user, isAuthenticated, logout } = useAuth();
+
   return (
     <div className="container-responsive py-6">
-      {/* Profile Header */}
-      <header className="text-center mb-8">
-        <div className="w-24 h-24 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <User className="text-primary-foreground w-12 h-12" />
-        </div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Profile Settings</h1>
-        <p className="text-muted-foreground text-lg">Manage your account and preferences</p>
-      </header>
-
-      {/* Account Information */}
+      {/* User Profile Card */}
       <section className="mb-8">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Account Information</h2>
-        
-        <div className="card-ios space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <div className="flex gap-2">
-              <Input 
-                id="username" 
-                defaultValue="creative_user" 
-                className="flex-1"
-              />
-              <Button variant="outline" size="sm">
-                <Edit3 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <div className="flex gap-2">
-              <Input 
-                id="email" 
-                type="email" 
-                defaultValue="user@example.com" 
-                className="flex-1"
-              />
-              <Button variant="outline" size="sm">
-                <Edit3 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <UserProfile />
       </section>
+
+      {isAuthenticated && (
+        <>
+          {/* Account Information */}
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Account Information</h2>
+            
+            <div className="card-ios space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    id="username" 
+                    defaultValue={user?.nickname || ""} 
+                    className="flex-1"
+                    readOnly
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    defaultValue={user?.email || ""} 
+                    className="flex-1"
+                    readOnly
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    id="name" 
+                    defaultValue={user?.name || ""} 
+                    className="flex-1"
+                    readOnly
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
 
       {/* Privacy & Security */}
       <section className="mb-8">
@@ -96,12 +108,18 @@ export default function Profile() {
       <Separator className="my-6" />
 
       {/* Sign Out */}
-      <div className="text-center">
-        <Button variant="outline" className="w-full max-w-sm">
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </Button>
-      </div>
+      {isAuthenticated && (
+        <div className="text-center">
+          <Button 
+            variant="outline" 
+            className="w-full max-w-sm"
+            onClick={logout}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
+      )}
 
       {/* App Info */}
       <section className="mt-8 pt-6 border-t border-border/50">
