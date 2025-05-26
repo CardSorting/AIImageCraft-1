@@ -1,0 +1,21 @@
+Model Name,Checkpoint,Image,AIR ID
+HiDream-I1-Dev,HiDream,https://mim.runware.ai/r/682f388d22a27-880x1168.jpg,runware:97@2
+HiDream-I1-Fast,HiDream,https://my.runware.ai/assets/no-image-qHGxvh9x.jpeg,runware:97@1
+HiDream-I1-Full,HiDream,https://mim.runware.ai/r/682f3861e07f8-880x1168.jpg,runware:97@1
+FLUX Dev,FLUX.1 D,https://mim.runware.ai/r/67c1e3076ad38-768x1024.jpg,runware:101@1
+FLUX Schnell,FLUX.1 S,https://mim.runware.ai/r/67c1e2d8a5e3c-768x1024.jpg,runware:100@1
+Pony Realism,Pony,https://mim.runware.ai/r/67c36272cfcc0-1664x2432.jpg,civitai:372465@914390
+DreamShaper XL,SDXL,https://mim.runware.ai/r/67c362c0cbc1c-1600x2133.jpg,civitai:112902@126688
+Pony Diffusion V6 XL,Pony,https://mim.runware.ai/r/66c33a567b927-450x600.jpg,civitai:257749@290640
+PixelWave,FLUX.1 D,https://mim.runware.ai/r/67c3843495d64-1344x1728.jpg,civitai:141592@992642
+UltraReal Fine-Tune,FLUX.1 D,https://mim.runware.ai/r/67c3a5a889bf9-1216x832.jpg,civitai:978314@1319700
+[Lah] Mysterious,FLUX.1 D,https://mim.runware.ai/r/67c37739d2658-768x1280.jpg,civitai:118441@872820
+Fluxmania,FLUX.1 D,https://mim.runware.ai/r/6791ec05b012e-450x579.jpg,civitai:778691@1205317
+RedCraft,FLUX.1 D,https://mim.runware.ai/r/67b2c7951fbe9-450x900.jpg,civitai:958009@1387169
+iNiverse Mix XL,FLUX.1 D,https://mim.runware.ai/r/671871b22f64d-450x579.jpg,civitai:226533@973626
+Carnival,FLUX.1 D,https://mim.runware.ai/r/67c622af49059-960x1280.jpg,civitai:732481@819105
+blue_pencil-flux1,FLUX.1 D,https://mim.runware.ai/r/67c4ec753f720-1024x1536.jpg,civitai:722776@808159
+XE: Retro Anime Flux,FLUX.1 D,https://mim.runware.ai/r/67c12759cd2b1-768x1152.jpg,civitai:783000@884161
+FillLUX_Spoopy,FLUX.1 D,https://mim.runware.ai/r/67c24eb4f4071-1200x1200.jpg,civitai:621563@694866
+Crystal Clear Super,FLUX.1 D,https://mim.runware.ai/r/67c1a2e0581ca-832x1216.jpg,civitai:1102583@1238590
+Copax TimeLess,FLUX.1 D,https://mim.runware.ai/r/670d2cadbba39-450x600.jpg,civitai:118111@954640
