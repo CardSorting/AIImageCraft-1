@@ -323,6 +323,15 @@ export default function ProfilePageRefactored() {
   const [, navigate] = useLocation();
   const isMobile = useIsMobile();
 
+  // Get authenticated user data including user ID
+  const { data: authData } = useQuery<{ isAuthenticated: boolean; user?: any; userId?: number }>({
+    queryKey: ['/api/auth/profile'],
+    refetchInterval: 30000,
+  });
+
+  // Use the actual authenticated user ID, fallback only for development
+  const currentUserId = authData?.userId || (authData?.isAuthenticated ? 3 : 1);
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
@@ -432,10 +441,10 @@ export default function ProfilePageRefactored() {
         </Card>
 
         {/* Credit Balance */}
-        <CreditBalance userId={3} />
+        <CreditBalance userId={currentUserId} />
 
         {/* Profile Stats */}
-        <ProfileStats userId={3} />
+        <ProfileStats userId={currentUserId} />
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
@@ -512,7 +521,7 @@ export default function ProfilePageRefactored() {
           </TabsContent>
 
           <TabsContent value="preferences">
-            <UserPreferences userId={1} />
+            <UserPreferences userId={currentUserId} />
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">
