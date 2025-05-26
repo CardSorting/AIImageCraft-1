@@ -104,10 +104,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log("[Credit System] Executing credit transaction for user:", userId);
       
+      // Handle prompt enhancement if requested
+      let finalPrompt = prompt;
+      let enhancementResults = null;
+      
+      if (enhancePrompt && prompt.trim().length > 0) {
+        try {
+          console.log("[Prompt Enhancement] Enhancing prompt before generation");
+          const { RunwarePromptEnhancementService } = await import("./infrastructure/services/RunwarePromptEnhancementService");
+          const enhancementService = new RunwarePromptEnhancementService();
+          
+          const enhancedPrompts = await enhancementService.enhancePrompt({
+            prompt,
+            promptMaxLength,
+            promptVersions
+          });
+          
+          if (enhancedPrompts && enhancedPrompts.length > 0) {
+            // Use the first enhanced prompt for generation
+            finalPrompt = enhancedPrompts[0].text;
+            enhancementResults = enhancedPrompts;
+            console.log("[Prompt Enhancement] Using enhanced prompt:", finalPrompt.substring(0, 100) + "...");
+          }
+        } catch (enhancementError) {
+          console.error("[Prompt Enhancement] Enhancement failed, using original prompt:", enhancementError);
+          // Continue with original prompt if enhancement fails
+        }
+      }
+      
       // Execute atomic credit transaction with image generation
       const result = await creditService.executeImageGenerationTransaction({
         userId,
-        prompt,
+        prompt: finalPrompt,
         negativePrompt,
         aspectRatio,
         numImages,
@@ -136,7 +164,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         requestId: result.requestId,
         creditsUsed: result.creditsUsed,
         newBalance: result.newBalance,
-        isAuthenticated
+        isAuthenticated,
+        ...(enhancementResults && {
+          promptEnhancement: {
+            originalPrompt: prompt,
+            enhancedPrompt: finalPrompt,
+            allVersions: enhancementResults
+          }
+        })
       });
       
     } catch (error: any) {
