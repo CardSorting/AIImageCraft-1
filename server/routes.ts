@@ -1217,15 +1217,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         DO UPDATE SET amount = credit_balances.amount + EXCLUDED.amount
       `, [userId, totalCredits]);
       
+      // Get the updated balance
+      const balanceResult = await pool.query('SELECT amount FROM credit_balances WHERE user_id = $1', [userId]);
+      const newBalance = balanceResult.rows[0]?.amount || totalCredits;
+      
       // Record the transaction
+      const { nanoid } = await import('nanoid');
       await pool.query(`
-        INSERT INTO credit_transactions (user_id, type, amount, description, metadata)
-        VALUES ($1, 'purchase', $2, $3, $4)
+        INSERT INTO credit_transactions (id, user_id, type, amount, description, metadata, balance_after)
+        VALUES ($1, $2, 'purchase', $3, $4, $5, $6)
       `, [
+        nanoid(),
         userId, 
         totalCredits, 
         `Purchased ${package_data.credits} credits`,
-        JSON.stringify({ packageId, paymentAmount: amount })
+        JSON.stringify({ packageId, paymentAmount: amount }),
+        newBalance
       ]);
       
       res.json({ 
@@ -1288,15 +1295,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 DO UPDATE SET amount = credit_balances.amount + EXCLUDED.amount
               `, [userId, totalCredits]);
               
+              // Get the updated balance
+              const balanceResult = await pool.query('SELECT amount FROM credit_balances WHERE user_id = $1', [userId]);
+              const newBalance = balanceResult.rows[0]?.amount || totalCredits;
+              
               // Record the transaction
+              const { nanoid } = await import('nanoid');
               await pool.query(`
-                INSERT INTO credit_transactions (user_id, type, amount, description, metadata)
-                VALUES ($1, 'purchase', $2, $3, $4)
+                INSERT INTO credit_transactions (id, user_id, type, amount, description, metadata, balance_after)
+                VALUES ($1, $2, 'purchase', $3, $4, $5, $6)
               `, [
+                nanoid(),
                 userId, 
                 totalCredits, 
                 `Purchased ${package_data.credits} credits via webhook`,
-                JSON.stringify({ packageId, paymentAmount: amount, paymentIntentId: paymentIntent.id })
+                JSON.stringify({ packageId, paymentAmount: amount, paymentIntentId: paymentIntent.id }),
+                newBalance
               ]);
               
               console.log(`Successfully added ${totalCredits} credits to user ${userId} via webhook`);
