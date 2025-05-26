@@ -19,16 +19,17 @@ export function NavigationHeader({
   const [location, setLocation] = useLocation();
   
   // Check authentication status first
-  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
+  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any; userId?: number }>({
     queryKey: ['/api/auth/profile'],
     refetchInterval: 60000, // Check auth every minute
   });
   
   const isAuthenticated = authStatus?.isAuthenticated || false;
+  const currentUserId = authStatus?.userId || (authStatus?.isAuthenticated ? 3 : 1);
   
   // Only fetch credit balance if user is authenticated using new credit system
   const { data: creditBalance } = useQuery<{ balance: number }>({
-    queryKey: ['/api/credits/balance/1'], // Using new credit system endpoint
+    queryKey: [`/api/credits/balance/${currentUserId}`], // Using dynamic user ID
     enabled: isAuthenticated, // Only fetch if authenticated
     refetchInterval: 5000, // Refresh more frequently to show real-time updates
     staleTime: 0, // Always fetch fresh data
