@@ -46,7 +46,7 @@ export class RunwareImageGenerationService implements IImageGenerationService {
         negativePrompt: request.negativePrompt || "",
         width: width,
         height: height,
-        model: "runware:100@1", // Default Runware model
+        model: request.model || "runware:100@1", // Use selected model or default
         numberResults: request.numImages,
         outputType: "URL",
         outputFormat: "PNG",
