@@ -29,6 +29,7 @@ export interface ImageGenerationCommand {
   negativePrompt?: string;
   aspectRatio: string;
   numImages: number;
+  model?: string;
 }
 
 export interface ImageGenerationResult {
@@ -122,7 +123,8 @@ export class RunwareImageRepository implements IImageGenerationRepository {
       prompt: request.prompt,
       negativePrompt: request.negativePrompt,
       aspectRatio: request.aspectRatio,
-      numImages: request.numImages
+      numImages: request.numImages,
+      model: request.model
     });
   }
 
@@ -201,7 +203,7 @@ export class CreditTransactionService {
         for (const image of generatedImages) {
           const savedImage = await this.imageRepo.saveImage({
             userId: command.userId,
-            modelId: "runware:100@1",
+            modelId: command.model || "runware:100@1",
             prompt: command.prompt,
             negativePrompt: command.negativePrompt || "",
             imageUrl: image.url,

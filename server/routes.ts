@@ -96,7 +96,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("[Credit System] Using default user ID for testing:", userId);
       }
       
-      const { prompt, negativePrompt = "", aspectRatio = "1:1", numImages = 1 } = req.body;
+      const { prompt, negativePrompt = "", aspectRatio = "1:1", numImages = 1, model } = req.body;
       
       // Import and use the full-featured Credit Transaction Service
       const { CreditTransactionService } = await import("./application/services/CreditTransactionService");
@@ -110,7 +110,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         prompt,
         negativePrompt,
         aspectRatio,
-        numImages
+        numImages,
+        model
       });
       
       console.log("[Credit System] Transaction result:", { 
