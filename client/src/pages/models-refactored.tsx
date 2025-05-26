@@ -63,7 +63,7 @@ interface ModelsPageState {
 }
 
 interface ModelCardProps {
-  model: Model;
+  model: any; // Using existing API structure
   viewMode: 'grid' | 'list';
   onTagClick: (tag: string) => void;
 }
@@ -72,7 +72,12 @@ interface ModelCardProps {
 function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [stats, setStats] = useState(model.statistics);
+  const [stats, setStats] = useState({
+    likeCount: model.likeCount || 0,
+    bookmarkCount: model.bookmarkCount || 0,
+    downloadCount: model.downloads || 0,
+    viewCount: model.views || 0
+  });
   const modelService = new ModelService();
 
   useEffect(() => {
@@ -199,7 +204,7 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
                   </div>
                   
                   <div className="flex gap-1">
-                    {model.metadata.tags.slice(0, 2).map(tag => (
+                    {model.tags && model.tags.slice(0, 2).map((tag: string) => (
                       <Badge 
                         key={tag} 
                         variant="secondary" 
@@ -235,20 +240,18 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
           
           {/* Quality Indicator */}
           <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-white text-xs font-semibold shadow-lg ${
-            model.qualityTier === 'premium' 
+            model.featured
               ? 'bg-gradient-to-r from-purple-500 to-pink-500' 
-              : model.qualityTier === 'standard'
-              ? 'bg-gradient-to-r from-blue-500 to-cyan-500'
-              : 'bg-gradient-to-r from-gray-500 to-gray-600'
+              : 'bg-gradient-to-r from-blue-500 to-cyan-500'
           }`}>
-            {model.qualityTier.charAt(0).toUpperCase() + model.qualityTier.slice(1)}
+            {model.featured ? 'Featured' : model.category || 'General'}
           </div>
           
           {/* Trending Badge */}
-          {model.isTrending && (
+          {model.featured && (
             <div className="absolute top-3 right-3 px-2 py-1 bg-orange-500 text-white text-xs font-semibold rounded-full flex items-center gap-1">
               <Zap className="h-3 w-3" />
-              Trending
+              Featured
             </div>
           )}
           
@@ -300,7 +303,7 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
                 <Star
                   key={i}
                   className={`h-3 w-3 ${
-                    i < Math.round(model.capabilities.qualityRating / 20)
+                    i < Math.round((model.qualityRating || 80) / 20)
                       ? 'fill-yellow-400 text-yellow-400'
                       : 'text-gray-300 dark:text-gray-600'
                   }`}
@@ -309,9 +312,9 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
             </div>
           </div>
           
-          {model.metadata.tags.length > 0 && (
+          {model.tags && model.tags.length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {model.metadata.tags.slice(0, 2).map(tag => (
+              {model.tags.slice(0, 2).map((tag: string) => (
                 <Badge
                   key={tag}
                   variant="secondary"
@@ -325,9 +328,9 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
                   {tag}
                 </Badge>
               ))}
-              {model.metadata.tags.length > 2 && (
+              {model.tags.length > 2 && (
                 <Badge variant="outline" className="text-xs">
-                  +{model.metadata.tags.length - 2}
+                  +{model.tags.length - 2}
                 </Badge>
               )}
             </div>
@@ -351,22 +354,24 @@ export default function ModelsPageRefactored() {
 
   const modelService = new ModelService();
 
-  // CQRS Queries with React Query
+  // Load models using existing API structure
   const { data: allModels = [], isLoading: isLoadingAll } = useQuery({
     queryKey: ['/api/models', state.selectedCategory, state.sortBy],
     queryFn: async () => {
       if (state.selectedCategory === 'for_you') {
-        const query = new GetPersonalizedModelsQueryImpl(1, 50);
-        return await query.execute();
+        const response = await fetch(`/api/models/for-you/1?limit=50`);
+        return response.ok ? await response.json() : [];
       } else if (state.selectedCategory === 'bookmarked') {
-        return await modelService.getBookmarkedModels(1);
+        const response = await fetch(`/api/models/bookmarked/1`);
+        return response.ok ? await response.json() : [];
       } else {
-        const query = new GetModelsQueryImpl(
-          state.selectedCategory !== 'all' ? { category: state.selectedCategory } : undefined,
-          { sortBy: state.sortBy as any, direction: 'desc' },
-          { page: 1, limit: 100 }
-        );
-        return await query.execute();
+        const queryParams = new URLSearchParams();
+        if (state.selectedCategory !== 'all') queryParams.set('category', state.selectedCategory);
+        queryParams.set('sortBy', state.sortBy);
+        queryParams.set('limit', '100');
+        
+        const response = await fetch(`/api/models?${queryParams}`);
+        return response.ok ? await response.json() : [];
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -376,8 +381,8 @@ export default function ModelsPageRefactored() {
     queryKey: ['/api/search', state.searchQuery],
     queryFn: async () => {
       if (state.searchQuery.length < 2) return [];
-      const query = new SearchModelsQueryImpl(state.searchQuery, 1, 20);
-      return await query.execute();
+      const response = await fetch(`/api/models/search?q=${encodeURIComponent(state.searchQuery)}&limit=20`);
+      return response.ok ? await response.json() : [];
     },
     enabled: state.searchQuery.length >= 2,
   });
@@ -388,8 +393,10 @@ export default function ModelsPageRefactored() {
     
     // Filter by selected tags
     if (state.selectedTags.length > 0) {
-      models = models.filter(model => 
-        state.selectedTags.some(tag => model.hasTag(tag))
+      models = models.filter((model: any) => 
+        model.tags && state.selectedTags.some(tag => 
+          model.tags.includes(tag.toLowerCase())
+        )
       );
     }
     
