@@ -18,15 +18,23 @@ export function NavigationHeader({
   const isMobile = useIsMobile();
   const [location, setLocation] = useLocation();
   
-  // Fetch current user's credit balance
+  // Check authentication status first
+  const { data: authStatus } = useQuery({
+    queryKey: ['/api/auth/profile'],
+    refetchInterval: 60000, // Check auth every minute
+  });
+  
+  const isAuthenticated = authStatus?.isAuthenticated || false;
+  
+  // Only fetch credit balance if user is authenticated
   const { data: creditBalance } = useQuery<{ balance: number }>({
     queryKey: ['/api/credit-balance/1'], // Using user ID 1 for now
-    enabled: true,
+    enabled: isAuthenticated, // Only fetch if authenticated
     refetchInterval: 30000, // Refresh every 30 seconds
   });
   
-  // Use fetched balance or fallback to props
-  const displayCredits = creditBalance?.balance ?? credits ?? 0;
+  // Use fetched balance or fallback to props, show 0 if not authenticated
+  const displayCredits = isAuthenticated ? (creditBalance?.balance ?? credits ?? 0) : 0;
   
   // Determine active item based on current route if not provided
   const getCurrentActiveItem = () => {
