@@ -39,14 +39,16 @@ export class RunwareImageGenerationService implements IImageGenerationService {
       // Convert aspect ratio format for Runware
       const [width, height] = this.parseAspectRatio(request.aspectRatio);
       
-      console.log(`[Runware] Calling requestImages with dimensions: ${width}x${height}`);
+      // Convert model to Runware format if needed
+      const runwareModel = this.convertToRunwareModel(request.model);
+      console.log(`[Runware] Calling requestImages with dimensions: ${width}x${height}, model: ${runwareModel}`);
       
       const result = await this.runware.requestImages({
         positivePrompt: request.prompt,
         negativePrompt: request.negativePrompt || "",
         width: width,
         height: height,
-        model: request.model || "runware:100@1", // Use selected model or default
+        model: runwareModel,
         numberResults: request.numImages,
         outputType: "URL",
         outputFormat: "PNG",
@@ -110,6 +112,29 @@ export class RunwareImageGenerationService implements IImageGenerationService {
 
       throw new Error(`Image generation failed: ${error.message || 'Unknown error occurred'}`);
     }
+  }
+
+  private convertToRunwareModel(model?: string): string {
+    // If no model provided, use default
+    if (!model) {
+      return "runware:100@1";
+    }
+
+    // If it's already a Runware model, use it as-is
+    if (model.startsWith("runware:")) {
+      return model;
+    }
+
+    // For Civitai models, we need to use the default Runware model
+    // since Runware doesn't support Civitai models directly
+    if (model.startsWith("civitai:")) {
+      console.log(`[Runware] Converting Civitai model ${model} to default Runware model - Civitai integration not yet implemented`);
+      return "runware:100@1";
+    }
+
+    // For other models, try to use them directly or fallback to default
+    console.log(`[Runware] Unknown model format: ${model}, using default`);
+    return "runware:100@1";
   }
 
   private parseAspectRatio(aspectRatio: string): [number, number] {
