@@ -125,11 +125,10 @@ export class RunwareImageGenerationService implements IImageGenerationService {
       return model;
     }
 
-    // For Civitai models, we need to use the default Runware model
-    // since Runware doesn't support Civitai models directly
+    // Civitai models are supported by Runware through AIR system
     if (model.startsWith("civitai:")) {
-      console.log(`[Runware] Converting Civitai model ${model} to default Runware model - Civitai integration not yet implemented`);
-      return "runware:100@1";
+      console.log(`[Runware] Using Civitai model via AIR system: ${model}`);
+      return model;
     }
 
     // For other models, try to use them directly or fallback to default
