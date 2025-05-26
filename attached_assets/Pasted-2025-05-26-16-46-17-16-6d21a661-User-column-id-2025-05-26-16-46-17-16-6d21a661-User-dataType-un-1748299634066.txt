@@ -1,0 +1,152 @@
+2025-05-26 16:46:17.16
+6d21a661
+User
+column: 'id',
+2025-05-26 16:46:17.16
+6d21a661
+User
+dataType: undefined,
+2025-05-26 16:46:17.16
+6d21a661
+User
+constraint: undefined,
+2025-05-26 16:46:17.16
+6d21a661
+User
+file: 'execMain.c',
+2025-05-26 16:46:17.16
+6d21a661
+User
+line: '2006',
+2025-05-26 16:46:17.16
+6d21a661
+User
+routine: 'ExecConstraints'
+2025-05-26 16:46:17.16
+6d21a661
+User
+}
+2025-05-26 16:46:17.16
+6d21a661
+User
+10:46:17 PM [express] POST /api/add-credits 500 in 108ms :: {"error":"Failed to add credits"}
+2025-05-26 16:46:17.36
+6d21a661
+User
+PaymentIntent was successful via webhook!
+2025-05-26 16:46:17.36
+6d21a661
+User
+Adding credits for package: starter
+2025-05-26 16:46:17.41
+6d21a661
+User
+Unhandled event type charge.succeeded
+2025-05-26 16:46:17.50
+6d21a661
+User
+Error adding credits via webhook: error: null value in column "id" of relation "credit_transactions" violates not-null constraint
+2025-05-26 16:46:17.50
+6d21a661
+User
+at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+2025-05-26 16:46:17.50
+6d21a661
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-05-26 16:46:17.50
+6d21a661
+User
+at async handleStripeWebhook (file:///home/runner/workspace/dist/index.js:3295:15) {
+2025-05-26 16:46:17.50
+6d21a661
+User
+length: 370,
+2025-05-26 16:46:17.50
+6d21a661
+User
+severity: 'ERROR',
+2025-05-26 16:46:17.50
+6d21a661
+User
+code: '23502',
+2025-05-26 16:46:17.50
+6d21a661
+User
+detail: 'Failing row contains (null, 1, purchase, 100, Purchased 100 credits via webhook, {"packageId":"starter","paymentAmount":1,"paymentIntentId":"pi_3..., 2025-05-26 22:46:17.494284, null).',
+2025-05-26 16:46:17.50
+6d21a661
+User
+hint: undefined,
+2025-05-26 16:46:17.50
+6d21a661
+User
+position: undefined,
+2025-05-26 16:46:17.50
+6d21a661
+User
+internalPosition: undefined,
+2025-05-26 16:46:17.50
+6d21a661
+User
+internalQuery: undefined,
+2025-05-26 16:46:17.50
+6d21a661
+User
+where: undefined,
+2025-05-26 16:46:17.50
+6d21a661
+User
+schema: 'public',
+2025-05-26 16:46:17.50
+6d21a661
+User
+table: 'credit_transactions',
+2025-05-26 16:46:17.50
+6d21a661
+User
+column: 'id',
+2025-05-26 16:46:17.50
+6d21a661
+User
+dataType: undefined,
+2025-05-26 16:46:17.50
+6d21a661
+User
+constraint: undefined,
+2025-05-26 16:46:17.50
+6d21a661
+User
+file: 'execMain.c',
+2025-05-26 16:46:17.50
+6d21a661
+User
+line: '2006',
+2025-05-26 16:46:17.50
+6d21a661
+User
+routine: 'ExecConstraints'
+2025-05-26 16:46:17.50
+6d21a661
+User
+}
+2025-05-26 16:46:19.56
+6d21a661
+User
+Unhandled event type charge.updated
+2025-05-26 16:46:21.77
+6d21a661
+User
+10:46:21 PM [express] GET /api/credits/balance/3 304 in 154ms :: {"balance":7,"accountInfo":{"balance…
+2025-05-26 16:46:22.76
+6d21a661
+User
+10:46:22 PM [express] GET /api/auth/profile 200 in 1ms :: {"isAuthenticated":false,"user":null,"userI…
+2025-05-26 16:46:22.86
+6d21a661
+User
+10:46:22 PM [express] GET /api/images 200 in 116ms :: [{"id":16,"userId":3,"modelId":"runware:100@1",…
+2025-05-26 16:46:32.01
+6d21a661
+User
+10:46:32 PM [express] GET /api/credits/balance/3 304 in 144ms
