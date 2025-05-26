@@ -25,6 +25,7 @@ function Router() {
       <Route path="/history" component={History} />
       <Route path="/profile" component={Profile} />
       <Route path="/models" component={ModelsPage} />
+      <Route path="/model/:id" component={ModelDetailPage} />
       <Route path="/models/:id" component={ModelDetailPage} />
       <Route path="/credits" component={DreamCreditsPage} />
       <Route path="/dreamcredits" component={DreamCreditsPage} />
