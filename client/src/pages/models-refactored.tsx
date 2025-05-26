@@ -151,9 +151,9 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
           <CardContent className="p-6">
             <div className="flex gap-6">
               <div className="w-24 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 flex-shrink-0">
-                {model.imageUrl ? (
+                {model.thumbnail ? (
                   <img
-                    src={model.imageUrl}
+                    src={model.thumbnail}
                     alt={model.name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -241,9 +241,9 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
     <Link href={`/model/${model.id}`}>
       <Card className="group hover:shadow-dramatic transition-all duration-500 hover:scale-[1.03] cursor-pointer overflow-hidden">
         <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
-          {model.imageUrl ? (
+          {model.thumbnail ? (
             <img
-              src={model.imageUrl}
+              src={model.thumbnail}
               alt={model.name}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               onError={(e) => {
