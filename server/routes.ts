@@ -15,7 +15,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Helper function to get or create user from Auth0
-async function getOrCreateUserFromAuth0(oidcUser: any): Promise<number> {
+export async function getOrCreateUserFromAuth0(oidcUser: any): Promise<number> {
   if (!oidcUser) {
     throw new Error('User not authenticated');
   }
