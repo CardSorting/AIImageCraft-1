@@ -159,13 +159,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           savedImages.push(savedImage);
         }
         
-        const result = {
+        res.json({
           success: true,
           images: savedImages,
           requestId: `req_${Date.now()}`,
           creditsUsed: totalCost,
           newBalance: newBalance
-        };
+        });
         
       } catch (generationError: any) {
         console.error("Image generation failed:", generationError);
@@ -189,29 +189,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ]
         );
         
-        return res.status(500).json({ 
+        res.status(500).json({ 
           error: "Image generation failed", 
           message: generationError.message,
           creditsRefunded: totalCost
         });
       }
-      
-      if (!result.success) {
-        return res.status(result.statusCode || 500).json({
-          error: result.error,
-          message: result.message,
-          required: result.required,
-          available: result.available
-        });
-      }
-      
-      res.json({
-        success: true,
-        images: result.images,
-        requestId: result.requestId,
-        creditsUsed: result.creditsUsed,
-        newBalance: result.newBalance
-      });
       
     } catch (error: any) {
       console.error("Image generation transaction error:", error);
