@@ -21,11 +21,7 @@
 ## ✨ Features
 
 ### 🚀 **Core AI Generation**
-- **Multi-Model Support**: Access to various AI models including Google's Imagen 4
 - **Advanced Parameters**: Fine-tune generation with steps, CFG scale, schedulers, and more
-- **Batch Generation**: Create multiple variations with a single prompt
-- **Real-time Preview**: See your creations as they're generated
-- **NSFW Detection**: Built-in content filtering for safe generation
 
 ### 🎮 **Trading Card System**
 - **Rarity Calculator**: Y2K trading card game inspired rarity system
@@ -451,7 +447,7 @@ DEBUG=drizzle:query npm run dev
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **Apache 2.0 License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
