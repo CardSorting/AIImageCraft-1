@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useModelsQuery, useModelsSearchQuery, ModelFilter } from "@/hooks/useModelsQuery";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
+import { MobileLayout } from "@/components/layout/MobileLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useParams } from "wouter";
 import { 
   Search, 
@@ -118,14 +120,17 @@ export default function ModelsPage() {
     ));
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Enhanced Navigation Header */}
-      <NavigationHeader activeItem="models"  />
+  const isMobile = useIsMobile();
 
-      <div className="pb-20">
-        {/* Main Tabs - iOS Style */}
-        <div className="px-4 py-4">
+  return (
+    <MobileLayout>
+      <div className="min-h-screen bg-background">
+        {/* Enhanced Navigation Header */}
+        <NavigationHeader activeItem="models"  />
+
+        <div className="pb-4">
+          {/* Main Tabs - iOS Style */}
+          <div className="px-4 py-4">
           <div className="flex justify-center mb-4">
             <div className="ios-tab-list inline-flex">
               {mainTabs.map((tab) => {
@@ -329,8 +334,9 @@ export default function ModelsPage() {
             </div>
           )}
         </div>
+        </div>
       </div>
-    </div>
+    </MobileLayout>
   );
 }
 

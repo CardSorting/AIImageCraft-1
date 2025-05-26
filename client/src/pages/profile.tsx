@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileLayout } from "@/components/layout/MobileLayout";
 
 export default function Profile() {
   const { user, isAuthenticated, logout } = useAuth();
