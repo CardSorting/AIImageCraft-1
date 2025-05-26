@@ -1,0 +1,80 @@
+2025-05-26 17:03:21.16
+ed4479c2
+User
+STRIPE PAYMENT REQUEST: { amount: 1, packageId: 'starter' }
+2025-05-26 17:03:21.22
+ed4479c2
+User
+11:03:21 PM [express] GET /api/credits/balance/4 304 in 50ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 17:03:21.49
+ed4479c2
+User
+STRIPE SUCCESS: pi_3RTA3BIA2zQnWbn516nxIFEN
+2025-05-26 17:03:21.77
+ed4479c2
+User
+Unhandled event type payment_intent.created
+2025-05-26 17:03:34.01
+ed4479c2
+User
+11:03:34 PM [express] GET /api/auth/profile 304 in 96ms :: {"isAuthenticated":true,"user":{"sid":"zbk…
+2025-05-26 17:03:34.25
+ed4479c2
+User
+11:03:34 PM [express] GET /api/credit-balance/1 304 in 124ms :: {"balance":420}
+2025-05-26 17:03:36.37
+ed4479c2
+User
+11:03:36 PM [express] GET /api/credits/balance/4 304 in 51ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 17:03:37.47
+ed4479c2
+User
+11:03:37 PM [express] POST /api/add-credits 200 in 144ms :: {"success":true,"creditsAdded":100,"newBa…
+2025-05-26 17:03:37.52
+ed4479c2
+User
+PaymentIntent was successful via webhook!
+2025-05-26 17:03:37.52
+ed4479c2
+User
+Adding credits for package: starter
+2025-05-26 17:03:37.54
+ed4479c2
+User
+Unhandled event type charge.succeeded
+2025-05-26 17:03:37.63
+ed4479c2
+User
+Successfully added 100 credits to user 3 via webhook
+2025-05-26 17:03:39.63
+ed4479c2
+User
+11:03:39 PM [express] GET /api/credits/balance/4 304 in 48ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 17:03:41.02
+ed4479c2
+User
+11:03:41 PM [express] GET /api/images 304 in 25ms :: [{"id":16,"userId":3,"modelId":"runware:100@1","…
+2025-05-26 17:03:41.17
+ed4479c2
+User
+11:03:41 PM [express] GET /api/credits/balance/4 304 in 59ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 17:03:41.50
+ed4479c2
+User
+Unhandled event type charge.updated
+2025-05-26 17:03:42.62
+ed4479c2
+User
+11:03:42 PM [express] GET /api/credits/balance/4 304 in 50ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 17:04:11.47
+ed4479c2
+User
+11:04:11 PM [express] GET /api/auth/profile 304 in 742ms :: {"isAuthenticated":true,"user":{"sid":"zb…
+2025-05-26 17:04:11.72
+ed4479c2
+User
+11:04:11 PM [express] GET /api/credit-balance/1 200 in 130ms :: {"balance":520}
+2025-05-26 17:04:11.78
+ed4479c2
+User
+11:04:11 PM [express] GET /api/credits/balance/4 304 in 195ms :: {"balance":20,"accountInfo":{"balanc…

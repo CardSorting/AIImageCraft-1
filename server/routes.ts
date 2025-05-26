@@ -1294,20 +1294,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (packageId) {
           console.log('Adding credits for package:', packageId);
           
-          // Get the actual user ID from payment intent metadata or customer info
-          let userId = paymentIntent.metadata?.userId ? parseInt(paymentIntent.metadata.userId) : null;
+          // Get the actual user ID from payment intent metadata
+          const userId = paymentIntent.metadata?.userId ? parseInt(paymentIntent.metadata.userId) : null;
           
-          // If no userId in metadata, try to get from customer info
-          if (!userId && paymentIntent.customer) {
-            // In a real implementation, you'd map Stripe customer ID to your user ID
-            // For now, we'll use a fallback approach
-            userId = 3; // Use the same user ID that the frontend is checking (user 3)
-          }
-          
-          // Final fallback
           if (!userId) {
-            userId = 3; // Default to user 3 to match frontend expectations
+            console.error('No userId found in payment intent metadata:', paymentIntent.metadata);
+            break;
           }
+          
+          console.log(`Processing payment for user ID: ${userId}`);
           
           try {
             // Get package details from database
