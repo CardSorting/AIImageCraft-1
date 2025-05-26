@@ -23,9 +23,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
+import { BookmarkButton } from "@/components/BookmarkButton";
 
 import { Model } from "@/domain/entities/Model";
 import { ModelService } from "@/application/services/ModelService";
+import { BookmarkService } from "@/application/services/BookmarkService";
 import { 
   GetModelsQueryImpl, 
   GetPersonalizedModelsQueryImpl,
@@ -186,14 +188,13 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
                     >
                       <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
                     </Button>
-                    <Button
+                    <BookmarkButton
+                      userId={1}
+                      modelId={model.id}
+                      variant="default"
                       size="sm"
-                      variant={isBookmarked ? "default" : "outline"}
-                      onClick={handleBookmark}
-                      className="h-8"
-                    >
-                      <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
-                    </Button>
+                      onStateChange={handleBookmarkUpdate}
+                    />
                   </div>
                 </div>
                 
@@ -289,14 +290,13 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
               <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
             </Button>
             
-            <Button
+            <BookmarkButton
+              userId={1}
+              modelId={model.id}
+              variant="icon"
               size="sm"
-              variant={isBookmarked ? "default" : "secondary"}
-              onClick={handleBookmark}
-              className="h-8 w-8 p-0 rounded-full shadow-lg backdrop-blur-sm"
-            >
-              <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
-            </Button>
+              onStateChange={handleBookmarkUpdate}
+            />
           </div>
         </div>
 
