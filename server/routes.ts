@@ -412,7 +412,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Process successful credit purchase
+  // Process successful credit purchase using the new Credit Domain System
   app.post("/api/credits/purchase/confirm", async (req, res) => {
     try {
       if (!req.oidc.isAuthenticated()) {
@@ -443,45 +443,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(409).json({ error: "Payment already processed" });
       }
       
-      // Get current balance
-      const balanceResult = await pool.query(
-        'SELECT amount FROM credit_balances WHERE user_id = $1',
-        [userId]
+      // Import and use the new Credit Domain System
+      const { CreditTransactionService } = await import("./application/services/CreditTransactionService");
+      const creditService = new CreditTransactionService();
+      
+      // Execute credit addition using the domain service
+      const totalCredits = parseInt(paymentIntent.metadata.totalCredits);
+      const packageName = paymentIntent.metadata.packageName || "Credit Package";
+      
+      // Use the domain service to add credits (this will handle all business logic)
+      const creditAccount = await creditService.getCreditAccount(userId);
+      const refundResult = creditAccount.refundCredits(
+        totalCredits, 
+        `Credit Purchase: ${packageName} - Payment Intent: ${paymentIntentId}`
       );
       
-      let currentBalance = 0;
-      if (balanceResult.rows.length > 0) {
-        currentBalance = parseFloat(balanceResult.rows[0].amount);
-      } else {
-        // Create initial balance for new user
-        await pool.query(
-          'INSERT INTO credit_balances (user_id, amount, version) VALUES ($1, $2, $3)',
-          [userId, '0.0', 1]
-        );
+      if (!refundResult.success) {
+        return res.status(500).json({ error: "Failed to add credits" });
       }
       
-      // Add purchased credits
-      const totalCredits = parseInt(paymentIntent.metadata.totalCredits);
-      const newBalance = currentBalance + totalCredits;
+      // Save the updated credit account
+      await creditService.saveCreditAccount(creditAccount);
       
-      await pool.query(
-        'UPDATE credit_balances SET amount = $1, last_updated = NOW(), version = version + 1 WHERE user_id = $2',
-        [newBalance.toString(), userId]
+      // Record the transaction
+      await creditService.recordTransaction(
+        userId,
+        refundResult.transactionId!.value,
+        'PURCHASE',
+        totalCredits,
+        `Credit Purchase: ${packageName} - Payment Intent: ${paymentIntentId}`,
+        refundResult.newBalance!.amount
       );
       
-      // Record purchase transaction
-      const transactionId = nanoid();
-      await pool.query(
-        'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())',
-        [
-          transactionId,
-          userId,
-          'PURCHASE',
-          totalCredits.toString(),
-          `Credit Purchase: ${paymentIntent.metadata.credits} + ${paymentIntent.metadata.bonusCredits} bonus credits. Payment Intent: ${paymentIntentId}`,
-          newBalance.toString()
-        ]
+      res.json({
+        success: true,
+        message: "Credits added successfully",
+        creditsAdded: totalCredits,
+        newBalance: refundResult.newBalance!.amount,
+        transactionId: refundResult.transactionId!.value
+      });
+      
+    } catch (error: any) {
+      console.error("Error processing credit purchase:", error);
+      res.status(500).json({ 
+        error: "Failed to process purchase", 
+        message: error.message || "An unexpected error occurred"
+      });
+    }
+  });
+  
+  // Enhanced Stripe payment intent creation with new credit system metadata
+  app.post("/api/credits/purchase/intent", async (req, res) => {
+    try {
+      if (!req.oidc.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const { packageId } = req.body;
+      
+      // Get package details
+      const packageResult = await pool.query(
+        'SELECT id, name, credits, price, bonus_credits FROM credit_packages WHERE id = $1 AND is_active = 1',
+        [packageId]
       );
+      
+      if (packageResult.rows.length === 0) {
+        return res.status(404).json({ error: "Credit package not found" });
+      }
+      
+      const creditPackage = packageResult.rows[0];
+      const totalCredits = creditPackage.credits + creditPackage.bonus_credits;
+      
+      // Create Stripe payment intent with enhanced metadata
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(parseFloat(creditPackage.price) * 100), // Convert to cents
+        currency: 'usd',
+        metadata: {
+          userId: userId.toString(),
+          packageId: packageId,
+          packageName: creditPackage.name,
+          credits: creditPackage.credits.toString(),
+          bonusCredits: creditPackage.bonus_credits.toString(),
+          totalCredits: totalCredits.toString(),
+          creditSystemVersion: "2.0"
+        },
+        description: `Credit Purchase: ${creditPackage.name} (${totalCredits} credits)`
+      });
+      
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
+        package: {
+          id: creditPackage.id,
+          name: creditPackage.name,
+          credits: creditPackage.credits,
+          bonusCredits: creditPackage.bonus_credits,
+          totalCredits,
+          price: parseFloat(creditPackage.price)
+        }
+      });
+      
+    } catch (error: any) {
+      console.error("Error creating payment intent:", error);
+      res.status(500).json({ 
+        error: "Failed to create payment intent", 
+        message: error.message || "An unexpected error occurred"
+      });
+    }
+  });
       
       res.json({
         success: true,
@@ -1048,36 +1118,158 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe payment endpoint for DreamBee Credits - moved to top priority
-  app.post("/api/create-payment-intent", (req, res) => {
+  // Enhanced Stripe payment endpoint integrated with new credit system
+  app.post("/api/create-payment-intent", async (req, res) => {
     console.log("=== STRIPE PAYMENT INTENT REQUEST ===");
     console.log("Request body:", req.body);
-    console.log("Headers:", req.headers);
     
     res.setHeader('Content-Type', 'application/json');
     
-    const { amount, packageId } = req.body;
-    
-    if (!amount || !packageId) {
-      console.log("Missing required fields");
-      return res.status(400).json({ error: "Amount and package ID are required" });
-    }
+    try {
+      // Get authenticated user ID using the same logic as image generation
+      let userId = 1; // Default for testing
+      if (req.oidc && req.oidc.isAuthenticated()) {
+        userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      }
+      
+      const { amount, packageId } = req.body;
+      
+      if (!amount || !packageId) {
+        console.log("Missing required fields");
+        return res.status(400).json({ error: "Amount and package ID are required" });
+      }
 
-    if (!process.env.STRIPE_SECRET_KEY) {
-      console.log("Stripe not configured");
-      return res.status(500).json({ error: "Stripe not configured" });
+      if (!process.env.STRIPE_SECRET_KEY) {
+        console.log("Stripe not configured");
+        return res.status(500).json({ error: "Stripe not configured" });
+      }
+      
+      // Get package details for enhanced metadata
+      const packageResult = await pool.query(
+        'SELECT name, credits, bonus_credits FROM credit_packages WHERE id = $1',
+        [packageId]
+      );
+      
+      const packageData = packageResult.rows[0] || { name: "Credit Package", credits: 100, bonus_credits: 0 };
+      const totalCredits = packageData.credits + packageData.bonus_credits;
+      
+      console.log(`Creating payment intent for $${amount}, package: ${packageId}, user: ${userId}`);
+      
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+        metadata: {
+          packageId,
+          userId: userId.toString(),
+          packageName: packageData.name,
+          credits: packageData.credits.toString(),
+          bonusCredits: packageData.bonus_credits.toString(),
+          totalCredits: totalCredits.toString(),
+          type: "dreamcredits",
+          creditSystemVersion: "2.0"
+        },
+        description: `Credit Purchase: ${packageData.name} (${totalCredits} credits)`
+      });
+      
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+      
+    } catch (error: any) {
+      console.error("Stripe error:", error);
+      res.status(500).json({ 
+        error: "Error creating payment intent: " + error.message 
+      });
     }
-    
-    console.log(`Creating payment intent for $${amount}, package: ${packageId}`);
-    
-    stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency: "usd",
-      metadata: {
-        packageId,
-        type: "dreamcredits"
-      },
-    })
+  });
+  
+  // Enhanced payment confirmation endpoint using new credit system
+  app.post("/api/confirm-payment", async (req, res) => {
+    try {
+      const { paymentIntentId } = req.body;
+      
+      if (!paymentIntentId) {
+        return res.status(400).json({ error: "Payment intent ID required" });
+      }
+      
+      // Get authenticated user ID
+      let userId = 1; // Default for testing
+      if (req.oidc && req.oidc.isAuthenticated()) {
+        userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      }
+      
+      // Verify payment with Stripe
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ error: "Payment not completed" });
+      }
+      
+      if (parseInt(paymentIntent.metadata.userId) !== userId) {
+        return res.status(403).json({ error: "Payment verification failed" });
+      }
+      
+      // Check if already processed
+      const existingTransaction = await pool.query(
+        'SELECT id FROM credit_transactions WHERE description LIKE $1',
+        [`%Payment Intent: ${paymentIntentId}%`]
+      );
+      
+      if (existingTransaction.rows.length > 0) {
+        return res.status(409).json({ error: "Payment already processed" });
+      }
+      
+      // Import and use the new Credit Domain System
+      const { CreditTransactionService } = await import("./application/services/CreditTransactionService");
+      const creditService = new CreditTransactionService();
+      
+      // Add credits using the domain service
+      const totalCredits = parseInt(paymentIntent.metadata.totalCredits);
+      const packageName = paymentIntent.metadata.packageName;
+      
+      // Get current credit account
+      const creditRepo = new (await import("./infrastructure/repositories/PostgresCreditRepository")).PostgresCreditRepository();
+      const creditAccount = await creditRepo.getCreditAccount(userId);
+      
+      // Add credits (using refund method as it adds credits)
+      const result = creditAccount.refundCredits(
+        totalCredits,
+        `Credit Purchase: ${packageName} - Payment Intent: ${paymentIntentId}`
+      );
+      
+      if (!result.success) {
+        return res.status(500).json({ error: "Failed to add credits" });
+      }
+      
+      // Save updated account
+      await creditRepo.saveCreditAccount(creditAccount);
+      
+      // Record transaction
+      await creditRepo.recordTransaction(
+        userId,
+        result.transactionId!.value,
+        'PURCHASE',
+        totalCredits,
+        `Credit Purchase: ${packageName} - Payment Intent: ${paymentIntentId}`,
+        result.newBalance!.amount
+      );
+      
+      res.json({
+        success: true,
+        message: "Credits added successfully",
+        creditsAdded: totalCredits,
+        newBalance: result.newBalance!.amount
+      });
+      
+    } catch (error: any) {
+      console.error("Payment confirmation error:", error);
+      res.status(500).json({ 
+        error: "Payment confirmation failed", 
+        message: error.message 
+      });
+    }
+  });
     .then(paymentIntent => {
       console.log("Payment intent created successfully");
       res.json({ clientSecret: paymentIntent.client_secret });
