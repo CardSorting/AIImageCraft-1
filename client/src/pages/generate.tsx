@@ -101,10 +101,20 @@ export default function Generate() {
     }
   }, [location, form, toast]);
 
+  // Check authentication status first
+  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
+    queryKey: ['/api/auth/profile'],
+    refetchInterval: 60000, // Check auth less frequently
+    staleTime: 30000, // Consider data fresh for 30 seconds
+  });
+
   // Fetch existing images for authenticated user (today only)
   const { data: allImages = [], refetch } = useQuery({
     queryKey: ["/api/images/my"],
     queryFn: () => fetch("/api/images/my").then(res => res.json()),
+    enabled: authStatus?.isAuthenticated || false, // Only fetch if authenticated
+    refetchInterval: 60000, // Refresh every minute instead of default
+    staleTime: 30000, // Consider data fresh for 30 seconds
   });
 
   // Filter images to show only today's generations

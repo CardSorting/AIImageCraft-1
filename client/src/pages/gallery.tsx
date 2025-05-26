@@ -16,8 +16,18 @@ export default function Gallery() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const { toast } = useToast();
 
+  // Check authentication status first
+  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
+    queryKey: ['/api/auth/profile'],
+    refetchInterval: 60000, // Check auth less frequently
+    staleTime: 30000, // Consider data fresh for 30 seconds
+  });
+
   const { data: images = [], isLoading } = useQuery<GeneratedImage[]>({
     queryKey: ["/api/images/my"],
+    enabled: authStatus?.isAuthenticated || false, // Only fetch user images if authenticated
+    refetchInterval: 45000, // Refresh every 45 seconds instead of default
+    staleTime: 20000, // Consider data fresh for 20 seconds
   });
 
   const filteredImages = images.filter(image => 
