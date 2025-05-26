@@ -10,7 +10,7 @@
  */
 
 import { useState, useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { 
   Search, Star, Heart, Bookmark, Filter, Sparkles, Brain, 
@@ -80,6 +80,7 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
     viewCount: model.views || 0
   });
   const modelService = new ModelService();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     modelService.trackInteraction(1, model.id, 'view', 3);
@@ -134,6 +135,9 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
         ...prev, 
         bookmarkCount: newState ? prev.bookmarkCount + 1 : prev.bookmarkCount - 1 
       }));
+      
+      // Invalidate bookmark queries to refresh the bookmarked tab
+      queryClient.invalidateQueries({ queryKey: ['/api/models', 'bookmarked'] });
     } catch (error) {
       console.error('Bookmark action failed');
     }
@@ -393,7 +397,8 @@ export default function ModelsPageRefactored() {
         return response.ok ? await response.json() : [];
       }
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: state.selectedCategory === 'bookmarked' ? 0 : 5 * 60 * 1000, // No cache for bookmarks, 5 minutes for others
+    refetchOnWindowFocus: state.selectedCategory === 'bookmarked',
   });
 
   const { data: searchResults = [] } = useQuery({
