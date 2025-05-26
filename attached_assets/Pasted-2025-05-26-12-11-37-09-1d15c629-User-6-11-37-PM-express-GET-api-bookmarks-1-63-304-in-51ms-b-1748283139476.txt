@@ -1,0 +1,84 @@
+2025-05-26 12:11:37.09
+1d15c629
+User
+6:11:37 PM [express] GET /api/bookmarks/1/63 304 in 51ms :: {"bookmarked":false}
+2025-05-26 12:11:37.11
+1d15c629
+User
+6:11:37 PM [express] GET /api/likes/1/57 304 in 65ms :: {"liked":false}
+2025-05-26 12:11:41.75
+1d15c629
+User
+6:11:41 PM [express] POST /api/interactions/track 200 in 25ms :: {"success":true,"interactionId":190…
+2025-05-26 12:11:41.84
+1d15c629
+User
+6:11:41 PM [express] POST /api/bookmarks/1/68 200 in 1ms
+2025-05-26 12:11:44.38
+1d15c629
+User
+6:11:44 PM [express] GET /api/bookmarks/1/1 304 in 24ms :: {"bookmarked":true}
+2025-05-26 12:11:44.39
+1d15c629
+User
+6:11:44 PM [express] GET /api/likes/1/1 304 in 27ms :: {"liked":true}
+2025-05-26 12:11:44.40
+1d15c629
+User
+6:11:44 PM [express] POST /api/interactions/track 200 in 33ms :: {"success":true,"interactionId":190…
+2025-05-26 12:11:46.22
+1d15c629
+User
+6:11:46 PM [express] GET /api/auth/profile 304 in 1ms :: {"isAuthenticated":true,"user":{"sid":"rW1S…
+2025-05-26 12:11:47.80
+1d15c629
+User
+6:11:47 PM [express] GET /api/credit-balance/1 304 in 192ms :: {"balance":20}
+2025-05-26 12:11:49.25
+1d15c629
+User
+6:11:49 PM [express] POST /api/interactions/track 200 in 27ms :: {"success":true,"interactionId":190…
+2025-05-26 12:11:49.26
+1d15c629
+User
+6:11:49 PM [express] POST /api/interactions/track 200 in 27ms :: {"success":true,"interactionId":190…
+2025-05-26 12:11:49.26
+1d15c629
+User
+6:11:49 PM [express] POST /api/interactions/track 200 in 33ms :: {"success":true,"interactionId":190…
+2025-05-26 12:11:49.28
+1d15c629
+User
+6:11:49 PM [express] GET /api/bookmarks/1/66 304 in 27ms :: {"bookmarked":false}
+2025-05-26 12:11:49.29
+1d15c629
+User
+6:11:49 PM [express] GET /api/bookmarks/1/70 304 in 41ms :: {"bookmarked":false}
+2025-05-26 12:11:49.30
+1d15c629
+User
+6:11:49 PM [express] GET /api/bookmarks/1/61 304 in 46ms :: {"bookmarked":false}
+2025-05-26 12:11:49.30
+1d15c629
+User
+6:11:49 PM [express] GET /api/bookmarks/1/64 304 in 49ms :: {"bookmarked":false}
+2025-05-26 12:11:49.32
+1d15c629
+User
+6:11:49 PM [express] GET /api/likes/1/70 304 in 66ms :: {"liked":false}
+2025-05-26 12:11:49.32
+1d15c629
+User
+6:11:49 PM [express] GET /api/likes/1/65 304 in 69ms :: {"liked":false}
+2025-05-26 12:11:49.32
+1d15c629
+User
+6:11:49 PM [express] GET /api/likes/1/64 304 in 67ms :: {"liked":false}
+2025-05-26 12:11:49.33
+1d15c629
+User
+6:11:49 PM [express] POST /api/interactions/track 200 in 98ms :: {"success":true,"interactionId":190…
+2025-05-26 12:11:49.34
+1d15c629
+User
+6:11:49 PM [express] GET /api/likes/1/68 304 in 96ms :: {"liked":false}
