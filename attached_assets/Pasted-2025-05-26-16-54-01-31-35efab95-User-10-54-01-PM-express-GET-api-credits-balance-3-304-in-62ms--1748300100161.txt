@@ -1,0 +1,80 @@
+2025-05-26 16:54:01.31
+35efab95
+User
+10:54:01 PM [express] GET /api/credits/balance/3 304 in 62ms :: {"balance":7,"accountInfo":{"balance"…
+2025-05-26 16:54:04.12
+35efab95
+User
+10:54:04 PM [express] POST /api/add-credits 200 in 135ms :: {"success":true,"creditsAdded":100,"messa…
+2025-05-26 16:54:04.15
+35efab95
+User
+PaymentIntent was successful via webhook!
+2025-05-26 16:54:04.15
+35efab95
+User
+Adding credits for package: starter
+2025-05-26 16:54:04.26
+35efab95
+User
+Unhandled event type charge.succeeded
+2025-05-26 16:54:04.36
+35efab95
+User
+Successfully added 100 credits to user 1 via webhook
+2025-05-26 16:54:06.30
+35efab95
+User
+10:54:06 PM [express] GET /api/credits/balance/3 304 in 52ms :: {"balance":7,"accountInfo":{"balance"…
+2025-05-26 16:54:06.64
+35efab95
+User
+Unhandled event type charge.updated
+2025-05-26 16:54:10.92
+35efab95
+User
+10:54:10 PM [express] GET /api/images 304 in 2154ms :: [{"id":16,"userId":3,"modelId":"runware:100@1"…
+2025-05-26 16:54:11.07
+35efab95
+User
+10:54:11 PM [express] GET /api/credits/balance/3 304 in 47ms :: {"balance":7,"accountInfo":{"balance"…
+2025-05-26 16:54:21.07
+35efab95
+User
+10:54:21 PM [express] GET /api/credits/balance/3 304 in 68ms :: {"balance":7,"accountInfo":{"balance"…
+2025-05-26 16:54:21.17
+35efab95
+User
+10:54:21 PM [express] GET /api/images/my 304 in 176ms :: [{"id":16,"userId":3,"modelId":"runware:100@…
+2025-05-26 16:54:21.37
+35efab95
+User
+10:54:21 PM [express] GET /api/v1/models/catalog 304 in 363ms :: {"data":[{"id":68,"modelId":"civitai…
+2025-05-26 16:54:21.89
+35efab95
+User
+10:54:21 PM [express] GET /api/images 304 in 25ms :: [{"id":16,"userId":3,"modelId":"runware:100@1","…
+2025-05-26 16:54:22.03
+35efab95
+User
+10:54:22 PM [express] GET /api/credits/balance/3 304 in 50ms :: {"balance":7,"accountInfo":{"balance"…
+2025-05-26 16:54:22.84
+35efab95
+User
+10:54:22 PM [express] GET /api/credits/balance/3 304 in 46ms :: {"balance":7,"accountInfo":{"balance"…
+2025-05-26 16:54:23.25
+35efab95
+User
+10:54:23 PM [express] GET /api/auth/profile 304 in 25ms :: {"isAuthenticated":true,"user":{"sid":"S_W…
+2025-05-26 16:54:23.38
+35efab95
+User
+10:54:23 PM [express] GET /api/credit-balance/1 200 in 35ms :: {"balance":420}
+2025-05-26 16:54:24.14
+35efab95
+User
+10:54:24 PM [express] GET /api/images 304 in 29ms :: [{"id":16,"userId":3,"modelId":"runware:100@1","…
+2025-05-26 16:54:24.28
+35efab95
+User
+10:54:24 PM [express] GET /api/credits/balance/3 304 in 47ms :: {"balance":7,"accountInfo":{"balance"…

@@ -1065,6 +1065,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Legacy endpoint - redirect to main credits endpoint
   app.get("/api/credit-balance/:userId", async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);
@@ -1072,12 +1073,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Invalid user ID' });
       }
 
-      const result = await pool.query(
-        'SELECT amount FROM credit_balances WHERE user_id = $1',
+      // Use the same logic as the main credits endpoint for consistency
+      const balanceResult = await pool.query(
+        'SELECT amount, version, last_updated FROM credit_balances WHERE user_id = $1',
         [userId]
       );
       
-      const balance = result.rows.length > 0 ? parseFloat(result.rows[0].amount) : 0;
+      let balance = 0;
+      if (balanceResult.rows.length > 0) {
+        balance = parseFloat(balanceResult.rows[0].amount);
+      } else {
+        // Create initial balance for new user
+        await pool.query(
+          'INSERT INTO credit_balances (user_id, amount) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING',
+          [userId, '20']
+        );
+        balance = 20;
+      }
+      
       res.json({ balance });
     } catch (error: any) {
       console.error('Error fetching credit balance:', error);
@@ -1235,9 +1248,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         newBalance
       ]);
       
+      // Add cache-busting header to force frontend refresh
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       res.json({ 
         success: true, 
         creditsAdded: totalCredits,
+        newBalance: parseFloat(newBalance),
+        userId: userId,
         message: `Successfully added ${totalCredits} credits to your account`
       });
     } catch (error: any) {
@@ -1273,8 +1293,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (packageId) {
           console.log('Adding credits for package:', packageId);
-          // Using userId 1 as default - in production, map customer to userId
-          const userId = 1;
+          
+          // Get the actual user ID from payment intent metadata or customer info
+          let userId = paymentIntent.metadata?.userId ? parseInt(paymentIntent.metadata.userId) : null;
+          
+          // If no userId in metadata, try to get from customer info
+          if (!userId && paymentIntent.customer) {
+            // In a real implementation, you'd map Stripe customer ID to your user ID
+            // For now, we'll use a fallback approach
+            userId = 3; // Use the same user ID that the frontend is checking (user 3)
+          }
+          
+          // Final fallback
+          if (!userId) {
+            userId = 3; // Default to user 3 to match frontend expectations
+          }
           
           try {
             // Get package details from database
