@@ -1,0 +1,121 @@
+7:32:44 PM [express] GET /api/credits/balance/1 304 in 45ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 13:32:46.72
+5a17a4a3
+User
+[Credit System] Generate images endpoint called
+2025-05-26 13:32:46.72
+5a17a4a3
+User
+[Credit System] Request body: { prompt: 'frog in the rain...', aspectRatio: '1:1' }
+2025-05-26 13:32:46.72
+5a17a4a3
+User
+[Credit System] User is authenticated
+2025-05-26 13:32:46.74
+5a17a4a3
+User
+[Credit System] Executing credit transaction for user: 3
+2025-05-26 13:32:46.84
+5a17a4a3
+User
+[Runware] Initializing service with API key: CONFIGURED
+2025-05-26 13:32:46.85
+5a17a4a3
+User
+[Runware] Starting image generation request: {
+2025-05-26 13:32:46.85
+5a17a4a3
+User
+prompt: 'frog in the rain...',
+2025-05-26 13:32:46.85
+5a17a4a3
+User
+aspectRatio: '1:1',
+2025-05-26 13:32:46.85
+5a17a4a3
+User
+numImages: 1,
+2025-05-26 13:32:46.85
+5a17a4a3
+User
+hasNegativePrompt: false
+2025-05-26 13:32:46.85
+5a17a4a3
+User
+}
+2025-05-26 13:32:46.85
+5a17a4a3
+User
+[Runware] Ensuring connection before making request
+2025-05-26 13:32:47.65
+5a17a4a3
+User
+[Runware] Calling requestImages with dimensions: 512x512
+2025-05-26 13:32:50.14
+5a17a4a3
+User
+[Runware] Received 1 partial images
+2025-05-26 13:32:50.15
+5a17a4a3
+User
+[Runware] Raw result received: { imageCount: 1, hasImages: true }
+2025-05-26 13:32:50.16
+5a17a4a3
+User
+[Runware] Processing image 1: {
+2025-05-26 13:32:50.16
+5a17a4a3
+User
+hasUrl: true,
+2025-05-26 13:32:50.16
+5a17a4a3
+User
+imageUUID: '25d2d400-d07c-48d2-a2e4-6605a6266d66',
+2025-05-26 13:32:50.16
+5a17a4a3
+User
+cost: undefined
+2025-05-26 13:32:50.16
+5a17a4a3
+User
+}
+2025-05-26 13:32:50.16
+5a17a4a3
+User
+[Runware] Successfully processed 1 images
+2025-05-26 13:32:50.24
+5a17a4a3
+User
+[Credit System] Transaction result: { success: true, error: undefined, creditsUsed: 1, newBalance: 11 }
+2025-05-26 13:32:50.24
+5a17a4a3
+User
+7:32:50 PM [express] POST /api/generate-images 200 in 3528ms :: {"success":true,"images":[{"id":13,"…
+2025-05-26 13:32:50.40
+5a17a4a3
+User
+7:32:50 PM [express] GET /api/credits/balance/1 304 in 48ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 13:32:50.45
+5a17a4a3
+User
+7:32:50 PM [express] GET /api/images/my 200 in 90ms :: [{"id":13,"userId":3,"modelId":"runware:100@1…
+2025-05-26 13:32:50.60
+5a17a4a3
+User
+7:32:50 PM [express] GET /api/images/my 304 in 47ms :: [{"id":13,"userId":3,"modelId":"runware:100@1…
+2025-05-26 13:33:05.54
+5a17a4a3
+User
+7:33:05 PM [express] GET /api/images 200 in 118ms :: [{"id":13,"userId":3,"modelId":"runware:100@1",…
+2025-05-26 13:33:05.79
+5a17a4a3
+User
+7:33:05 PM [express] GET /api/credits/balance/1 304 in 152ms :: {"balance":20,"accountInfo":{"balanc…
+2025-05-26 13:33:06.71
+5a17a4a3
+User
+7:33:06 PM [express] GET /api/auth/profile 304 in 0ms :: {"isAuthenticated":true,"user":{"sid":"rW1S…
+2025-05-26 13:33:06.77
+5a17a4a3
+User
+7:33:06 PM [express] GET /api/credits/balance/1 304 in 57ms :: {"balance":20,"accountInfo":{"balance…
