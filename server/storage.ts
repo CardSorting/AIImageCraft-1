@@ -10,8 +10,7 @@ export interface IStorage {
   
   // Image storage methods
   createImage(image: InsertImage): Promise<GeneratedImage>;
-  getImages(limit?: number, offset?: number): Promise<GeneratedImage[]>;
-  getImagesCount(): Promise<number>;
+  getImages(limit?: number): Promise<GeneratedImage[]>;
   getImagesByUserId(userId: number, limit?: number): Promise<GeneratedImage[]>;
   getImageById(id: number): Promise<GeneratedImage | undefined>;
   getImagesByModelId(modelId: string, limit?: number): Promise<(GeneratedImage & { username: string })[]>;
@@ -80,37 +79,13 @@ export class DatabaseStorage implements IStorage {
     return image;
   }
 
-  async getImages(limit: number = 50, offset: number = 0): Promise<GeneratedImage[]> {
-    // Use cursor-based pagination for better performance with large datasets
-    // Only select essential fields for homepage display
+  async getImages(limit: number = 50): Promise<GeneratedImage[]> {
     const images = await db
-      .select({
-        id: generatedImages.id,
-        userId: generatedImages.userId,
-        modelId: generatedImages.modelId,
-        prompt: generatedImages.prompt,
-        aspectRatio: generatedImages.aspectRatio,
-        imageUrl: generatedImages.imageUrl,
-        fileName: generatedImages.fileName,
-        rarityTier: generatedImages.rarityTier,
-        rarityScore: generatedImages.rarityScore,
-        rarityStars: generatedImages.rarityStars,
-        rarityLetter: generatedImages.rarityLetter,
-        createdAt: generatedImages.createdAt
-      })
+      .select()
       .from(generatedImages)
-      .orderBy(desc(generatedImages.id)) // Use ID for stable ordering, more efficient than RANDOM()
-      .limit(limit)
-      .offset(offset);
+      .orderBy(desc(generatedImages.createdAt))
+      .limit(limit);
     return images;
-  }
-
-  async getImagesCount(): Promise<number> {
-    const result = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(generatedImages);
-    
-    return result[0]?.count || 0;
   }
 
   async getImagesByUserId(userId: number, limit: number = 50): Promise<GeneratedImage[]> {
