@@ -1,0 +1,97 @@
+11:32:05 PM [express] GET /api/models/civitai:198202@222972/images 304 in 30ms :: []
+2025-05-26 17:32:06.50
+38bead16
+User
+11:32:06 PM [express] GET /api/credits/balance/5 304 in 83ms :: {"balance":117,"accountInfo":{"balanc…
+2025-05-26 17:32:11.66
+38bead16
+User
+11:32:11 PM [express] GET /api/credits/balance/5 304 in 62ms :: {"balance":117,"accountInfo":{"balanc…
+2025-05-26 17:32:16.80
+38bead16
+User
+11:32:16 PM [express] GET /api/credits/balance/5 304 in 51ms :: {"balance":117,"accountInfo":{"balanc…
+2025-05-26 17:32:21.10
+38bead16
+User
+[Credit System] Generate images endpoint called
+2025-05-26 17:32:21.10
+38bead16
+User
+[Credit System] Request body: { prompt: 'frog in the rain...', aspectRatio: '1:1' }
+2025-05-26 17:32:21.10
+38bead16
+User
+[Credit System] User is authenticated
+2025-05-26 17:32:21.30
+38bead16
+User
+[Credit System] Executing credit transaction for user: 5
+2025-05-26 17:32:21.41
+38bead16
+User
+[Runware] Initializing service with API key: CONFIGURED
+2025-05-26 17:32:21.41
+38bead16
+User
+[Runware] Starting image generation request: {
+2025-05-26 17:32:21.41
+38bead16
+User
+prompt: 'frog in the rain...',
+2025-05-26 17:32:21.41
+38bead16
+User
+aspectRatio: '1:1',
+2025-05-26 17:32:21.41
+38bead16
+User
+numImages: 1,
+2025-05-26 17:32:21.41
+38bead16
+User
+hasNegativePrompt: false
+2025-05-26 17:32:21.41
+38bead16
+User
+}
+2025-05-26 17:32:21.41
+38bead16
+User
+[Runware] Ensuring connection before making request
+2025-05-26 17:32:21.81
+38bead16
+User
+[Runware] Calling requestImages with dimensions: 512x512
+2025-05-26 17:32:21.95
+38bead16
+User
+11:32:21 PM [express] GET /api/credits/balance/5 200 in 61ms :: {"balance":116,"accountInfo":{"balanc…
+2025-05-26 17:32:23.51
+38bead16
+User
+[Runware] Received 1 partial images
+2025-05-26 17:32:23.52
+38bead16
+User
+[Runware] Raw result received: { imageCount: 1, hasImages: true }
+2025-05-26 17:32:23.52
+38bead16
+User
+[Runware] Processing image 1: {
+2025-05-26 17:32:23.52
+38bead16
+User
+hasUrl: true,
+2025-05-26 17:32:23.52
+38bead16
+User
+imageUUID: 'e53b216a-947b-4db9-aa84-ab7aee2315a1',
+2025-05-26 17:32:23.52
+38bead16
+User
+cost: undefined
+2025-05-26 17:32:23.52
+38bead16
+User
+}
