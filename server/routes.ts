@@ -443,44 +443,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(409).json({ error: "Payment already processed" });
       }
       
-      // Import and use the new Credit Domain System
-      const { CreditTransactionService } = await import("./application/services/CreditTransactionService");
-      const creditService = new CreditTransactionService();
+      // Add credits using the new Domain-Driven Design Stripe Payment Service
+      const { StripePaymentService } = await import("./application/services/StripePaymentService");
+      const paymentService = new StripePaymentService();
       
-      // Execute credit addition using the domain service
-      const totalCredits = parseInt(paymentIntent.metadata.totalCredits);
-      const packageName = paymentIntent.metadata.packageName || "Credit Package";
+      const result = await paymentService.confirmPayment({
+        paymentIntentId,
+        userId
+      });
       
-      // Use the domain service to add credits (this will handle all business logic)
-      const creditAccount = await creditService.getCreditAccount(userId);
-      const refundResult = creditAccount.refundCredits(
-        totalCredits, 
-        `Credit Purchase: ${packageName} - Payment Intent: ${paymentIntentId}`
-      );
-      
-      if (!refundResult.success) {
-        return res.status(500).json({ error: "Failed to add credits" });
+      if (!result.success) {
+        return res.status(500).json({ error: result.error });
       }
-      
-      // Save the updated credit account
-      await creditService.saveCreditAccount(creditAccount);
-      
-      // Record the transaction
-      await creditService.recordTransaction(
-        userId,
-        refundResult.transactionId!.value,
-        'PURCHASE',
-        totalCredits,
-        `Credit Purchase: ${packageName} - Payment Intent: ${paymentIntentId}`,
-        refundResult.newBalance!.amount
-      );
       
       res.json({
         success: true,
         message: "Credits added successfully",
-        creditsAdded: totalCredits,
-        newBalance: refundResult.newBalance!.amount,
-        transactionId: refundResult.transactionId!.value
+        creditsAdded: result.creditsAdded,
+        newBalance: result.newBalance,
+        transactionId: result.transactionId
       });
       
     } catch (error: any) {
@@ -550,20 +531,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Failed to create payment intent", 
         message: error.message || "An unexpected error occurred"
       });
-    }
-  });
-      
-      res.json({
-        success: true,
-        creditsAdded: totalCredits,
-        newBalance: newBalance,
-        transactionId: transactionId,
-        paymentIntentId: paymentIntentId
-      });
-      
-    } catch (error) {
-      console.error("Error confirming credit purchase:", error);
-      res.status(500).json({ error: "Failed to process credit purchase" });
     }
   });
   
