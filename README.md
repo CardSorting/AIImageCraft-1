@@ -467,7 +467,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ---
 
 ## 📞 Support
-- **Discord**: [Join our community]([https://discord.gg/dreambeesart](https://discord.gg/AFCvg2JV2W))
+- **Discord**: [Join our community](https://discord.gg/AFCvg2JV2W)
 - **GitHub Issues**: [Report bugs](https://github.com/your-org/dreambeesart/issues)
 
 ---
