@@ -140,12 +140,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public endpoint for all images (home page)
+  // Public endpoint for all images with pagination (home page)
   app.get("/api/images", async (req, res) => {
     try {
-      const { limit = 50 } = req.query;
-      const images = await storage.getImages(Number(limit));
-      res.json(images);
+      const { limit = 20, offset = 0 } = req.query;
+      const [images, totalCount] = await Promise.all([
+        storage.getImages(Number(limit), Number(offset)),
+        storage.getImagesCount()
+      ]);
+      
+      res.json({
+        images,
+        pagination: {
+          total: totalCount,
+          limit: Number(limit),
+          offset: Number(offset),
+          hasMore: Number(offset) + Number(limit) < totalCount
+        }
+      });
     } catch (error) {
       console.error("Error fetching images:", error);
       res.status(500).json({ error: "Failed to fetch images" });

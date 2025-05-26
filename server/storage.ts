@@ -10,7 +10,8 @@ export interface IStorage {
   
   // Image storage methods
   createImage(image: InsertImage): Promise<GeneratedImage>;
-  getImages(limit?: number): Promise<GeneratedImage[]>;
+  getImages(limit?: number, offset?: number): Promise<GeneratedImage[]>;
+  getImagesCount(): Promise<number>;
   getImagesByUserId(userId: number, limit?: number): Promise<GeneratedImage[]>;
   getImageById(id: number): Promise<GeneratedImage | undefined>;
   getImagesByModelId(modelId: string, limit?: number): Promise<(GeneratedImage & { username: string })[]>;
@@ -79,13 +80,22 @@ export class DatabaseStorage implements IStorage {
     return image;
   }
 
-  async getImages(limit: number = 50): Promise<GeneratedImage[]> {
+  async getImages(limit: number = 50, offset: number = 0): Promise<GeneratedImage[]> {
     const images = await db
       .select()
       .from(generatedImages)
       .orderBy(desc(generatedImages.createdAt))
-      .limit(limit);
+      .limit(limit)
+      .offset(offset);
     return images;
+  }
+
+  async getImagesCount(): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(generatedImages);
+    
+    return result[0]?.count || 0;
   }
 
   async getImagesByUserId(userId: number, limit: number = 50): Promise<GeneratedImage[]> {

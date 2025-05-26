@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { generateImageRequestSchema, type GenerateImageRequest, type GeneratedImage } from "@shared/schema";
@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Coins, Square, Monitor, Smartphone, Image as ImageIcon, MoreHorizontal } from "lucide-react";
+import { InfiniteImageGrid } from "@/components/InfiniteImageGrid";
 
 interface ImageGenerationResponse {
   success: boolean;
