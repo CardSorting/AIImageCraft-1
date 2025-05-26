@@ -103,3 +103,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 ---
 
 **Ready to create something amazing?** Start by exploring the codebase, pick an issue that interests you, and join our creative community! 🚀
+DISCORD (https://discord.gg/AFCvg2JV2W)
