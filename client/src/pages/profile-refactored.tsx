@@ -16,7 +16,7 @@ import {
   User, Settings, Camera, Mail, Lock, Bell, Download, 
   Coins, LogIn, LogOut, Crown, Zap, Heart, Bookmark,
   Edit3, Shield, Palette, Smartphone, ChevronRight,
-  Star, TrendingUp, Activity, Calendar
+  Star, TrendingUp, Activity, Calendar, Brain
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -146,7 +146,7 @@ function ProfileStats({ userId }: { userId: number }) {
 function CreditBalance({ userId }: { userId: number }) {
   const [, navigate] = useLocation();
   
-  const { data: creditBalance } = useQuery({
+  const { data: creditBalance } = useQuery<{ balance: number }>({
     queryKey: [`/api/credit-balance/${userId}`],
     refetchInterval: 30000,
   });
@@ -232,7 +232,7 @@ function UserPreferences({ userId }: { userId: number }) {
       icon: Bell,
       title: 'Push Notifications',
       description: 'Get notified about new models and updates',
-      type: 'switch',
+      type: 'switch' as const,
       value: preferences.notificationsEnabled,
       onChange: (value: boolean) => handlePreferenceChange('notificationsEnabled', value)
     },
@@ -241,7 +241,7 @@ function UserPreferences({ userId }: { userId: number }) {
       icon: Download,
       title: 'Auto-save Images',
       description: 'Automatically save generated images to your gallery',
-      type: 'switch',
+      type: 'switch' as const,
       value: preferences.autoSaveEnabled,
       onChange: (value: boolean) => handlePreferenceChange('autoSaveEnabled', value)
     },
@@ -250,7 +250,7 @@ function UserPreferences({ userId }: { userId: number }) {
       icon: Zap,
       title: 'Default Quality',
       description: 'Preferred image generation quality',
-      type: 'select',
+      type: 'select' as const,
       value: preferences.qualityPreference,
       options: [
         { value: 'high', label: 'High Quality' },
