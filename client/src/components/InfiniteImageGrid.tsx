@@ -37,11 +37,14 @@ export function InfiniteImageGrid({ initialLimit = 20, onImageClick }: InfiniteI
         ? `/api/images?limit=${initialLimit}&cursor=${pageParam}`
         : `/api/images?limit=${initialLimit}`;
       
+      console.log("Fetching images from:", url);
+      
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch images");
       }
       const data = await response.json();
+      console.log("Images received:", data);
       
       // Handle both old format (array) and new format (object with pagination)
       if (Array.isArray(data)) {
@@ -60,7 +63,7 @@ export function InfiniteImageGrid({ initialLimit = 20, onImageClick }: InfiniteI
     getNextPageParam: (lastPage) => {
       return lastPage.pagination.hasMore ? lastPage.pagination.nextCursor : undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: undefined,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
