@@ -188,13 +188,14 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
                     >
                       <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
                     </Button>
-                    <BookmarkButton
-                      userId={1}
-                      modelId={model.id}
-                      variant="default"
+                    <Button
                       size="sm"
-                      onStateChange={handleBookmarkUpdate}
-                    />
+                      variant={isBookmarked ? "default" : "outline"}
+                      onClick={handleBookmark}
+                      className="h-8"
+                    >
+                      <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                    </Button>
                   </div>
                 </div>
                 
@@ -290,13 +291,14 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
               <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
             </Button>
             
-            <BookmarkButton
-              userId={1}
-              modelId={model.id}
-              variant="icon"
+            <Button
               size="sm"
-              onStateChange={handleBookmarkUpdate}
-            />
+              variant={isBookmarked ? "default" : "secondary"}
+              onClick={handleBookmark}
+              className="h-8 w-8 p-0 rounded-full shadow-lg backdrop-blur-sm"
+            >
+              <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
+            </Button>
           </div>
         </div>
 
