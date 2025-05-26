@@ -66,7 +66,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image generation and management endpoints using Clean Architecture
+  // Credit Transaction System with Clean Architecture
   app.post("/api/generate-images", async (req, res) => {
     try {
       if (!req.oidc.isAuthenticated()) {
@@ -74,9 +74,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const { prompt, negativePrompt = "", aspectRatio = "1:1", numImages = 1 } = req.body;
       
       // Calculate credit cost for image generation
-      const { aspectRatio = "1:1", numImages = 1 } = req.body;
       const baseCreditsPerImage = 1; // Base cost per image
       const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
       const totalCost = Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
@@ -130,9 +130,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ]
       );
       
-      // Generate images using Runware
-      const { prompt, negativePrompt = "", aspectRatio = "1:1", numImages = 1 } = req.body;
-      
       try {
         // Import and use the Runware service directly
         const { RunwareImageGenerationService } = await import("./infrastructure/services/RunwareImageGenerationService");
@@ -162,15 +159,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           savedImages.push(savedImage);
         }
         
-        res.json({
+        const result = {
           success: true,
           images: savedImages,
           requestId: `req_${Date.now()}`,
           creditsUsed: totalCost,
           newBalance: newBalance
-        });
+        };
         
-      } catch (generationError) {
+      } catch (generationError: any) {
         console.error("Image generation failed:", generationError);
         
         // Refund credits if generation failed
@@ -192,15 +189,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ]
         );
         
-        res.status(500).json({ 
+        return res.status(500).json({ 
           error: "Image generation failed", 
           message: generationError.message,
           creditsRefunded: totalCost
         });
       }
-    } catch (error) {
-      console.error("Credit deduction error:", error);
-      res.status(500).json({ error: "Failed to process credit deduction" });
+      
+      if (!result.success) {
+        return res.status(result.statusCode || 500).json({
+          error: result.error,
+          message: result.message,
+          required: result.required,
+          available: result.available
+        });
+      }
+      
+      res.json({
+        success: true,
+        images: result.images,
+        requestId: result.requestId,
+        creditsUsed: result.creditsUsed,
+        newBalance: result.newBalance
+      });
+      
+    } catch (error: any) {
+      console.error("Image generation transaction error:", error);
+      res.status(500).json({ 
+        error: "Transaction failed", 
+        message: error.message || "An unexpected error occurred"
+      });
     }
   });
 
