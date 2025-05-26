@@ -20,7 +20,10 @@ import {
   MessageCircle,
   Image,
   Clock,
-  Bookmark
+  Bookmark,
+  ChevronLeft,
+  ChevronRight,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,12 +61,15 @@ export default function ModelsPage() {
   const [selectedTab, setSelectedTab] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const modelsPerPage = 12;
 
   // Use our new CQRS-based hooks for clean architecture
   const { data: modelsResponse, isLoading } = useModelsQuery({
     filter: selectedTab as ModelFilter,
     sortBy,
-    limit: 20,
+    limit: 100, // Load more models for pagination
     userId: 1,
     searchQuery
   });
@@ -72,11 +78,29 @@ export default function ModelsPage() {
   const { data: searchResults = [] } = useModelsSearchQuery(searchQuery);
 
   // Extract models from response (handles both new structured and legacy format)
-  const models = modelsResponse?.data || [];
-  const displayModels = searchQuery.length > 2 ? searchResults : models;
+  const allModels = modelsResponse?.data || [];
+  let displayModels = searchQuery.length > 2 ? searchResults : allModels;
+  
+  // Filter by selected tag if one is selected
+  if (selectedTag) {
+    displayModels = displayModels.filter((model: AIModel) => 
+      model.tags && model.tags.includes(selectedTag)
+    );
+  }
   
   // Ensure displayModels is always an array
   const safeDisplayModels = Array.isArray(displayModels) ? displayModels : [];
+  
+  // Pagination logic
+  const totalPages = Math.ceil(safeDisplayModels.length / modelsPerPage);
+  const startIndex = (currentPage - 1) * modelsPerPage;
+  const endIndex = startIndex + modelsPerPage;
+  const paginatedModels = safeDisplayModels.slice(startIndex, endIndex);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedTab, sortBy, searchQuery, selectedTag]);
 
   const formatDownloads = (downloads: number) => {
     if (downloads >= 1000000) return `${(downloads / 1000000).toFixed(1)}M`;
@@ -179,6 +203,26 @@ export default function ModelsPage() {
           )}
         </div>
 
+        {/* Tag Filter Display */}
+        {selectedTag && (
+          <div className="px-4 mb-4">
+            <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/50 rounded-lg border border-blue-200 dark:border-blue-800">
+              <Filter className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm text-blue-700 dark:text-blue-300">
+                Filtered by tag: <strong>{selectedTag}</strong>
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setSelectedTag(null)}
+                className="ml-auto h-6 w-6 p-0 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Models Grid */}
         <div className="px-4">
           {isLoading ? (
@@ -193,9 +237,69 @@ export default function ModelsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {safeDisplayModels.map((model: AIModel) => (
-                <ModelCard key={model.id} model={model} />
+              {paginatedModels.map((model: AIModel) => (
+                <ModelCard key={model.id} model={model} onTagClick={setSelectedTag} />
               ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {!isLoading && totalPages > 1 && (
+            <div className="flex items-center justify-between mt-8 px-4">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Showing {startIndex + 1} to {Math.min(endIndex, safeDisplayModels.length)} of {safeDisplayModels.length} models
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNumber;
+                    if (totalPages <= 5) {
+                      pageNumber = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNumber = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNumber = totalPages - 4 + i;
+                    } else {
+                      pageNumber = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNumber}
+                        variant={currentPage === pageNumber ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNumber)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {pageNumber}
+                      </Button>
+                    );
+                  })}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           )}
 
@@ -232,9 +336,10 @@ export default function ModelsPage() {
 
 interface ModelCardProps {
   model: AIModel & { _recommendation?: any };
+  onTagClick: (tag: string) => void;
 }
 
-function ModelCard({ model }: ModelCardProps) {
+function ModelCard({ model, onTagClick }: ModelCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -499,12 +604,7 @@ function ModelCard({ model }: ModelCardProps) {
               </div>
             )}
 
-            {/* Provider Badge */}
-            <div className="absolute bottom-3 left-3">
-              <Badge variant="secondary" className="ios-badge text-xs">
-                {model.provider}
-              </Badge>
-            </div>
+
           </div>
 
           {/* Model Info */}
@@ -569,16 +669,33 @@ function ModelCard({ model }: ModelCardProps) {
               </div>
             )}
 
-            {/* Tags */}
+            {/* Tags - Clickable for filtering */}
             {model.tags && model.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-3">
                 {model.tags.slice(0, 3).map((tag) => (
-                  <Badge key={tag} variant="secondary" className="text-xs ios-tag">
+                  <Badge 
+                    key={tag} 
+                    variant="secondary" 
+                    className="text-xs ios-tag cursor-pointer hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onTagClick(tag);
+                    }}
+                  >
                     {tag}
                   </Badge>
                 ))}
                 {model.tags.length > 3 && (
-                  <Badge variant="secondary" className="text-xs ios-tag">
+                  <Badge 
+                    variant="secondary" 
+                    className="text-xs ios-tag cursor-pointer hover:bg-gray-500 hover:text-white transition-colors duration-200"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      // Show all tags in a tooltip or expand functionality could be added here
+                    }}
+                  >
                     +{model.tags.length - 3}
                   </Badge>
                 )}
