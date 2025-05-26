@@ -7,6 +7,7 @@ import { StatisticsController } from "./presentation/controllers/StatisticsContr
 import { storage } from "./storage";
 import { pool } from "./infrastructure/db";
 import Stripe from "stripe";
+import { nanoid } from "nanoid";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -116,7 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       // Record the credit transaction
-      const transactionId = require('nanoid').nanoid();
+      const transactionId = nanoid();
       await pool.query(
         'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())',
         [
