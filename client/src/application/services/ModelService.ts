@@ -20,6 +20,7 @@ import {
   ModelSortOptions,
   PaginationOptions
 } from '@/application/queries/ModelQueries';
+import { ModelMapper } from '@/lib/ModelMapper';
 
 export interface IModelService {
   getModels(filters?: ModelFilter, sortOptions?: ModelSortOptions, pagination?: PaginationOptions): Promise<Model[]>;
@@ -52,7 +53,7 @@ export class ModelService implements IModelService {
       if (!response.ok) throw new Error('Failed to fetch bookmarked models');
       
       const data = await response.json();
-      return new GetModelsQueryImpl().transformToModels(Array.isArray(data) ? data : data.data || []);
+      return ModelMapper.transformToModels(Array.isArray(data) ? data : data.data || []);
     } catch (error) {
       console.error('Failed to get bookmarked models:', error);
       return [];

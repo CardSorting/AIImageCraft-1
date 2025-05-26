@@ -5,6 +5,7 @@
  */
 
 import { Model, ModelStatistics } from '@/domain/entities/Model';
+import { ModelMapper } from '@/lib/ModelMapper';
 
 export interface Query<TResult> {
   readonly type: string;
@@ -84,43 +85,14 @@ export class GetModelsQueryImpl implements GetModelsQuery {
       if (!response.ok) throw new Error('Failed to fetch models');
       
       const data = await response.json();
-      return this.transformToModels(Array.isArray(data) ? data : data.data || []);
+      return ModelMapper.transformToModels(Array.isArray(data) ? data : data.data || []);
     } catch (error) {
       console.error('Get models query failed:', error);
       return [];
     }
   }
 
-  transformToModels(rawModels: any[]): Model[] {
-    return rawModels.map(raw => new Model(
-      raw.id,
-      raw.modelId,
-      raw.name,
-      raw.description,
-      raw.imageUrl,
-      {
-        version: raw.version || '1.0',
-        lastUpdated: new Date(raw.updatedAt || Date.now()),
-        provider: raw.provider || 'Unknown',
-        category: raw.category || 'General',
-        tags: raw.tags || [],
-        featured: raw.featured || false
-      },
-      {
-        supportedStyles: raw.capabilities?.supportedStyles || [],
-        maxResolution: raw.capabilities?.maxResolution || '1024x1024',
-        averageGenerationTime: raw.capabilities?.averageGenerationTime || 5,
-        qualityRating: raw.qualityRating || 80
-      },
-      {
-        likeCount: raw.likeCount || 0,
-        bookmarkCount: raw.bookmarkCount || 0,
-        downloadCount: raw.downloads || 0,
-        viewCount: raw.views || 0,
-        engagementScore: raw.engagementScore || 50
-      }
-    ));
-  }
+
 }
 
 export class GetPersonalizedModelsQueryImpl implements GetPersonalizedModelsQuery {
@@ -141,7 +113,8 @@ export class GetPersonalizedModelsQueryImpl implements GetPersonalizedModelsQuer
     } catch (error) {
       console.error('Personalized models query failed:', error);
       // Graceful fallback to general models
-      return new GetModelsQueryImpl({}, { sortBy: 'popular', direction: 'desc' }, { page: 1, limit: this.limit }).execute();
+      const fallbackQuery = new GetModelsQueryImpl({}, { sortBy: 'popular', direction: 'desc' }, { page: 1, limit: this.limit });
+      return fallbackQuery.execute();
     }
   }
 }
