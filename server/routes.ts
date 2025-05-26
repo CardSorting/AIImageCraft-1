@@ -1118,15 +1118,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Enhanced Stripe payment endpoint integrated with new credit system
-  app.post("/api/create-payment-intent", async (req, res) => {
-    console.log("=== STRIPE PAYMENT INTENT REQUEST ===");
-    console.log("Request body:", req.body);
-    
-    res.setHeader('Content-Type', 'application/json');
+  // Domain-Driven Design Payment Intent Endpoint
+  app.post("/api/payments/intent", async (req, res) => {
+    console.log("[Payment] Creating payment intent with DDD architecture");
     
     try {
-      // Get authenticated user ID using the same logic as image generation
+      // Get authenticated user ID using consistent authentication logic
       let userId = 1; // Default for testing
       if (req.oidc && req.oidc.isAuthenticated()) {
         userId = await getOrCreateUserFromAuth0(req.oidc.user);
@@ -1135,57 +1132,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { amount, packageId } = req.body;
       
       if (!amount || !packageId) {
-        console.log("Missing required fields");
         return res.status(400).json({ error: "Amount and package ID are required" });
       }
 
       if (!process.env.STRIPE_SECRET_KEY) {
-        console.log("Stripe not configured");
         return res.status(500).json({ error: "Stripe not configured" });
       }
       
-      // Get package details for enhanced metadata
-      const packageResult = await pool.query(
-        'SELECT name, credits, bonus_credits FROM credit_packages WHERE id = $1',
-        [packageId]
-      );
+      // Use the new Domain-Driven Design Stripe Payment Service
+      const { StripePaymentService } = await import("./application/services/StripePaymentService");
+      const paymentService = new StripePaymentService();
       
-      const packageData = packageResult.rows[0] || { name: "Credit Package", credits: 100, bonus_credits: 0 };
-      const totalCredits = packageData.credits + packageData.bonus_credits;
-      
-      console.log(`Creating payment intent for $${amount}, package: ${packageId}, user: ${userId}`);
-      
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: "usd",
-        metadata: {
-          packageId,
-          userId: userId.toString(),
-          packageName: packageData.name,
-          credits: packageData.credits.toString(),
-          bonusCredits: packageData.bonus_credits.toString(),
-          totalCredits: totalCredits.toString(),
-          type: "dreamcredits",
-          creditSystemVersion: "2.0"
-        },
-        description: `Credit Purchase: ${packageData.name} (${totalCredits} credits)`
+      const result = await paymentService.createPaymentIntent({
+        packageId,
+        userId,
+        amount
       });
       
-      res.json({ 
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id
-      });
+      if (result.success) {
+        res.json({
+          clientSecret: result.clientSecret,
+          paymentIntentId: result.paymentIntentId
+        });
+      } else {
+        res.status(400).json({ error: result.error });
+      }
       
     } catch (error: any) {
-      console.error("Stripe error:", error);
+      console.error("[Payment] Error creating payment intent:", error);
       res.status(500).json({ 
         error: "Error creating payment intent: " + error.message 
       });
     }
   });
   
-  // Enhanced payment confirmation endpoint using new credit system
-  app.post("/api/confirm-payment", async (req, res) => {
+  // Domain-Driven Design Payment Confirmation Endpoint
+  app.post("/api/payments/confirm", async (req, res) => {
+    console.log("[Payment] Confirming payment with DDD architecture");
+    
     try {
       const { paymentIntentId } = req.body;
       
@@ -1193,93 +1177,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Payment intent ID required" });
       }
       
-      // Get authenticated user ID
+      // Get authenticated user ID using consistent authentication logic
       let userId = 1; // Default for testing
       if (req.oidc && req.oidc.isAuthenticated()) {
         userId = await getOrCreateUserFromAuth0(req.oidc.user);
       }
       
-      // Verify payment with Stripe
-      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      // Use the new Domain-Driven Design Stripe Payment Service
+      const { StripePaymentService } = await import("./application/services/StripePaymentService");
+      const paymentService = new StripePaymentService();
       
-      if (paymentIntent.status !== 'succeeded') {
-        return res.status(400).json({ error: "Payment not completed" });
-      }
-      
-      if (parseInt(paymentIntent.metadata.userId) !== userId) {
-        return res.status(403).json({ error: "Payment verification failed" });
-      }
-      
-      // Check if already processed
-      const existingTransaction = await pool.query(
-        'SELECT id FROM credit_transactions WHERE description LIKE $1',
-        [`%Payment Intent: ${paymentIntentId}%`]
-      );
-      
-      if (existingTransaction.rows.length > 0) {
-        return res.status(409).json({ error: "Payment already processed" });
-      }
-      
-      // Import and use the new Credit Domain System
-      const { CreditTransactionService } = await import("./application/services/CreditTransactionService");
-      const creditService = new CreditTransactionService();
-      
-      // Add credits using the domain service
-      const totalCredits = parseInt(paymentIntent.metadata.totalCredits);
-      const packageName = paymentIntent.metadata.packageName;
-      
-      // Get current credit account
-      const creditRepo = new (await import("./infrastructure/repositories/PostgresCreditRepository")).PostgresCreditRepository();
-      const creditAccount = await creditRepo.getCreditAccount(userId);
-      
-      // Add credits (using refund method as it adds credits)
-      const result = creditAccount.refundCredits(
-        totalCredits,
-        `Credit Purchase: ${packageName} - Payment Intent: ${paymentIntentId}`
-      );
-      
-      if (!result.success) {
-        return res.status(500).json({ error: "Failed to add credits" });
-      }
-      
-      // Save updated account
-      await creditRepo.saveCreditAccount(creditAccount);
-      
-      // Record transaction
-      await creditRepo.recordTransaction(
-        userId,
-        result.transactionId!.value,
-        'PURCHASE',
-        totalCredits,
-        `Credit Purchase: ${packageName} - Payment Intent: ${paymentIntentId}`,
-        result.newBalance!.amount
-      );
-      
-      res.json({
-        success: true,
-        message: "Credits added successfully",
-        creditsAdded: totalCredits,
-        newBalance: result.newBalance!.amount
+      const result = await paymentService.confirmPayment({
+        paymentIntentId,
+        userId
       });
       
+      if (result.success) {
+        res.json({
+          success: true,
+          message: "Credits added successfully",
+          creditsAdded: result.creditsAdded,
+          newBalance: result.newBalance,
+          transactionId: result.transactionId
+        });
+      } else {
+        res.status(400).json({ error: result.error });
+      }
+      
     } catch (error: any) {
-      console.error("Payment confirmation error:", error);
+      console.error("[Payment] Error confirming payment:", error);
       res.status(500).json({ 
         error: "Payment confirmation failed", 
         message: error.message 
       });
     }
   });
-    .then(paymentIntent => {
-      console.log("Payment intent created successfully");
-      res.json({ clientSecret: paymentIntent.client_secret });
-    })
-    .catch(error => {
-      console.error("Stripe error:", error);
-      res.status(500).json({ 
-        error: "Error creating payment intent: " + error.message 
-      });
-    });
+  
+  // Legacy endpoint for backward compatibility
+  app.post("/api/create-payment-intent", async (req, res) => {
+    // Redirect to new DDD endpoint
+    req.url = "/api/payments/intent";
+    return app._router.handle(req, res);
   });
 
   // Add credits to user account after successful payment
