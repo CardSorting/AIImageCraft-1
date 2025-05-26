@@ -467,18 +467,8 @@ export default function ModelsPageRefactored() {
       
       <div className="container max-w-7xl mx-auto px-4 py-8 pb-20">
 
-        {/* Search & Controls */}
+        {/* Controls */}
         <div className="mb-8 space-y-6">
-          {/* Search Bar */}
-          <div className="relative max-w-xl mx-auto">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <Input
-              placeholder="Search models, styles, or creators..."
-              value={state.searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="pl-12 h-12 text-lg rounded-2xl border-2 border-gray-200 dark:border-gray-700 focus:border-blue-500 transition-colors"
-            />
-          </div>
 
           {/* Category Tabs */}
           <Tabs value={state.selectedCategory} onValueChange={handleCategoryChange}>
