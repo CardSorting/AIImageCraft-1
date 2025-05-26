@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { MobileLayout } from "@/components/layout/MobileLayout";
-import SimpleHome from "@/pages/simple-home";
+import ImageFeed from "@/pages/image-feed";
 import Gallery from "@/pages/gallery";
 import Generate from "@/pages/generate";
 import History from "@/pages/history";
@@ -18,7 +18,7 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={SimpleHome} />
+      <Route path="/" component={ImageFeed} />
       <Route path="/create" component={Generate} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/generate" component={Generate} />
