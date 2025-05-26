@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Coins, Square, Monitor, Smartphone, Image as ImageIcon, MoreHorizontal } from "lucide-react";
+import { useImageCache } from "@/hooks/useImageCache";
 
 interface ImageGenerationResponse {
   success: boolean;
@@ -29,6 +30,9 @@ export default function Home() {
   const [userCredits] = useState(1250);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Initialize smart image cache
+  const { cacheNewImage, getCachedOrFreshImages, cacheStats } = useImageCache();
 
   const form = useForm<GenerateImageRequest>({
     resolver: zodResolver(generateImageRequestSchema),
@@ -68,10 +72,15 @@ export default function Home() {
       return response.json();
     },
     onSuccess: (data) => {
+      // Cache newly generated images immediately
+      data.images.forEach(image => {
+        cacheNewImage(image);
+      });
+      
       queryClient.invalidateQueries({ queryKey: ["/api/images"] });
       toast({
         title: "Images Generated Successfully!",
-        description: `Generated ${data.images.length} image(s). They're ready for download.`,
+        description: `Generated ${data.images.length} image(s). Smart cache updated with ${cacheStats.totalImages + data.images.length} total images.`,
       });
       form.reset({
         prompt: "",
