@@ -130,11 +130,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ]
       );
       
-      req.body.userId = userId;
-      req.body.creditsCost = totalCost;
-      req.body.newBalance = newBalance;
+      // Generate images using Runware
+      const { prompt, negativePrompt = "", aspectRatio = "1:1", numImages = 1 } = req.body;
       
-      imageController.generateImages(req, res);
+      try {
+        // Import and use the Runware service directly
+        const { RunwareImageGenerationService } = await import("./infrastructure/services/RunwareImageGenerationService");
+        const imageService = new RunwareImageGenerationService();
+        
+        const generatedImages = await imageService.generateImages({
+          prompt,
+          negativePrompt,
+          aspectRatio,
+          numImages
+        });
+        
+        // Save each generated image to the database with user association
+        const savedImages = [];
+        for (const image of generatedImages) {
+          const savedImage = await storage.createImage({
+            userId: userId,
+            modelId: "runware:100@1",
+            prompt: prompt,
+            negativePrompt: negativePrompt,
+            imageUrl: image.url,
+            aspectRatio: aspectRatio,
+            fileName: image.fileName,
+            fileSize: image.fileSize,
+            seed: image.seed
+          });
+          savedImages.push(savedImage);
+        }
+        
+        res.json({
+          success: true,
+          images: savedImages,
+          requestId: `req_${Date.now()}`,
+          creditsUsed: totalCost,
+          newBalance: newBalance
+        });
+        
+      } catch (generationError) {
+        console.error("Image generation failed:", generationError);
+        
+        // Refund credits if generation failed
+        await pool.query(
+          'UPDATE credit_balances SET amount = $1, last_updated = NOW(), version = version + 1 WHERE user_id = $2',
+          [currentBalance.toString(), userId]
+        );
+        
+        // Record refund transaction
+        await pool.query(
+          'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())',
+          [
+            nanoid(),
+            userId,
+            'REFUND',
+            totalCost.toString(),
+            `Refund for failed image generation`,
+            currentBalance.toString()
+          ]
+        );
+        
+        res.status(500).json({ 
+          error: "Image generation failed", 
+          message: generationError.message,
+          creditsRefunded: totalCost
+        });
+      }
     } catch (error) {
       console.error("Credit deduction error:", error);
       res.status(500).json({ error: "Failed to process credit deduction" });
