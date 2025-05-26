@@ -151,11 +151,20 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
           <CardContent className="p-6">
             <div className="flex gap-6">
               <div className="w-24 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 flex-shrink-0">
-                <img
-                  src={model.imageUrl}
-                  alt={model.name}
-                  className="w-full h-full object-cover"
-                />
+                {model.imageUrl ? (
+                  <img
+                    src={model.imageUrl}
+                    alt={model.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Brain className="h-8 w-8 text-gray-400" />
+                  </div>
+                )}
               </div>
               
               <div className="flex-1">
@@ -232,11 +241,20 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
     <Link href={`/model/${model.id}`}>
       <Card className="group hover:shadow-dramatic transition-all duration-500 hover:scale-[1.03] cursor-pointer overflow-hidden">
         <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
-          <img
-            src={model.imageUrl}
-            alt={model.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-          />
+          {model.imageUrl ? (
+            <img
+              src={model.imageUrl}
+              alt={model.name}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+              <Brain className="h-16 w-16 text-gray-400" />
+            </div>
+          )}
           
           {/* Quality Indicator */}
           <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-white text-xs font-semibold shadow-lg ${
