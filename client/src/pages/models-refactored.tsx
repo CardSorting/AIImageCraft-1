@@ -380,10 +380,7 @@ export default function ModelsPageRefactored() {
   const { data: allModels = [], isLoading: isLoadingAll } = useQuery({
     queryKey: ['/api/models', state.selectedCategory, state.sortBy],
     queryFn: async () => {
-      if (state.selectedCategory === 'for_you') {
-        const response = await fetch(`/api/models/for-you/1?limit=50`);
-        return response.ok ? await response.json() : [];
-      } else if (state.selectedCategory === 'bookmarked') {
+      if (state.selectedCategory === 'bookmarked') {
         const response = await fetch(`/api/models/bookmarked/1`);
         return response.ok ? await response.json() : [];
       } else {
@@ -481,10 +478,6 @@ export default function ModelsPageRefactored() {
                 <TabsTrigger value="all" className="rounded-xl">
                   <Brain className="h-4 w-4 mr-2" />
                   All Models
-                </TabsTrigger>
-                <TabsTrigger value="for_you" className="rounded-xl">
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  For You
                 </TabsTrigger>
                 <TabsTrigger value="bookmarked" className="rounded-xl">
                   <Bookmark className="h-4 w-4 mr-2" />
