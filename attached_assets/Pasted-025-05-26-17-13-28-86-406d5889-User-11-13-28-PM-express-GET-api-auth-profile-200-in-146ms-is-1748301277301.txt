@@ -1,0 +1,80 @@
+025-05-26 17:13:28.86
+406d5889
+User
+11:13:28 PM [express] GET /api/auth/profile 200 in 146ms :: {"isAuthenticated":true,"user":{"sid":"1I…
+2025-05-26 17:13:29.07
+406d5889
+User
+11:13:29 PM [express] GET /api/credit-balance/1 304 in 117ms :: {"balance":520}
+2025-05-26 17:13:29.17
+406d5889
+User
+11:13:29 PM [express] GET /api/credits/balance/5 200 in 224ms :: {"balance":20,"accountInfo":{"balanc…
+2025-05-26 17:13:34.33
+406d5889
+User
+11:13:34 PM [express] GET /api/credits/balance/5 200 in 56ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 17:13:35.89
+406d5889
+User
+11:13:35 PM [express] GET /api/credits/balance/5 304 in 52ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 17:13:38.05
+406d5889
+User
+STRIPE PAYMENT REQUEST: { amount: 1, packageId: 'starter' }
+2025-05-26 17:13:38.12
+406d5889
+User
+11:13:38 PM [express] GET /api/credits/balance/5 304 in 71ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 17:13:38.39
+406d5889
+User
+STRIPE SUCCESS: pi_3RTAD8IA2zQnWbn50beQODEJ
+2025-05-26 17:13:38.67
+406d5889
+User
+Unhandled event type payment_intent.created
+2025-05-26 17:13:38.65
+ed4479c2
+System
+system: received signal terminated
+2025-05-26 17:13:43.30
+406d5889
+User
+11:13:43 PM [express] GET /api/credits/balance/5 304 in 71ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 17:13:43.95
+406d5889
+User
+11:13:43 PM [express] POST /api/add-credits 200 in 127ms :: {"success":true,"creditsAdded":100,"newBa…
+2025-05-26 17:13:44.08
+406d5889
+User
+PaymentIntent was successful via webhook!
+2025-05-26 17:13:44.08
+406d5889
+User
+Adding credits for package: starter
+2025-05-26 17:13:44.08
+406d5889
+User
+No userId found in payment intent metadata: { type: 'dreamcredits', packageId: 'starter' }
+2025-05-26 17:13:44.23
+406d5889
+User
+Unhandled event type charge.succeeded
+2025-05-26 17:13:46.13
+406d5889
+User
+11:13:46 PM [express] GET /api/credits/balance/5 304 in 51ms :: {"balance":20,"accountInfo":{"balance…
+2025-05-26 17:13:46.62
+406d5889
+User
+Unhandled event type charge.updated
+2025-05-26 17:13:47.77
+406d5889
+User
+11:13:47 PM [express] GET /api/images 304 in 126ms :: [{"id":16,"userId":3,"modelId":"runware:100@1",…
+2025-05-26 17:13:47.93
+406d5889
+User
+11:13:47 PM [express] GET /api/credits/balance/5 304 in 55ms :: {"balance":20,"accountInfo":{"balance…
