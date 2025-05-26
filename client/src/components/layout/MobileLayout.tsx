@@ -28,8 +28,12 @@ export function MobileLayout({
         {children}
       </main>
 
-      {/* Bottom Navigation - Always visible */}
-      {showNavigation && <BottomNavigation />}
+      {/* Bottom Navigation - Mobile Only */}
+      {showNavigation && (
+        <div className="md:hidden">
+          <BottomNavigation />
+        </div>
+      )}
     </div>
   );
 }
