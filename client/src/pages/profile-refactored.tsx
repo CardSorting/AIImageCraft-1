@@ -432,10 +432,10 @@ export default function ProfilePageRefactored() {
         </Card>
 
         {/* Credit Balance */}
-        <CreditBalance userId={1} />
+        <CreditBalance userId={user?.sub ? parseInt(user.sub.replace('auth0|', '')) || 3 : 3} />
 
         {/* Profile Stats */}
-        <ProfileStats userId={1} />
+        <ProfileStats userId={user?.sub ? parseInt(user.sub.replace('auth0|', '')) || 3 : 3} />
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
