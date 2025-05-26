@@ -49,7 +49,7 @@ export class StripePaymentService {
   }
 
   private async initializeDatabase() {
-    const { pool } = await import('../db');
+    const { pool } = await import('../../db');
     this.pool = pool;
   }
 
