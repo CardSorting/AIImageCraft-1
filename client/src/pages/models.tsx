@@ -123,14 +123,13 @@ export default function ModelsPage() {
   const isMobile = useIsMobile();
 
   return (
-    <MobileLayout>
-      <div className="min-h-screen bg-background">
-        {/* Enhanced Navigation Header */}
-        <NavigationHeader activeItem="models"  />
+    <div className="min-h-screen bg-background">
+      {/* Enhanced Navigation Header */}
+      <NavigationHeader activeItem="models"  />
 
-        <div className="pb-4">
-          {/* Main Tabs - iOS Style */}
-          <div className="px-4 py-4">
+      <div className="pb-20 md:pb-8">
+        {/* Main Tabs - iOS Style */}
+        <div className="px-4 py-4">
           <div className="flex justify-center mb-4">
             <div className="ios-tab-list inline-flex">
               {mainTabs.map((tab) => {
@@ -334,9 +333,8 @@ export default function ModelsPage() {
             </div>
           )}
         </div>
-        </div>
       </div>
-    </MobileLayout>
+    </div>
   );
 }
 
