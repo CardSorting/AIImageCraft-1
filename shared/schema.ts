@@ -180,6 +180,10 @@ export const generateImageRequestSchema = z.object({
   cfgScale: z.number().min(0).max(50).optional().default(7),
   seed: z.number().int().optional(),
   scheduler: z.string().optional(),
+  // Prompt Enhancement options
+  enhancePrompt: z.boolean().optional().default(false),
+  promptMaxLength: z.number().int().min(12).max(400).optional().default(64),
+  promptVersions: z.number().int().min(1).max(5).optional().default(1),
 });
 
 export const insertUserModelInteractionSchema = createInsertSchema(userModelInteractions).omit({
