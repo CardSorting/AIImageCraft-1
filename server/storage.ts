@@ -81,10 +81,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getImages(limit: number = 50, offset: number = 0): Promise<GeneratedImage[]> {
+    // Create a randomized community feed by using a pseudo-random order
+    // This ensures different users see different content each time
     const images = await db
       .select()
       .from(generatedImages)
-      .orderBy(desc(generatedImages.createdAt))
+      .orderBy(sql`RANDOM()`, desc(generatedImages.createdAt))
       .limit(limit)
       .offset(offset);
     return images;

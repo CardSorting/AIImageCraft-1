@@ -38,7 +38,22 @@ export function InfiniteImageGrid({ initialLimit = 20, onImageClick }: InfiniteI
       if (!response.ok) {
         throw new Error("Failed to fetch images");
       }
-      return response.json();
+      const data = await response.json();
+      
+      // Handle both old format (array) and new format (object with pagination)
+      if (Array.isArray(data)) {
+        return {
+          images: data,
+          pagination: {
+            total: data.length,
+            limit: initialLimit,
+            offset: pageParam,
+            hasMore: false
+          }
+        };
+      }
+      
+      return data;
     },
     getNextPageParam: (lastPage) => {
       if (lastPage.pagination.hasMore) {
