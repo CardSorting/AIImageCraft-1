@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { generateImageRequestSchema, type GenerateImageRequest, type GeneratedImage } from "@shared/schema";
@@ -14,7 +14,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Coins, Square, Monitor, Smartphone, Image as ImageIcon, MoreHorizontal } from "lucide-react";
-import { InfiniteImageGrid } from "@/components/InfiniteImageGrid";
 
 interface ImageGenerationResponse {
   success: boolean;
@@ -50,7 +49,9 @@ export default function Home() {
   const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
   const currentCost = Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
 
-
+  const { data: images = [], isLoading: imagesLoading } = useQuery<GeneratedImage[]>({
+    queryKey: ["/api/images"],
+  });
 
   const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
     mutationFn: async (data) => {
@@ -58,7 +59,7 @@ export default function Home() {
       return response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/images", "infinite"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/images"] });
       toast({
         title: "Images Generated Successfully!",
         description: `Generated ${data.images.length} image(s). They're ready for download.`,
@@ -483,18 +484,51 @@ export default function Home() {
       )}
 
       {/* Premium Gallery Section - Only show when not loading */}
-      {!generateImagesMutation.isPending && (
+      {!generateImagesMutation.isPending && images.length > 0 && (
         <div className="px-4 sm:px-6 lg:px-8 mb-12 animate-fade-in">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">Community Creations</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">Your Recent Creations</h2>
               <p className="text-lg text-muted-foreground">Masterpieces created with AI magic</p>
             </div>
             
-            <InfiniteImageGrid 
-              initialLimit={20}
-              onImageClick={openImageModal}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {images.slice(0, 8).map((image) => (
+                <div key={image.id} className="group relative">
+                  {/* Card with enhanced Apple styling */}
+                  <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl overflow-hidden shadow-xl transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:border-primary/30">
+                    <div className="aspect-square overflow-hidden">
+                      <img 
+                        src={image.imageUrl} 
+                        alt={image.prompt}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 cursor-pointer"
+                        onClick={() => openImageModal(image)}
+                      />
+                    </div>
+                    
+                    {/* Gradient overlay on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    
+                    {/* Content overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                      <p className="text-white text-sm line-clamp-2 mb-3 font-medium">{image.prompt}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80 text-xs">{formatTimeAgo(new Date(image.createdAt))}</span>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            downloadImage(image.imageUrl, image.fileName || undefined);
+                          }}
+                          className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors"
+                        >
+                          <Download className="h-4 w-4 text-white" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

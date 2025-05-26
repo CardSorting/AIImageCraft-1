@@ -6,10 +6,6 @@ import { ImageController } from "./presentation/controllers/ImageController";
 import { StatisticsController } from "./presentation/controllers/StatisticsController";
 import { storage } from "./storage";
 import { pool } from "./infrastructure/db";
-import { db } from "./db";
-import { generatedImages } from "@shared/schema";
-import { sql, desc } from "drizzle-orm";
-import { cacheMiddleware } from "./cacheMiddleware";
 import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -144,54 +140,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public endpoint for all images with cursor-based pagination (home page)
-  app.get("/api/images", cacheMiddleware, async (req, res) => {
+  // Public endpoint for all images (home page)
+  app.get("/api/images", async (req, res) => {
     try {
-      const { limit = 20, cursor } = req.query;
-      
-      // Use cursor-based pagination for better performance
-      let images;
-      if (cursor) {
-        images = await db
-          .select({
-            id: generatedImages.id,
-            userId: generatedImages.userId,
-            modelId: generatedImages.modelId,
-            prompt: generatedImages.prompt,
-            aspectRatio: generatedImages.aspectRatio,
-            imageUrl: generatedImages.imageUrl,
-            fileName: generatedImages.fileName,
-            rarityTier: generatedImages.rarityTier,
-            rarityScore: generatedImages.rarityScore,
-            rarityStars: generatedImages.rarityStars,
-            rarityLetter: generatedImages.rarityLetter,
-            createdAt: generatedImages.createdAt
-          })
-          .from(generatedImages)
-          .where(sql`${generatedImages.id} < ${cursor}`)
-          .orderBy(desc(generatedImages.id))
-          .limit(Number(limit));
-      } else {
-        images = await storage.getImages(Number(limit), 0);
-      }
-      
-      const nextCursor = images.length > 0 ? images[images.length - 1].id : null;
-      
-      // Set cache headers for better performance
-      res.set({
-        'Cache-Control': 'public, max-age=60, s-maxage=300',
-        'ETag': `"${Date.now()}"`,
-        'Vary': 'Accept-Encoding'
-      });
-      
-      res.json({
-        images,
-        pagination: {
-          limit: Number(limit),
-          hasMore: images.length === Number(limit),
-          nextCursor
-        }
-      });
+      const { limit = 50 } = req.query;
+      const images = await storage.getImages(Number(limit));
+      res.json(images);
     } catch (error) {
       console.error("Error fetching images:", error);
       res.status(500).json({ error: "Failed to fetch images" });
