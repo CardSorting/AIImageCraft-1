@@ -147,7 +147,7 @@ function CreditBalance({ userId }: { userId: number }) {
   const [, navigate] = useLocation();
   
   const { data: creditBalance } = useQuery<{ balance: number }>({
-    queryKey: [`/api/credit-balance/${userId}`],
+    queryKey: [`/api/credits/balance/${userId}`],
     refetchInterval: 30000,
   });
 
@@ -432,10 +432,10 @@ export default function ProfilePageRefactored() {
         </Card>
 
         {/* Credit Balance */}
-        <CreditBalance userId={user?.sub ? parseInt(user.sub.replace('auth0|', '')) || 3 : 3} />
+        <CreditBalance userId={3} />
 
         {/* Profile Stats */}
-        <ProfileStats userId={user?.sub ? parseInt(user.sub.replace('auth0|', '')) || 3 : 3} />
+        <ProfileStats userId={3} />
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">

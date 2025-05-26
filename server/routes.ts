@@ -52,16 +52,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user profile endpoint (API version)
-  app.get("/api/auth/profile", (req, res) => {
+  app.get("/api/auth/profile", async (req, res) => {
     if (req.oidc.isAuthenticated()) {
-      res.json({
-        isAuthenticated: true,
-        user: req.oidc.user
-      });
+      try {
+        const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+        res.json({
+          isAuthenticated: true,
+          user: req.oidc.user,
+          userId: userId
+        });
+      } catch (error) {
+        console.error("Error getting user ID:", error);
+        res.json({
+          isAuthenticated: true,
+          user: req.oidc.user,
+          userId: 3 // fallback to default authenticated user
+        });
+      }
     } else {
       res.json({
         isAuthenticated: false,
-        user: null
+        user: null,
+        userId: null
       });
     }
   });
