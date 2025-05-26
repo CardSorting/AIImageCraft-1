@@ -69,7 +69,7 @@ export function BottomNavigation() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
         {/* Glass morphism background */}
         <div className="glass-effect border-t border-border/50 px-2 py-2">
-        <div className="flex items-center justify-around max-w-md mx-auto">
+        <div className="flex items-center justify-between w-full max-w-sm mx-auto px-2">
           {navItems.map((item) => {
             const isActive = 
               item.href === "/" 
@@ -96,7 +96,7 @@ export function BottomNavigation() {
                 key={item.id}
                 onClick={() => handleNavigation(item.href)}
                 className={cn(
-                  "flex flex-col items-center justify-center py-2 px-3 rounded-xl transition-all duration-200 haptic-light min-h-[60px] relative",
+                  "flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all duration-200 haptic-light min-h-[60px] relative flex-1 max-w-[70px]",
                   isActive
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
@@ -112,12 +112,12 @@ export function BottomNavigation() {
                   "transition-transform duration-200",
                   isActive ? "scale-110" : "scale-100"
                 )}>
-                  <item.icon className="w-6 h-6 mb-1" />
+                  <item.icon className="w-5 h-5 mb-1" />
                 </div>
                 
                 {/* Label */}
                 <span className={cn(
-                  "text-xs font-medium transition-all duration-200",
+                  "text-[10px] sm:text-xs font-medium transition-all duration-200 text-center leading-tight",
                   isActive ? "opacity-100 font-semibold" : "opacity-70"
                 )}>
                   {item.label}
