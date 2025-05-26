@@ -66,7 +66,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Credit Transaction System with Clean Architecture
+  // Advanced Credit Transaction System - SOLID Principles + Clean Architecture
   app.post("/api/generate-images", async (req, res) => {
     try {
       if (!req.oidc.isAuthenticated()) {
@@ -76,12 +76,344 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = await getOrCreateUserFromAuth0(req.oidc.user);
       const { prompt, negativePrompt = "", aspectRatio = "1:1", numImages = 1 } = req.body;
       
-      // Calculate credit cost for image generation
-      const baseCreditsPerImage = 1; // Base cost per image
-      const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
-      const totalCost = Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
+      // Import and use the full-featured Credit Transaction Service
+      const { CreditTransactionService } = await import("./application/services/CreditTransactionService");
+      const creditService = new CreditTransactionService();
       
-      // Check user's credit balance
+      // Execute atomic credit transaction with image generation
+      const result = await creditService.executeImageGenerationTransaction({
+        userId,
+        prompt,
+        negativePrompt,
+        aspectRatio,
+        numImages
+      });
+      
+      if (!result.success) {
+        return res.status(result.statusCode || 500).json({
+          error: result.error,
+          message: result.message,
+          required: result.required,
+          available: result.available
+        });
+      }
+      
+      res.json({
+        success: true,
+        images: result.images,
+        requestId: result.requestId,
+        creditsUsed: result.creditsUsed,
+        newBalance: result.newBalance
+      });
+      
+    } catch (error: any) {
+      console.error("Advanced credit transaction error:", error);
+      res.status(500).json({ 
+        error: "Transaction failed", 
+        message: error.message || "An unexpected error occurred"
+      });
+    }
+  });
+
+  // Advanced Credit Management Endpoints - Full Featured Implementation
+  
+  // Get user credit balance with transaction history
+  app.get("/api/credits/balance/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      // Get current balance
+      const balanceResult = await pool.query(
+        'SELECT amount, version, created_at, last_updated FROM credit_balances WHERE user_id = $1',
+        [userId]
+      );
+      
+      let balance = 0;
+      let accountInfo = null;
+      
+      if (balanceResult.rows.length > 0) {
+        const row = balanceResult.rows[0];
+        balance = parseFloat(row.amount);
+        accountInfo = {
+          balance,
+          version: row.version,
+          createdAt: row.created_at,
+          lastUpdated: row.last_updated
+        };
+      } else {
+        // Create initial balance for new user
+        await pool.query(
+          'INSERT INTO credit_balances (user_id, amount, version) VALUES ($1, $2, $3)',
+          [userId, '20.0', 1]
+        );
+        balance = 20;
+        accountInfo = {
+          balance: 20,
+          version: 1,
+          createdAt: new Date(),
+          lastUpdated: new Date()
+        };
+      }
+      
+      // Get recent transactions
+      const transactionsResult = await pool.query(
+        'SELECT id, type, amount, description, balance_after, created_at FROM credit_transactions WHERE user_id = $1 ORDER BY created_at DESC LIMIT 10',
+        [userId]
+      );
+      
+      res.json({
+        balance,
+        accountInfo,
+        recentTransactions: transactionsResult.rows.map(row => ({
+          id: row.id,
+          type: row.type,
+          amount: parseFloat(row.amount),
+          description: row.description,
+          balanceAfter: parseFloat(row.balance_after),
+          createdAt: row.created_at
+        }))
+      });
+      
+    } catch (error) {
+      console.error("Error fetching credit balance:", error);
+      res.status(500).json({ error: "Failed to fetch credit balance" });
+    }
+  });
+  
+  // Credit transaction history with pagination
+  app.get("/api/credits/transactions/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { page = 1, limit = 20, type } = req.query;
+      const offset = (Number(page) - 1) * Number(limit);
+      
+      let query = 'SELECT id, type, amount, description, balance_after, created_at FROM credit_transactions WHERE user_id = $1';
+      let queryParams = [userId];
+      
+      if (type) {
+        query += ' AND type = $2';
+        queryParams.push(type as string);
+      }
+      
+      query += ' ORDER BY created_at DESC LIMIT $' + (queryParams.length + 1) + ' OFFSET $' + (queryParams.length + 2);
+      queryParams.push(limit.toString(), offset.toString());
+      
+      const result = await pool.query(query, queryParams);
+      
+      // Get total count for pagination
+      let countQuery = 'SELECT COUNT(*) FROM credit_transactions WHERE user_id = $1';
+      let countParams = [userId];
+      
+      if (type) {
+        countQuery += ' AND type = $2';
+        countParams.push(type as string);
+      }
+      
+      const countResult = await pool.query(countQuery, countParams);
+      const totalCount = parseInt(countResult.rows[0].count);
+      
+      res.json({
+        transactions: result.rows.map(row => ({
+          id: row.id,
+          type: row.type,
+          amount: parseFloat(row.amount),
+          description: row.description,
+          balanceAfter: parseFloat(row.balance_after),
+          createdAt: row.created_at
+        })),
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          totalCount,
+          totalPages: Math.ceil(totalCount / Number(limit))
+        }
+      });
+      
+    } catch (error) {
+      console.error("Error fetching credit transactions:", error);
+      res.status(500).json({ error: "Failed to fetch credit transactions" });
+    }
+  });
+  
+  // Credit analytics and insights
+  app.get("/api/credits/analytics/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { period = '30d' } = req.query;
+      
+      let dateFilter = "created_at >= NOW() - INTERVAL '30 days'";
+      if (period === '7d') dateFilter = "created_at >= NOW() - INTERVAL '7 days'";
+      if (period === '90d') dateFilter = "created_at >= NOW() - INTERVAL '90 days'";
+      
+      // Spending analytics
+      const spendingResult = await pool.query(
+        `SELECT 
+          DATE(created_at) as date,
+          SUM(CASE WHEN type = 'SPEND' THEN ABS(amount::numeric) ELSE 0 END) as spent,
+          COUNT(CASE WHEN type = 'SPEND' THEN 1 END) as transactions
+        FROM credit_transactions 
+        WHERE user_id = $1 AND ${dateFilter}
+        GROUP BY DATE(created_at)
+        ORDER BY date DESC`,
+        [userId]
+      );
+      
+      // Total statistics
+      const statsResult = await pool.query(
+        `SELECT 
+          SUM(CASE WHEN type = 'SPEND' THEN ABS(amount::numeric) ELSE 0 END) as total_spent,
+          SUM(CASE WHEN type = 'PURCHASE' THEN amount::numeric ELSE 0 END) as total_purchased,
+          SUM(CASE WHEN type = 'REFUND' THEN amount::numeric ELSE 0 END) as total_refunded,
+          COUNT(CASE WHEN type = 'SPEND' THEN 1 END) as total_generations
+        FROM credit_transactions 
+        WHERE user_id = $1 AND ${dateFilter}`,
+        [userId]
+      );
+      
+      const stats = statsResult.rows[0] || {};
+      
+      res.json({
+        period,
+        dailySpending: spendingResult.rows.map(row => ({
+          date: row.date,
+          spent: parseFloat(row.spent || 0),
+          transactions: parseInt(row.transactions || 0)
+        })),
+        summary: {
+          totalSpent: parseFloat(stats.total_spent || 0),
+          totalPurchased: parseFloat(stats.total_purchased || 0),
+          totalRefunded: parseFloat(stats.total_refunded || 0),
+          totalGenerations: parseInt(stats.total_generations || 0),
+          averagePerGeneration: stats.total_generations > 0 
+            ? parseFloat(stats.total_spent || 0) / parseInt(stats.total_generations || 1)
+            : 0
+        }
+      });
+      
+    } catch (error) {
+      console.error("Error fetching credit analytics:", error);
+      res.status(500).json({ error: "Failed to fetch credit analytics" });
+    }
+  });
+
+  // Advanced Credit Purchase System - Stripe Integration with Full Features
+  
+  // Get available credit packages
+  app.get("/api/credits/packages", async (req, res) => {
+    try {
+      const packagesResult = await pool.query(
+        'SELECT id, name, credits, price, bonus_credits, is_active, display_order, metadata FROM credit_packages WHERE is_active = 1 ORDER BY display_order ASC'
+      );
+      
+      res.json({
+        packages: packagesResult.rows.map(row => ({
+          id: row.id,
+          name: row.name,
+          credits: row.credits,
+          price: parseFloat(row.price),
+          bonusCredits: row.bonus_credits,
+          isActive: row.is_active === 1,
+          displayOrder: row.display_order,
+          metadata: row.metadata ? JSON.parse(row.metadata) : {},
+          totalCredits: row.credits + row.bonus_credits,
+          valuePerCredit: parseFloat(row.price) / (row.credits + row.bonus_credits)
+        }))
+      });
+      
+    } catch (error) {
+      console.error("Error fetching credit packages:", error);
+      res.status(500).json({ error: "Failed to fetch credit packages" });
+    }
+  });
+  
+  // Create Stripe payment intent for credit purchase
+  app.post("/api/credits/purchase/intent", async (req, res) => {
+    try {
+      if (!req.oidc.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const { packageId } = req.body;
+      
+      // Get package details
+      const packageResult = await pool.query(
+        'SELECT id, name, credits, price, bonus_credits FROM credit_packages WHERE id = $1 AND is_active = 1',
+        [packageId]
+      );
+      
+      if (packageResult.rows.length === 0) {
+        return res.status(404).json({ error: "Credit package not found" });
+      }
+      
+      const creditPackage = packageResult.rows[0];
+      const totalCredits = creditPackage.credits + creditPackage.bonus_credits;
+      
+      // Create Stripe payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(parseFloat(creditPackage.price) * 100), // Convert to cents
+        currency: 'usd',
+        metadata: {
+          userId: userId.toString(),
+          packageId: packageId,
+          credits: creditPackage.credits.toString(),
+          bonusCredits: creditPackage.bonus_credits.toString(),
+          totalCredits: totalCredits.toString()
+        },
+        description: `Credit Purchase: ${creditPackage.name} (${totalCredits} credits)`
+      });
+      
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
+        package: {
+          id: creditPackage.id,
+          name: creditPackage.name,
+          credits: creditPackage.credits,
+          bonusCredits: creditPackage.bonus_credits,
+          totalCredits,
+          price: parseFloat(creditPackage.price)
+        }
+      });
+      
+    } catch (error) {
+      console.error("Error creating payment intent:", error);
+      res.status(500).json({ error: "Failed to create payment intent" });
+    }
+  });
+  
+  // Process successful credit purchase
+  app.post("/api/credits/purchase/confirm", async (req, res) => {
+    try {
+      if (!req.oidc.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const { paymentIntentId } = req.body;
+      
+      // Verify payment intent with Stripe
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ error: "Payment not completed" });
+      }
+      
+      if (parseInt(paymentIntent.metadata.userId) !== userId) {
+        return res.status(403).json({ error: "Payment does not belong to this user" });
+      }
+      
+      // Check if this payment has already been processed
+      const existingTransaction = await pool.query(
+        'SELECT id FROM credit_transactions WHERE description LIKE $1',
+        [`%Payment Intent: ${paymentIntentId}%`]
+      );
+      
+      if (existingTransaction.rows.length > 0) {
+        return res.status(409).json({ error: "Payment already processed" });
+      }
+      
+      // Get current balance
       const balanceResult = await pool.query(
         'SELECT amount FROM credit_balances WHERE user_id = $1',
         [userId]
@@ -91,117 +423,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (balanceResult.rows.length > 0) {
         currentBalance = parseFloat(balanceResult.rows[0].amount);
       } else {
-        // Create initial balance for new user with 20 credits
+        // Create initial balance for new user
         await pool.query(
-          'INSERT INTO credit_balances (user_id, amount) VALUES ($1, $2)',
-          [userId, '20.0']
+          'INSERT INTO credit_balances (user_id, amount, version) VALUES ($1, $2, $3)',
+          [userId, '0.0', 1]
         );
-        currentBalance = 20;
       }
       
-      // Check if user has sufficient credits
-      if (currentBalance < totalCost) {
-        return res.status(402).json({ 
-          error: "Insufficient credits", 
-          required: totalCost,
-          available: currentBalance,
-          message: `You need ${totalCost} credits but only have ${currentBalance}. Please purchase more credits.`
-        });
-      }
+      // Add purchased credits
+      const totalCredits = parseInt(paymentIntent.metadata.totalCredits);
+      const newBalance = currentBalance + totalCredits;
       
-      // Deduct credits before generation
-      const newBalance = currentBalance - totalCost;
       await pool.query(
         'UPDATE credit_balances SET amount = $1, last_updated = NOW(), version = version + 1 WHERE user_id = $2',
         [newBalance.toString(), userId]
       );
       
-      // Record the credit transaction
+      // Record purchase transaction
       const transactionId = nanoid();
       await pool.query(
         'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())',
         [
           transactionId,
           userId,
-          'SPEND',
-          (-totalCost).toString(),
-          `Generated ${numImages} image(s) with ${aspectRatio} aspect ratio`,
+          'PURCHASE',
+          totalCredits.toString(),
+          `Credit Purchase: ${paymentIntent.metadata.credits} + ${paymentIntent.metadata.bonusCredits} bonus credits. Payment Intent: ${paymentIntentId}`,
           newBalance.toString()
         ]
       );
       
-      try {
-        // Import and use the Runware service directly
-        const { RunwareImageGenerationService } = await import("./infrastructure/services/RunwareImageGenerationService");
-        const imageService = new RunwareImageGenerationService();
-        
-        const generatedImages = await imageService.generateImages({
-          prompt,
-          negativePrompt,
-          aspectRatio,
-          numImages
-        });
-        
-        // Save each generated image to the database with user association
-        const savedImages = [];
-        for (const image of generatedImages) {
-          const savedImage = await storage.createImage({
-            userId: userId,
-            modelId: "runware:100@1",
-            prompt: prompt,
-            negativePrompt: negativePrompt,
-            imageUrl: image.url,
-            aspectRatio: aspectRatio,
-            fileName: image.fileName,
-            fileSize: image.fileSize,
-            seed: image.seed
-          });
-          savedImages.push(savedImage);
+      res.json({
+        success: true,
+        creditsAdded: totalCredits,
+        newBalance: newBalance,
+        transactionId: transactionId,
+        paymentIntentId: paymentIntentId
+      });
+      
+    } catch (error) {
+      console.error("Error confirming credit purchase:", error);
+      res.status(500).json({ error: "Failed to process credit purchase" });
+    }
+  });
+  
+  // Credit spending estimation and cost calculator
+  app.post("/api/credits/estimate", async (req, res) => {
+    try {
+      const { aspectRatio = "1:1", numImages = 1, operations = [] } = req.body;
+      
+      // Import domain service for accurate cost calculation
+      const { CreditDomainService } = await import("./domain/CreditAggregate");
+      const domainService = new CreditDomainService();
+      
+      const imageGenerationCost = domainService.calculateImageGenerationCost(aspectRatio, numImages);
+      
+      // Calculate additional operation costs (future extensibility)
+      let totalOperationCost = 0;
+      const operationBreakdown = [];
+      
+      for (const operation of operations) {
+        let operationCost = 0;
+        switch (operation.type) {
+          case 'upscale':
+            operationCost = 2; // 2 credits per upscale
+            break;
+          case 'variation':
+            operationCost = 1; // 1 credit per variation
+            break;
+          case 'inpaint':
+            operationCost = 1.5; // 1.5 credits per inpainting
+            break;
+          default:
+            operationCost = 1;
         }
         
-        res.json({
-          success: true,
-          images: savedImages,
-          requestId: `req_${Date.now()}`,
-          creditsUsed: totalCost,
-          newBalance: newBalance
-        });
-        
-      } catch (generationError: any) {
-        console.error("Image generation failed:", generationError);
-        
-        // Refund credits if generation failed
-        await pool.query(
-          'UPDATE credit_balances SET amount = $1, last_updated = NOW(), version = version + 1 WHERE user_id = $2',
-          [currentBalance.toString(), userId]
-        );
-        
-        // Record refund transaction
-        await pool.query(
-          'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())',
-          [
-            nanoid(),
-            userId,
-            'REFUND',
-            totalCost.toString(),
-            `Refund for failed image generation`,
-            currentBalance.toString()
-          ]
-        );
-        
-        res.status(500).json({ 
-          error: "Image generation failed", 
-          message: generationError.message,
-          creditsRefunded: totalCost
+        totalOperationCost += operationCost;
+        operationBreakdown.push({
+          type: operation.type,
+          cost: operationCost
         });
       }
       
-    } catch (error: any) {
-      console.error("Image generation transaction error:", error);
-      res.status(500).json({ 
-        error: "Transaction failed", 
-        message: error.message || "An unexpected error occurred"
+      const totalCost = imageGenerationCost + totalOperationCost;
+      
+      res.json({
+        breakdown: {
+          imageGeneration: {
+            aspectRatio,
+            numImages,
+            cost: imageGenerationCost
+          },
+          operations: operationBreakdown,
+          total: totalCost
+        },
+        estimation: {
+          lowQuality: Math.ceil(totalCost * 0.8),
+          standard: totalCost,
+          highQuality: Math.ceil(totalCost * 1.5)
+        }
       });
+      
+    } catch (error) {
+      console.error("Error calculating credit estimate:", error);
+      res.status(500).json({ error: "Failed to calculate cost estimate" });
     }
   });
 

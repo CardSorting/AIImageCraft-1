@@ -75,9 +75,9 @@ export class DatabaseCreditRepository implements ICreditRepository {
     return CreditAccount.restore(
       userId,
       parseFloat(row.amount),
-      row.version,
-      row.created_at,
-      row.last_updated
+      row.version || 1,
+      row.created_at || new Date(),
+      row.last_updated || new Date()
     );
   }
 
