@@ -672,7 +672,7 @@ function ModelCard({ model, onTagClick }: ModelCardProps) {
             {/* Tags - Clickable for filtering */}
             {model.tags && model.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-3">
-                {model.tags.slice(0, 3).map((tag) => (
+                {model.tags.map((tag) => (
                   <Badge 
                     key={tag} 
                     variant="secondary" 
@@ -686,19 +686,6 @@ function ModelCard({ model, onTagClick }: ModelCardProps) {
                     {tag}
                   </Badge>
                 ))}
-                {model.tags.length > 3 && (
-                  <Badge 
-                    variant="secondary" 
-                    className="text-xs ios-tag cursor-pointer hover:bg-gray-500 hover:text-white transition-colors duration-200"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // Show all tags in a tooltip or expand functionality could be added here
-                    }}
-                  >
-                    +{model.tags.length - 3}
-                  </Badge>
-                )}
               </div>
             )}
 

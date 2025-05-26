@@ -180,9 +180,6 @@ export default function ModelDetailPage() {
                       {model.description}
                     </p>
                     <div className="flex items-center flex-wrap gap-2 mt-2">
-                      <Badge variant="outline" className="text-xs">
-                        {model.provider}
-                      </Badge>
                       <Badge variant="secondary" className="text-xs">
                         {model.category}
                       </Badge>
