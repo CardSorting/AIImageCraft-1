@@ -9,6 +9,7 @@ import { pool } from "./infrastructure/db";
 import { db } from "./db";
 import { generatedImages } from "@shared/schema";
 import { sql, desc } from "drizzle-orm";
+import { cacheMiddleware } from "./cacheMiddleware";
 import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -144,7 +145,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Public endpoint for all images with cursor-based pagination (home page)
-  app.get("/api/images", async (req, res) => {
+  app.get("/api/images", cacheMiddleware, async (req, res) => {
     try {
       const { limit = 20, cursor } = req.query;
       
