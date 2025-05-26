@@ -37,11 +37,9 @@
 - **Atomic Operations**: Guaranteed credit balance consistency
 
 ### 🎨 **Advanced Generation Options**
-- **LoRA Support**: Enhance generations with specialized model adaptations
 - **Custom Dimensions**: Support for various aspect ratios and sizes
 - **Accelerator Options**: TEA Cache and Deep Cache optimization
 - **Refiner Models**: Post-processing enhancement capabilities
-- **PuLID Integration**: Advanced face consistency features
 
 ### 👤 **User Experience**
 - **Auth0 Integration**: Secure OAuth authentication
@@ -51,9 +49,7 @@
 - **Responsive Design**: Optimized for desktop and mobile devices
 
 ### 📱 **Modern Interface**
-- **Dark/Light Mode**: Seamless theme switching
 - **Mobile-First**: Touch-optimized mobile experience
-- **Real-time Updates**: Live generation status and progress
 - **Intuitive Navigation**: Clean, professional interface design
 - **Animation Effects**: Smooth transitions and micro-interactions
 
