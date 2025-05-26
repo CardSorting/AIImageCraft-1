@@ -26,11 +26,12 @@ export function NavigationHeader({
   
   const isAuthenticated = authStatus?.isAuthenticated || false;
   
-  // Only fetch credit balance if user is authenticated
+  // Only fetch credit balance if user is authenticated using new credit system
   const { data: creditBalance } = useQuery<{ balance: number }>({
-    queryKey: ['/api/credit-balance/1'], // Using user ID 1 for now
+    queryKey: ['/api/credits/balance/1'], // Using new credit system endpoint
     enabled: isAuthenticated, // Only fetch if authenticated
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 5000, // Refresh more frequently to show real-time updates
+    staleTime: 0, // Always fetch fresh data
   });
   
   // Use fetched balance or fallback to props, show 0 if not authenticated

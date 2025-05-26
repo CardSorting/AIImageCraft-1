@@ -1,0 +1,108 @@
+2025-05-26 13:22:20.64
+001e449f
+User
+7:22:20 PM [express] GET /api/auth/profile 304 in 4ms :: {"isAuthenticated":true,"user":{"sid":"rW1S…
+2025-05-26 13:22:21.56
+001e449f
+User
+7:22:21 PM [express] GET /api/credit-balance/1 304 in 802ms :: {"balance":20}
+2025-05-26 13:22:21.57
+001e449f
+User
+7:22:21 PM [express] GET /api/images 200 in 915ms :: [{"id":11,"userId":3,"modelId":"runware:100@1",…
+2025-05-26 13:22:24.57
+001e449f
+User
+7:22:24 PM [express] GET /api/images/my 304 in 216ms :: [{"id":11,"userId":3,"modelId":"runware:100@…
+2025-05-26 13:22:24.61
+001e449f
+User
+7:22:24 PM [express] GET /api/v1/models/catalog 304 in 279ms :: {"data":[{"id":68,"modelId":"civitai…
+2025-05-26 13:22:38.23
+001e449f
+User
+[Credit System] Generate images endpoint called
+2025-05-26 13:22:38.23
+001e449f
+User
+[Credit System] Request body: { prompt: 'frog in the rain...', aspectRatio: '9:16' }
+2025-05-26 13:22:38.23
+001e449f
+User
+[Credit System] User is authenticated
+2025-05-26 13:22:38.41
+001e449f
+User
+[Credit System] Executing credit transaction for user: 3
+2025-05-26 13:22:38.63
+001e449f
+User
+[Runware] Initializing service with API key: CONFIGURED
+2025-05-26 13:22:38.64
+001e449f
+User
+[Runware] Starting image generation request: {
+2025-05-26 13:22:38.64
+001e449f
+User
+prompt: 'frog in the rain...',
+2025-05-26 13:22:38.64
+001e449f
+User
+aspectRatio: '9:16',
+2025-05-26 13:22:38.64
+001e449f
+User
+numImages: 1,
+2025-05-26 13:22:38.64
+001e449f
+User
+hasNegativePrompt: false
+2025-05-26 13:22:38.64
+001e449f
+User
+}
+2025-05-26 13:22:38.64
+001e449f
+User
+[Runware] Ensuring connection before making request
+2025-05-26 13:22:39.24
+001e449f
+User
+[Runware] Calling requestImages with dimensions: 448x768
+2025-05-26 13:22:40.84
+001e449f
+User
+[Runware] Received 1 partial images
+2025-05-26 13:22:40.94
+001e449f
+User
+[Runware] Raw result received: { imageCount: 1, hasImages: true }
+2025-05-26 13:22:40.94
+001e449f
+User
+[Runware] Processing image 1: {
+2025-05-26 13:22:40.94
+001e449f
+User
+hasUrl: true,
+2025-05-26 13:22:40.94
+001e449f
+User
+imageUUID: '7cc64050-f1f2-46ef-9e1b-95fa32d80850',
+2025-05-26 13:22:40.94
+001e449f
+User
+cost: undefined
+2025-05-26 13:22:40.94
+001e449f
+User
+}
+2025-05-26 13:22:40.94
+001e449f
+User
+[Runware] Successfully processed 1 images
+2025-05-26 13:22:40.99
+001e449f
+User
+[Credit System] Transaction result: { success: true, error: undefined, creditsUsed: 2, newBalance: 12 }

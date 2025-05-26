@@ -148,9 +148,11 @@ export default function Generate() {
     onSuccess: (data) => {
       toast({
         title: "Images Generated Successfully! 🎨",
-        description: "Your masterpiece has been added to the gallery",
+        description: `Your masterpiece has been added to the gallery! ${data.creditsUsed ? `Used ${data.creditsUsed} credits` : ''}`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/images/my"] });
+      // Refresh credit balance to show updated amount
+      queryClient.invalidateQueries({ queryKey: ["/api/credits/balance/1"] });
       
       // Clear any existing highlights first
       setNewlyCreatedImageIds([]);
