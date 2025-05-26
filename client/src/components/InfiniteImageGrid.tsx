@@ -8,10 +8,9 @@ import { Loader2 } from "lucide-react";
 interface PaginatedImagesResponse {
   images: GeneratedImage[];
   pagination: {
-    total: number;
     limit: number;
-    offset: number;
     hasMore: boolean;
+    nextCursor?: number;
   };
 }
 
@@ -33,8 +32,12 @@ export function InfiniteImageGrid({ initialLimit = 20, onImageClick }: InfiniteI
     error
   } = useInfiniteQuery<PaginatedImagesResponse>({
     queryKey: ["/api/images", "infinite"],
-    queryFn: async ({ pageParam = 0 }) => {
-      const response = await fetch(`/api/images?limit=${initialLimit}&offset=${pageParam}`);
+    queryFn: async ({ pageParam }) => {
+      const url = pageParam 
+        ? `/api/images?limit=${initialLimit}&cursor=${pageParam}`
+        : `/api/images?limit=${initialLimit}`;
+      
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch images");
       }
@@ -45,10 +48,9 @@ export function InfiniteImageGrid({ initialLimit = 20, onImageClick }: InfiniteI
         return {
           images: data,
           pagination: {
-            total: data.length,
             limit: initialLimit,
-            offset: pageParam,
-            hasMore: false
+            hasMore: false,
+            nextCursor: null
           }
         };
       }
@@ -56,10 +58,7 @@ export function InfiniteImageGrid({ initialLimit = 20, onImageClick }: InfiniteI
       return data;
     },
     getNextPageParam: (lastPage) => {
-      if (lastPage.pagination.hasMore) {
-        return lastPage.pagination.offset + lastPage.pagination.limit;
-      }
-      return undefined;
+      return lastPage.pagination.hasMore ? lastPage.pagination.nextCursor : undefined;
     },
     initialPageParam: 0,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -120,7 +119,6 @@ export function InfiniteImageGrid({ initialLimit = 20, onImageClick }: InfiniteI
   }
 
   const allImages = data?.pages.flatMap((page) => page.images) || [];
-  const totalCount = data?.pages[0]?.pagination.total || 0;
 
   if (allImages.length === 0) {
     return (
@@ -136,7 +134,7 @@ export function InfiniteImageGrid({ initialLimit = 20, onImageClick }: InfiniteI
       {/* Stats Header */}
       <div className="text-center">
         <p className="text-sm text-muted-foreground">
-          Showing {allImages.length} of {totalCount.toLocaleString()} amazing creations
+          {allImages.length} amazing creations loaded
         </p>
       </div>
 

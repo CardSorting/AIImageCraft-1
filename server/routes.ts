@@ -6,6 +6,9 @@ import { ImageController } from "./presentation/controllers/ImageController";
 import { StatisticsController } from "./presentation/controllers/StatisticsController";
 import { storage } from "./storage";
 import { pool } from "./infrastructure/db";
+import { db } from "./db";
+import { generatedImages } from "@shared/schema";
+import { sql, desc } from "drizzle-orm";
 import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -140,22 +143,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public endpoint for all images with pagination (home page)
+  // Public endpoint for all images with cursor-based pagination (home page)
   app.get("/api/images", async (req, res) => {
     try {
-      const { limit = 20, offset = 0 } = req.query;
-      const [images, totalCount] = await Promise.all([
-        storage.getImages(Number(limit), Number(offset)),
-        storage.getImagesCount()
-      ]);
+      const { limit = 20, cursor } = req.query;
+      
+      // Use cursor-based pagination for better performance
+      let images;
+      if (cursor) {
+        images = await db
+          .select({
+            id: generatedImages.id,
+            userId: generatedImages.userId,
+            modelId: generatedImages.modelId,
+            prompt: generatedImages.prompt,
+            aspectRatio: generatedImages.aspectRatio,
+            imageUrl: generatedImages.imageUrl,
+            fileName: generatedImages.fileName,
+            rarityTier: generatedImages.rarityTier,
+            rarityScore: generatedImages.rarityScore,
+            rarityStars: generatedImages.rarityStars,
+            rarityLetter: generatedImages.rarityLetter,
+            createdAt: generatedImages.createdAt
+          })
+          .from(generatedImages)
+          .where(sql`${generatedImages.id} < ${cursor}`)
+          .orderBy(desc(generatedImages.id))
+          .limit(Number(limit));
+      } else {
+        images = await storage.getImages(Number(limit), 0);
+      }
+      
+      const nextCursor = images.length > 0 ? images[images.length - 1].id : null;
+      
+      // Set cache headers for better performance
+      res.set({
+        'Cache-Control': 'public, max-age=60, s-maxage=300',
+        'ETag': `"${Date.now()}"`,
+        'Vary': 'Accept-Encoding'
+      });
       
       res.json({
         images,
         pagination: {
-          total: totalCount,
           limit: Number(limit),
-          offset: Number(offset),
-          hasMore: Number(offset) + Number(limit) < totalCount
+          hasMore: images.length === Number(limit),
+          nextCursor
         }
       });
     } catch (error) {

@@ -81,12 +81,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getImages(limit: number = 50, offset: number = 0): Promise<GeneratedImage[]> {
-    // Create a randomized community feed by using a pseudo-random order
-    // This ensures different users see different content each time
+    // Use cursor-based pagination for better performance with large datasets
+    // Only select essential fields for homepage display
     const images = await db
-      .select()
+      .select({
+        id: generatedImages.id,
+        userId: generatedImages.userId,
+        modelId: generatedImages.modelId,
+        prompt: generatedImages.prompt,
+        aspectRatio: generatedImages.aspectRatio,
+        imageUrl: generatedImages.imageUrl,
+        fileName: generatedImages.fileName,
+        rarityTier: generatedImages.rarityTier,
+        rarityScore: generatedImages.rarityScore,
+        rarityStars: generatedImages.rarityStars,
+        rarityLetter: generatedImages.rarityLetter,
+        createdAt: generatedImages.createdAt
+      })
       .from(generatedImages)
-      .orderBy(sql`RANDOM()`, desc(generatedImages.createdAt))
+      .orderBy(desc(generatedImages.id)) // Use ID for stable ordering, more efficient than RANDOM()
       .limit(limit)
       .offset(offset);
     return images;
