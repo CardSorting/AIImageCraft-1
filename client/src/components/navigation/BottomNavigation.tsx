@@ -55,7 +55,7 @@ export function BottomNavigation() {
 
   const { data: creditBalance } = useQuery<{ balance: number }>({
     queryKey: ['/api/credit-balance/1'],
-    enabled: true,
+    enabled: authStatus?.isAuthenticated || false, // Only fetch if authenticated
     refetchInterval: 30000,
   });
 

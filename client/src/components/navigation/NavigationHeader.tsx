@@ -19,7 +19,7 @@ export function NavigationHeader({
   const [location, setLocation] = useLocation();
   
   // Check authentication status first
-  const { data: authStatus } = useQuery({
+  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
     queryKey: ['/api/auth/profile'],
     refetchInterval: 60000, // Check auth every minute
   });
