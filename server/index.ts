@@ -6,13 +6,17 @@ import { setupVite, serveStatic, log } from "./vite";
 const app = express();
 
 // Auth0 configuration
+const issuerBaseURL = process.env.AUTH0_ISSUER_BASE_URL?.startsWith('http') 
+  ? process.env.AUTH0_ISSUER_BASE_URL 
+  : `https://${process.env.AUTH0_ISSUER_BASE_URL}`;
+
 const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET,
-  baseURL: process.env.AUTH0_BASE_URL || 'https://dreambeesart.com',
-  clientID: process.env.AUTH0_CLIENT_ID || '2hWEeuUIDvQl8L1y5AxqBsEf4GXiOufu',
-  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL || 'https://dev-57c4wim3kish0u23.us.auth0.com',
+  baseURL: process.env.AUTH0_BASE_URL,
+  clientID: process.env.AUTH0_CLIENT_ID,
+  issuerBaseURL: issuerBaseURL,
   session: {
     rollingDuration: 24 * 60 * 60, // 24 hours
     absoluteDuration: 7 * 24 * 60 * 60 // 7 days
@@ -23,6 +27,34 @@ const config = {
     callback: '/callback'
   }
 };
+
+// Debug Auth0 configuration
+console.log('Auth0 Environment Variables:');
+console.log('AUTH0_SECRET:', process.env.AUTH0_SECRET ? '[PRESENT]' : '[MISSING]');
+console.log('AUTH0_BASE_URL:', process.env.AUTH0_BASE_URL);
+console.log('AUTH0_CLIENT_ID:', process.env.AUTH0_CLIENT_ID);
+console.log('AUTH0_ISSUER_BASE_URL:', process.env.AUTH0_ISSUER_BASE_URL);
+
+// Validate Auth0 configuration
+if (!config.secret || !config.baseURL || !config.clientID || !config.issuerBaseURL) {
+  console.error('Missing required Auth0 environment variables:');
+  console.error('AUTH0_SECRET:', !!process.env.AUTH0_SECRET);
+  console.error('AUTH0_BASE_URL:', !!process.env.AUTH0_BASE_URL);
+  console.error('AUTH0_CLIENT_ID:', !!process.env.AUTH0_CLIENT_ID);
+  console.error('AUTH0_ISSUER_BASE_URL:', !!process.env.AUTH0_ISSUER_BASE_URL);
+  throw new Error('Auth0 configuration incomplete');
+}
+
+// Validate URL formats
+try {
+  new URL(config.issuerBaseURL);
+  new URL(config.baseURL);
+} catch (error) {
+  console.error('Invalid URL format in Auth0 configuration:');
+  console.error('issuerBaseURL:', config.issuerBaseURL);
+  console.error('baseURL:', config.baseURL);
+  throw new Error('Auth0 URLs must be valid URIs');
+}
 
 // auth router attaches /login, /logout, and /callback routes to the baseURL
 app.use(auth(config));
