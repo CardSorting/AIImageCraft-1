@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 
 import { Model } from "@/domain/entities/Model";
 import { ModelService } from "@/application/services/ModelService";
@@ -461,17 +462,10 @@ export default function ModelsPageRefactored() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
-      <div className="container max-w-7xl mx-auto px-4 py-8">
-        {/* Header Section - Apple-inspired */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            AI Model Studio
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Discover, explore, and create with the world's most advanced AI models. 
-            Crafted for creators, powered by innovation.
-          </p>
-        </div>
+      {/* Navigation Header */}
+      <NavigationHeader activeItem="models" />
+      
+      <div className="container max-w-7xl mx-auto px-4 py-8 pb-20">
 
         {/* Search & Controls */}
         <div className="mb-8 space-y-6">
