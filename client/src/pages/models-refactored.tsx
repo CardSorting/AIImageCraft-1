@@ -74,39 +74,38 @@ interface ModelCardProps {
 // Apple-inspired Model Card Component
 function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
   const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [stats, setStats] = useState({
     likeCount: model.likeCount || 0,
     bookmarkCount: model.bookmarkCount || 0,
     downloadCount: model.downloads || 0,
     viewCount: model.views || 0
   });
+  
   const modelService = new ModelService();
+  const bookmarkService = new BookmarkService();
   const queryClient = useQueryClient();
+
+  // Use the new BookmarkService hooks
+  const { data: bookmarkStatus } = bookmarkService.useBookmarkStatus(1, model.id);
+  const toggleBookmarkMutation = bookmarkService.useToggleBookmark();
+
+  const isBookmarked = bookmarkStatus?.isBookmarked || false;
 
   useEffect(() => {
     modelService.trackInteraction(1, model.id, 'view', 3);
-    loadUserStates();
+    loadLikeState();
   }, [model.id]);
 
-  const loadUserStates = async () => {
+  const loadLikeState = async () => {
     try {
-      const [bookmarkRes, likeRes] = await Promise.all([
-        fetch(`/api/bookmarks/1/${model.id}`),
-        fetch(`/api/likes/1/${model.id}`)
-      ]);
-      
-      if (bookmarkRes.ok) {
-        const data = await bookmarkRes.json();
-        setIsBookmarked(data.bookmarked || false);
-      }
+      const likeRes = await fetch(`/api/likes/1/${model.id}`);
       
       if (likeRes.ok) {
         const data = await likeRes.json();
         setIsLiked(data.liked || false);
       }
     } catch (error) {
-      console.log('Loading user states...');
+      console.log('Loading like state...');
     }
   };
 
@@ -131,15 +130,13 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
     e.stopPropagation();
     
     try {
-      const newState = await modelService.bookmarkModel(1, model.id, isBookmarked);
-      setIsBookmarked(newState);
+      await toggleBookmarkMutation.mutateAsync({ userId: 1, modelId: model.id });
+      
+      // Update local stats optimistically
       setStats(prev => ({ 
         ...prev, 
-        bookmarkCount: newState ? prev.bookmarkCount + 1 : prev.bookmarkCount - 1 
+        bookmarkCount: isBookmarked ? prev.bookmarkCount - 1 : prev.bookmarkCount + 1 
       }));
-      
-      // Invalidate bookmark queries to refresh the bookmarked tab
-      queryClient.invalidateQueries({ queryKey: ['/api/models', 'bookmarked'] });
     } catch (error) {
       console.error('Bookmark action failed');
     }
@@ -379,7 +376,7 @@ export default function ModelsPageRefactored() {
 
   const modelService = new ModelService();
 
-  // Load models using existing API structure
+  // Load models using existing API structure with improved bookmarked handling
   const { data: allModels = [], isLoading: isLoadingAll } = useQuery({
     queryKey: ['/api/models', state.selectedCategory, state.sortBy],
     queryFn: async () => {
