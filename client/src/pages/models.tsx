@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useModelsQuery, useModelsSearchQuery, ModelFilter } from "@/hooks/useModelsQuery";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
-import { MobileLayout } from "@/components/layout/MobileLayout";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useParams } from "wouter";
 import { 
   Search, 
@@ -120,14 +118,12 @@ export default function ModelsPage() {
     ));
   };
 
-  const isMobile = useIsMobile();
-
   return (
     <div className="min-h-screen bg-background">
       {/* Enhanced Navigation Header */}
       <NavigationHeader activeItem="models"  />
 
-      <div className="pb-20 md:pb-8">
+      <div className="pb-20">
         {/* Main Tabs - iOS Style */}
         <div className="px-4 py-4">
           <div className="flex justify-center mb-4">

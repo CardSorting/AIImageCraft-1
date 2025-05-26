@@ -9,7 +9,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { MobileLayout } from "@/components/layout/MobileLayout";
 
 export default function Profile() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -101,7 +100,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-24 md:pb-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="container max-w-2xl mx-auto px-4 py-8">
         {/* Profile Header */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 mb-6 shadow-sm border border-slate-200/50 dark:border-slate-800/50">
