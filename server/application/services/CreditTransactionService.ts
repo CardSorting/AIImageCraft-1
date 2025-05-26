@@ -60,7 +60,7 @@ export interface IImageGenerationRepository {
 export class DatabaseCreditRepository implements ICreditRepository {
   async getCreditAccount(userId: number): Promise<CreditAccount> {
     const result = await pool.query(
-      'SELECT amount, version, created_at, last_updated FROM credit_balances WHERE user_id = $1',
+      'SELECT amount, version, last_updated FROM credit_balances WHERE user_id = $1',
       [userId]
     );
 
@@ -76,15 +76,15 @@ export class DatabaseCreditRepository implements ICreditRepository {
       userId,
       parseFloat(row.amount),
       row.version || 1,
-      row.created_at || new Date(),
+      new Date(), // Use current date as fallback
       row.last_updated || new Date()
     );
   }
 
   async saveCreditAccount(account: CreditAccount): Promise<void> {
     await pool.query(
-      `INSERT INTO credit_balances (user_id, amount, version, created_at, last_updated) 
-       VALUES ($1, $2, $3, NOW(), NOW())
+      `INSERT INTO credit_balances (user_id, amount, version, last_updated) 
+       VALUES ($1, $2, $3, NOW())
        ON CONFLICT (user_id) 
        DO UPDATE SET amount = $2, version = $3, last_updated = NOW()`,
       [account.userId, account.balance.amount.toString(), account.version]

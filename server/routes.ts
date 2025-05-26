@@ -124,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get current balance
       const balanceResult = await pool.query(
-        'SELECT amount, version, created_at, last_updated FROM credit_balances WHERE user_id = $1',
+        'SELECT amount, version, last_updated FROM credit_balances WHERE user_id = $1',
         [userId]
       );
       
@@ -137,20 +137,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         accountInfo = {
           balance,
           version: row.version,
-          createdAt: row.created_at,
           lastUpdated: row.last_updated
         };
       } else {
         // Create initial balance for new user
         await pool.query(
-          'INSERT INTO credit_balances (user_id, amount, version) VALUES ($1, $2, $3)',
+          'INSERT INTO credit_balances (user_id, amount, version, last_updated) VALUES ($1, $2, $3, NOW())',
           [userId, '20.0', 1]
         );
         balance = 20;
         accountInfo = {
           balance: 20,
           version: 1,
-          createdAt: new Date(),
           lastUpdated: new Date()
         };
       }

@@ -121,6 +121,7 @@ export const userLikes = pgTable("user_likes", {
 export const creditBalances = pgTable("credit_balances", {
   userId: integer("user_id").primaryKey().references(() => users.id),
   amount: text("amount").notNull().default("0"), // Store as text for precision
+  createdAt: timestamp("created_at").defaultNow().notNull(),
   lastUpdated: timestamp("last_updated").defaultNow().notNull(),
   version: integer("version").notNull().default(0),
 });
