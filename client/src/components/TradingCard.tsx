@@ -162,13 +162,13 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
   };
 
   const handleRemix = () => {
-    // Navigate to create page with prompt data
+    // Navigate to generate page with prompt data
     const params = new URLSearchParams();
     params.set('prompt', image.prompt);
     if (image.model) {
       params.set('model', image.model);
     }
-    window.location.href = `/create?${params.toString()}`;
+    window.location.href = `/generate?${params.toString()}`;
   };
 
   const formatTimeAgo = (dateString?: string) => {
