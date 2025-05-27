@@ -1,6 +1,6 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { type GeneratedImage } from "@shared/schema";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 
@@ -10,14 +10,58 @@ export default function SimpleHome() {
   const isScrolling = useRef(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Fetch images using the existing API
-  const { data: images, isLoading, error } = useQuery({
+  // Infinite scroll implementation
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error,
+  } = useInfiniteQuery({
     queryKey: ['/api/images'],
-    queryFn: () => fetch('/api/images').then(res => res.json()) as Promise<GeneratedImage[]>
+    queryFn: async ({ pageParam = 0 }) => {
+      // For now, we'll work with the existing API that returns all images
+      // and implement client-side pagination until backend supports pagination
+      const response = await fetch('/api/images');
+      const allImages = await response.json() as GeneratedImage[];
+      const limit = 20;
+      const offset = pageParam;
+      const images = allImages.slice(offset, offset + limit);
+      return {
+        images,
+        nextOffset: pageParam + limit,
+        hasMore: offset + limit < allImages.length
+      };
+    },
+    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.nextOffset : undefined,
+    initialPageParam: 0,
   });
 
+  // Flatten all pages into a single array
+  const images = data?.pages.flatMap(page => page.images) ?? [];
   const currentImage = images?.[currentIndex];
   const totalImages = images?.length || 0;
+
+  // Intersection Observer for infinite scroll
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   // Navigation functions
   const goToNext = () => {
@@ -315,7 +359,7 @@ export default function SimpleHome() {
           {/* True Masonry Grid Layout */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 auto-rows-[10px]">
             {/* Actual Images */}
-            {images && images.map((image, index) => {
+            {images && images.map((image: GeneratedImage, index: number) => {
               if (!image) return null;
 
               // Calculate random span for masonry effect
@@ -359,15 +403,15 @@ export default function SimpleHome() {
               );
             })}
 
-            {/* Skeleton Loading Cards to Fill Space */}
-            {images && images.length > 0 && images.length < 30 && 
-              Array.from({ length: 30 - images.length }).map((_, index) => {
+            {/* Loading skeleton for infinite scroll */}
+            {isFetchingNextPage && 
+              Array.from({ length: 8 }).map((_, index) => {
                 const spanOptions = [20, 25, 30, 35, 40, 45, 50];
                 const randomSpan = spanOptions[index % spanOptions.length];
                 
                 return (
                   <div
-                    key={`skeleton-${index}`}
+                    key={`loading-${index}`}
                     className="animate-pulse"
                     style={{ gridRowEnd: `span ${randomSpan}` }}
                   >
@@ -446,17 +490,26 @@ export default function SimpleHome() {
             }
           </div>
 
-          {/* Create Button */}
-          {images && images.length > 0 && (
-            <div className="text-center mt-8">
-              <button
-                onClick={() => navigate('/generate')}
-                className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
-              >
-                Create Your Own AI Art
-              </button>
-            </div>
-          )}
+          {/* Infinite scroll trigger */}
+          <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+            {isFetchingNextPage && (
+              <div className="flex items-center space-x-2 text-gray-500">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                <span>Loading more images...</span>
+              </div>
+            )}
+            {!hasNextPage && images.length > 0 && (
+              <div className="text-center">
+                <p className="text-gray-500 mb-4">You've seen all available images!</p>
+                <button
+                  onClick={() => navigate('/generate')}
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+                >
+                  Create Your Own AI Art
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>
