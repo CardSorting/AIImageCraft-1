@@ -27,14 +27,10 @@ export class RunwareImageGenerationService implements IImageGenerationService {
       
       // Convert model to proper AIR ID format
       const modelId = this.convertToRunwareModel(request.model);
-      console.log(`[Runware] Using model: ${modelId}, size: ${size}`);
-
-      // For testing, let's try with the most basic working model first
-      const testModelId = "runware:100@1"; // FLUX.1 Schnell - fastest and most reliable
-      console.log(`[Runware] Testing with known working model: ${testModelId}`);
+      console.log(`[Runware] Using selected model: ${modelId}, size: ${size}`);
 
       // Create model instance
-      const model = runware.image(testModelId);
+      const model = runware.image(modelId);
 
       // Generate single image first (we can extend to multiple later)
       const result = await generateImage({
@@ -142,8 +138,20 @@ export class RunwareImageGenerationService implements IImageGenerationService {
       return model;
     }
 
-    // For other models, try to use them directly or fallback to default
-    console.log(`[Runware] Unknown model format: ${model}, using default`);
-    return "runware:100@1";
+    // RunDiffusion models should be converted to proper format
+    if (model.startsWith("rundiffusion:")) {
+      console.log(`[Runware] Converting RunDiffusion model: ${model}`);
+      return model;
+    }
+
+    // Custom models
+    if (model.startsWith("custom:")) {
+      console.log(`[Runware] Using custom model: ${model}`);
+      return model;
+    }
+
+    // For any other format, try to use it directly (might be supported)
+    console.log(`[Runware] Using model as-is: ${model}`);
+    return model;
   }
 }
