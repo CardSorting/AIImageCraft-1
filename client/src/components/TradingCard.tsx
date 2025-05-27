@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
-  Download, Share2, Sparkles, Star, Crown, Gem, 
-  Zap, Info, ExternalLink
+  Download, Sparkles, Star, Crown, Gem, 
+  Zap, Info, Shuffle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -161,28 +161,14 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
     }
   };
 
-  const handleShare = async (imageUrl: string) => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${rarity.name} AI Art Card`,
-          text: `Check out my ${image.rarityLetter}${image.rarityStars}★ ${rarity.name} card: ${image.prompt}`,
-          url: imageUrl,
-        });
-      } catch (error) {
-        navigator.clipboard.writeText(imageUrl);
-        toast({
-          title: "Copied! 📋",
-          description: "Card URL copied to clipboard",
-        });
-      }
-    } else {
-      navigator.clipboard.writeText(imageUrl);
-      toast({
-        title: "Copied! 📋",
-        description: "Card URL copied to clipboard",
-      });
+  const handleRemix = () => {
+    // Navigate to create page with prompt data
+    const params = new URLSearchParams();
+    params.set('prompt', image.prompt);
+    if (image.model) {
+      params.set('model', image.model);
     }
+    window.location.href = `/create?${params.toString()}`;
   };
 
   const formatTimeAgo = (dateString?: string) => {
@@ -321,17 +307,6 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
                     >
                       <Download className="h-4 w-4" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="bg-white/90 hover:bg-white text-gray-900 rounded-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleShare(image.imageUrl);
-                      }}
-                    >
-                      <Share2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
 
@@ -418,14 +393,6 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
                 <Button
                   variant="outline"
                   className="flex-1 rounded-full"
-                  onClick={() => window.open(image.imageUrl, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  View Full Size
-                </Button>
-                <Button
-                  variant="outline"
-                  className="rounded-full"
                   onClick={() => handleDownload(image.imageUrl, `card-${image.rarityLetter}${image.rarityStars}-${image.id}.png`)}
                 >
                   <Download className="h-4 w-4 mr-2" />
@@ -433,11 +400,11 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-full"
-                  onClick={() => handleShare(image.imageUrl)}
+                  className="flex-1 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-purple-500"
+                  onClick={handleRemix}
                 >
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
+                  <Shuffle className="h-4 w-4 mr-2" />
+                  Remix
                 </Button>
               </div>
             </div>
@@ -456,10 +423,6 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
                     <p className="font-bold">{image.rarityScore}/100</p>
                   </div>
                   <div>
-                    <span className="opacity-90">Model:</span>
-                    <p className="font-bold">{image.model || 'Runware'}</p>
-                  </div>
-                  <div>
                     <span className="opacity-90">Created:</span>
                     <p className="font-bold">{formatTimeAgo(image.createdAt)}</p>
                   </div>
@@ -471,22 +434,6 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
                 <p className="text-sm bg-gray-50 dark:bg-gray-900 rounded-xl p-4">
                   {image.prompt}
                 </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Dimensions:</span>
-                  <p className="font-medium">
-                    {image.dimensions ? 
-                      `${image.dimensions.width} × ${image.dimensions.height}` : 
-                      '512 × 512'
-                    }
-                  </p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Format:</span>
-                  <p className="font-medium">PNG</p>
-                </div>
               </div>
             </div>
           </div>
