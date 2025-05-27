@@ -44,7 +44,7 @@ export class RunwareImageGenerationService implements IImageGenerationService {
         n: request.numImages,
         providerOptions: {
           runware: {
-            negativePrompt: request.negativePrompt || "",
+            ...(request.negativePrompt && request.negativePrompt.length >= 2 ? { negativePrompt: request.negativePrompt } : {}),
             outputFormat: "PNG",
             checkNSFW: true,
             steps: 20
