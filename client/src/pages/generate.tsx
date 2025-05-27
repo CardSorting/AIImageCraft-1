@@ -97,11 +97,17 @@ export default function Generate() {
         description: "Image settings have been pre-filled from your selection",
       });
       
-      // Remove highlight after 3 seconds and clear URL params
+      // Remove highlight after 3 seconds but keep model parameter
       setTimeout(() => {
         setHighlightPrompt(false);
-        // Clear URL parameters to prevent highlighting on refresh
-        window.history.replaceState({}, '', window.location.pathname);
+        // Keep model parameter but clear prompt and aspectRatio to prevent highlighting on refresh
+        const currentParams = new URLSearchParams(window.location.search);
+        const modelParam = currentParams.get('model');
+        if (modelParam) {
+          window.history.replaceState({}, '', `${window.location.pathname}?model=${encodeURIComponent(modelParam)}`);
+        } else {
+          window.history.replaceState({}, '', window.location.pathname);
+        }
       }, 3000);
     }
   }, [location, form, toast]);
