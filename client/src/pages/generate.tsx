@@ -124,7 +124,7 @@ export default function Generate() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (authStatus && !authStatus.isAuthenticated) {
-      window.location.href = '/api/login';
+      window.location.href = '/login';
     }
   }, [authStatus]);
 
