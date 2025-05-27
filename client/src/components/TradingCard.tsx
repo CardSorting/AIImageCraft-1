@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -118,6 +119,7 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
   const [showModal, setShowModal] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [, navigate] = useLocation();
   const { toast } = useToast();
 
   const rarity = RARITY_CONFIGS[image.rarityTier as keyof typeof RARITY_CONFIGS] || RARITY_CONFIGS.COMMON;
@@ -162,13 +164,23 @@ export function TradingCard({ image, isNewest = false }: TradingCardProps) {
   };
 
   const handleRemix = () => {
-    // Navigate to create page with prompt data
+    // Navigate to create page with prompt data using proper router navigation
     const params = new URLSearchParams();
     params.set('prompt', image.prompt);
     if (image.model) {
       params.set('model', image.model);
     }
-    window.location.href = `/create?${params.toString()}`;
+    
+    // Close modal first
+    setShowModal(false);
+    
+    // Navigate using wouter
+    navigate(`/create?${params.toString()}`);
+    
+    toast({
+      title: "Remix Ready! ✨",
+      description: "Prompt loaded and ready for remixing",
+    });
   };
 
   const formatTimeAgo = (dateString?: string) => {
