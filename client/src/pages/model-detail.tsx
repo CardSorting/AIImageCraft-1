@@ -84,7 +84,10 @@ export default function ModelDetailPage() {
   };
 
   const handleTryModel = () => {
-    setLocation(`/generate?model=${encodeURIComponent(model?.modelId || '')}`);
+    console.log('Try Model clicked:', { modelId: model?.modelId, name: model?.name });
+    const targetUrl = `/generate?model=${encodeURIComponent(model?.modelId || '')}`;
+    console.log('Navigating to:', targetUrl);
+    setLocation(targetUrl);
   };
 
   if (isLoading) {

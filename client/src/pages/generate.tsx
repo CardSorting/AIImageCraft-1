@@ -52,6 +52,7 @@ export default function Generate() {
   // Get URL parameters before form initialization
   const urlParams = new URLSearchParams(window.location.search);
   const modelParam = urlParams.get('model');
+  console.log('Generate page URL params:', { modelParam, fullUrl: window.location.href });
   
   const form = useForm<GenerateImageRequest>({
     resolver: zodResolver(generateImageRequestSchema),
@@ -102,9 +103,6 @@ export default function Generate() {
         // Clear URL parameters to prevent highlighting on refresh
         window.history.replaceState({}, '', window.location.pathname);
       }, 3000);
-    } else {
-      // Default to Juggernaut Pro Flux if no model is selected
-      form.setValue('model', 'rundiffusion:130@100');
     }
   }, [location, form, toast]);
 
