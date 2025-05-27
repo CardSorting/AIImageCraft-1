@@ -1,115 +1,117 @@
-import { Runware } from "@runware/sdk-js";
+import { runware } from '@runware/ai-sdk-provider';
+import { experimental_generateImage as generateImage } from 'ai';
 import { IImageGenerationService, GenerateImageRequest, GeneratedImageResult } from '../../domain/services/IImageGenerationService';
 
 export class RunwareImageGenerationService implements IImageGenerationService {
-  private runware: any;
-
   constructor() {
-    // Configure Runware client with enhanced logging
     const apiKey = process.env.RUNWARE_API_KEY;
-    console.log(`[Runware] Initializing service with API key: ${apiKey ? 'CONFIGURED' : 'MISSING'}`);
+    console.log(`[Runware] Initializing AI SDK provider with API key: ${apiKey ? 'CONFIGURED' : 'MISSING'}`);
     
-    this.runware = new Runware({ 
-      apiKey: apiKey || "",
-      shouldReconnect: true,
-      globalMaxRetries: 1,
-      timeoutDuration: 90000  // Increased timeout to 90 seconds
-    });
+    if (!apiKey) {
+      throw new Error("Runware API key not configured. Please set RUNWARE_API_KEY environment variable.");
+    }
   }
 
   async generateImages(request: GenerateImageRequest): Promise<GeneratedImageResult[]> {
-    console.log(`[Runware] Starting image generation request:`, {
+    console.log(`[Runware] Starting AI SDK image generation:`, {
       prompt: request.prompt.substring(0, 100) + '...',
       aspectRatio: request.aspectRatio,
       numImages: request.numImages,
-      hasNegativePrompt: !!request.negativePrompt
+      hasNegativePrompt: !!request.negativePrompt,
+      model: request.model
     });
 
-    const apiKey = process.env.RUNWARE_API_KEY;
-    if (!apiKey) {
-      const error = "Runware API key not configured. Please set RUNWARE_API_KEY environment variable.";
-      console.error(`[Runware] ${error}`);
-      throw new Error(error);
-    }
-
     try {
-      console.log(`[Runware] Ensuring connection before making request`);
-      await this.runware.ensureConnection();
+      // Convert aspect ratio to size format for Vercel AI SDK
+      const size = this.convertAspectRatioToSize(request.aspectRatio);
       
-      // Convert aspect ratio format for Runware
-      const [width, height] = this.parseAspectRatio(request.aspectRatio);
-      
-      // Convert model to Runware format if needed
-      const runwareModel = this.convertToRunwareModel(request.model);
-      console.log(`[Runware] Using model: ${runwareModel} (original: ${request.model})`);
-      
-      // For testing, try with a known working model first
-      const testModel = "runware:100@1"; // Known working model
-      console.log(`[Runware] Testing with known model: ${testModel}, dimensions: ${width}x${height}`);
-      
-      // Try the simple requestImages format first with known working model
-      const result = await this.runware.requestImages({
-        positivePrompt: request.prompt,
-        negativePrompt: request.negativePrompt || "",
-        width: width,
-        height: height,
-        model: testModel, // Use known working model for now
-        numberResults: request.numImages,
-        outputType: "URL",
-        outputFormat: "PNG",
-        checkNSFW: true
+      // Convert model to proper AIR ID format
+      const modelId = this.convertToRunwareModel(request.model);
+      console.log(`[Runware] Using model: ${modelId}, size: ${size}`);
+
+      // Create model instance
+      const model = runware.image(modelId);
+
+      // Generate single image first (we can extend to multiple later)
+      const result = await generateImage({
+        model: model,
+        prompt: request.prompt,
+        size: size as any,
+        n: request.numImages,
+        providerOptions: {
+          runware: {
+            negativePrompt: request.negativePrompt || "",
+            outputFormat: "PNG",
+            checkNSFW: true,
+            steps: 20
+          }
+        }
       });
 
-      console.log(`[Runware] Raw result received:`, {
-        imageCount: result?.length || 0,
-        hasImages: Array.isArray(result) && result.length > 0
+      console.log(`[Runware] AI SDK result:`, {
+        hasImage: !!result.image,
+        hasImages: !!result.images,
+        imageCount: result.images?.length || (result.image ? 1 : 0)
       });
 
-      if (!result || !Array.isArray(result) || result.length === 0) {
-        const error = "No images generated from Runware service";
-        console.error(`[Runware] ${error}`, result);
-        throw new Error(error);
+      // Handle both single and multiple image responses
+      const images = result.images || (result.image ? [result.image] : []);
+      
+      if (images.length === 0) {
+        throw new Error("No images generated from Runware AI SDK");
       }
 
-      const generatedImages = result.map((image, index) => {
+      const generatedImages = images.map((image: any, index) => {
         console.log(`[Runware] Processing image ${index + 1}:`, {
-          hasUrl: !!image.imageURL,
-          imageUUID: image.imageUUID,
-          cost: image.cost
+          hasUrl: !!(image.url || image.base64),
+          url: (image.url || 'base64 data')?.substring(0, 50) + '...'
         });
 
         return {
-          url: image.imageURL || "",
+          url: image.url || `data:image/png;base64,${image.base64}` || "",
           fileName: `generated-${Date.now()}-${index}.png`,
           fileSize: undefined,
           seed: undefined,
         };
       });
 
-      console.log(`[Runware] Successfully processed ${generatedImages.length} images`);
+      console.log(`[Runware] Successfully generated ${generatedImages.length} images`);
       return generatedImages;
 
     } catch (error: any) {
-      console.error(`[Runware] Generation error details:`, {
+      console.error(`[Runware] AI SDK generation error:`, {
         message: error.message,
-        stack: error.stack
+        name: error.name,
+        stack: error.stack?.substring(0, 200)
       });
 
-      // Provide more specific error messages based on common issues
+      // Handle specific AI SDK errors
+      if (error.name === 'RunwareAPIError') {
+        throw new Error(`Runware API Error: ${error.message}`);
+      }
+      
       if (error.message?.includes('unauthorized') || error.message?.includes('401')) {
-        throw new Error(`Authentication failed: Please check your RUNWARE_API_KEY is valid and has sufficient credits.`);
+        throw new Error(`Authentication failed: Please check your RUNWARE_API_KEY is valid.`);
       }
       
       if (error.message?.includes('quota') || error.message?.includes('limit')) {
         throw new Error(`API quota exceeded: Please check your Runware account limits.`);
       }
 
-      if (error.message?.includes('timeout')) {
-        throw new Error(`Request timed out: The image generation took too long. Please try again.`);
-      }
-
       throw new Error(`Image generation failed: ${error.message || 'Unknown error occurred'}`);
     }
+  }
+
+  private convertAspectRatioToSize(aspectRatio: string): string {
+    // Convert aspect ratio to size format for Vercel AI SDK
+    const sizeMap: Record<string, string> = {
+      "1:1": "1024x1024",
+      "16:9": "1344x768",
+      "9:16": "768x1344", 
+      "3:4": "896x1152",
+      "4:3": "1152x896",
+    };
+    return sizeMap[aspectRatio] || "1024x1024";
   }
 
   private convertToRunwareModel(model?: string): string {
@@ -132,18 +134,5 @@ export class RunwareImageGenerationService implements IImageGenerationService {
     // For other models, try to use them directly or fallback to default
     console.log(`[Runware] Unknown model format: ${model}, using default`);
     return "runware:100@1";
-  }
-
-  private parseAspectRatio(aspectRatio: string): [number, number] {
-    // All dimensions must be multiples of 64 for Runware API
-    const aspectRatioMap: Record<string, [number, number]> = {
-      "1:1": [512, 512],
-      "16:9": [768, 448],  // 768/448 = 1.714 ≈ 16:9
-      "9:16": [448, 768],  // 448/768 = 0.583 ≈ 9:16
-      "3:4": [448, 576],   // 448/576 = 0.778 ≈ 3:4
-      "4:3": [576, 448],   // 576/448 = 1.286 ≈ 4:3
-    };
-
-    return aspectRatioMap[aspectRatio] || [512, 512];
   }
 }
