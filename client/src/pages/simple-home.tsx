@@ -1,35 +1,46 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { type GeneratedImage } from "@shared/schema";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
-import { useRandomizedImageFeed } from "../hooks/useRandomizedImageFeed";
 
 export default function SimpleHome() {
   const [, navigate] = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
   const isScrolling = useRef(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Use the sophisticated randomized image feed hook
-  const {
-    currentImage,
-    currentIndex,
-    totalImages,
-    remainingCount,
-    isLoading,
-    error,
-    goToNext,
-    goToPrevious,
-    goToIndex,
-    sessionId,
-    imageFeed
-  } = useRandomizedImageFeed({
-    autoMarkAsViewed: true, // Automatically mark images as viewed
-    maxImages: 50 // Load up to 50 random images at a time
+  // Fetch images using the existing API
+  const { data: images, isLoading, error } = useQuery({
+    queryKey: ['/api/images'],
+    queryFn: () => fetch('/api/images').then(res => res.json()) as Promise<GeneratedImage[]>
   });
+
+  const currentImage = images?.[currentIndex];
+  const totalImages = images?.length || 0;
+
+  // Navigation functions
+  const goToNext = () => {
+    if (currentIndex < totalImages - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const goToPrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const goToIndex = (index: number) => {
+    if (index >= 0 && index < totalImages) {
+      setCurrentIndex(index);
+    }
+  };
 
   // Handle scroll to navigate between images with throttling
   useEffect(() => {
-    const handleWheel = async (e: WheelEvent) => {
+    const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       
       // Prevent rapid scrolling
@@ -38,8 +49,8 @@ export default function SimpleHome() {
       isScrolling.current = true;
       
       if (e.deltaY > 0) {
-        // Scroll down - go to next random image
-        await goToNext();
+        // Scroll down - go to next image
+        goToNext();
       } else if (e.deltaY < 0 && currentIndex > 0) {
         // Scroll up - go to previous image
         goToPrevious();
@@ -56,7 +67,7 @@ export default function SimpleHome() {
       container.addEventListener('wheel', handleWheel, { passive: false });
       return () => container.removeEventListener('wheel', handleWheel);
     }
-  }, [currentIndex, goToNext, goToPrevious]);
+  }, [currentIndex, totalImages]);
 
   // Handle touch gestures for mobile with throttling
   useEffect(() => {
@@ -83,8 +94,8 @@ export default function SimpleHome() {
         isTouchScrolling = true;
         
         if (diff > 0) {
-          // Swipe up - next random image
-          await goToNext();
+          // Swipe up - next image
+          goToNext();
         } else if (diff < 0 && currentIndex > 0) {
           // Swipe down - previous image
           goToPrevious();
@@ -109,7 +120,7 @@ export default function SimpleHome() {
         container.removeEventListener('touchend', handleTouchEnd);
       };
     }
-  }, [currentIndex, goToNext, goToPrevious]);
+  }, [currentIndex, totalImages]);
 
   // Handle image click to navigate to create page with metadata
   const handleImageClick = (image: GeneratedImage) => {
@@ -198,7 +209,7 @@ export default function SimpleHome() {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
-        <p className="text-white/60 mb-8">{error}</p>
+        <p className="text-white/60 mb-8">Unable to load gallery</p>
         <button 
           onClick={() => window.location.reload()}
           className="px-6 py-3 bg-primary rounded-lg font-semibold hover:bg-primary/90 transition-colors"
@@ -279,12 +290,12 @@ export default function SimpleHome() {
 
         {/* Progress info - mobile */}
         <div className="absolute top-4 left-4 text-white/70 text-xs z-10 bg-black/30 rounded-lg px-2 py-1">
-          <div>{remainingCount} unique left</div>
+          <div>{currentIndex + 1} of {totalImages}</div>
         </div>
 
         {/* Swipe hint - mobile */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/60 text-xs z-10">
-          Swipe up for next unique image
+          Swipe up for next image
         </div>
       </div>
 
@@ -294,17 +305,17 @@ export default function SimpleHome() {
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Discover Unique AI Art
+              Discover AI Art Gallery
             </h1>
             <p className="text-gray-600 dark:text-gray-300">
-              Session: {sessionId.slice(0, 8)}... • {remainingCount} unique images remaining
+              Browse through {totalImages} amazing AI-generated images
             </p>
           </div>
 
           {/* True Masonry Grid Layout */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 auto-rows-[10px]">
             {/* Actual Images */}
-            {imageFeed && imageFeed.images.map((image, index) => {
+            {images && images.map((image, index) => {
               if (!image) return null;
 
               // Calculate random span for masonry effect
@@ -349,8 +360,8 @@ export default function SimpleHome() {
             })}
 
             {/* Skeleton Loading Cards to Fill Space */}
-            {imageFeed && imageFeed.images.length > 0 && imageFeed.images.length < 30 && 
-              Array.from({ length: 30 - imageFeed.images.length }).map((_, index) => {
+            {images && images.length > 0 && images.length < 30 && 
+              Array.from({ length: 30 - images.length }).map((_, index) => {
                 const spanOptions = [20, 25, 30, 35, 40, 45, 50];
                 const randomSpan = spanOptions[index % spanOptions.length];
                 
@@ -377,7 +388,7 @@ export default function SimpleHome() {
             }
 
             {/* Enhanced Loading state with Apple-inspired skeleton design */}
-            {(!imageFeed || imageFeed.images.length === 0) && !error &&
+            {(!images || images.length === 0) && !error &&
               Array.from({ length: 24 }).map((_, index) => {
                 const spanOptions = [20, 25, 30, 35, 40, 45, 50];
                 const randomSpan = spanOptions[index % spanOptions.length];
