@@ -41,6 +41,8 @@ export default function Generate() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [highlightPrompt, setHighlightPrompt] = useState(false);
   const [newlyCreatedImageIds, setNewlyCreatedImageIds] = useState<number[]>([]);
+  const [showCompletedImages, setShowCompletedImages] = useState(false);
+  const [completedImages, setCompletedImages] = useState<any[]>([]);
 
   const [showSettings, setShowSettings] = useState(false);
   const [galleryView, setGalleryView] = useState<"grid" | "list">("grid");
@@ -159,7 +161,7 @@ export default function Generate() {
     onSuccess: (data) => {
       toast({
         title: "Images Generated Successfully! 🎨",
-        description: `Your masterpiece has been added to the gallery! ${data.creditsUsed ? `Used ${data.creditsUsed} credits` : ''}`,
+        description: `Your masterpiece is ready! ${data.creditsUsed ? `Used ${data.creditsUsed} credits` : ''}`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/images/my"] });
       // Refresh credit balance to show updated amount
@@ -176,13 +178,23 @@ export default function Generate() {
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
           
-          // Highlight the newest image(s) - assuming we generated 1 image typically
-          const newestImageIds = sortedImages.slice(0, data.images?.length || 1).map((img: any) => img.id);
+          // Get the newest generated images
+          const newestImages = sortedImages.slice(0, data.images?.length || 1);
+          const newestImageIds = newestImages.map((img: any) => img.id);
           setNewlyCreatedImageIds(newestImageIds);
+          
+          // On mobile, show completed images immediately
+          if (isMobile) {
+            setCompletedImages(newestImages);
+            setShowCompletedImages(true);
+            // Auto-switch to gallery tab for easy access
+            setActiveTab("gallery");
+          }
           
           // Remove the highlight after 8 seconds for better visibility
           setTimeout(() => {
             setNewlyCreatedImageIds([]);
+            setShowCompletedImages(false);
           }, 8000);
         }
       });
@@ -1541,6 +1553,56 @@ export default function Generate() {
           </div>
 
         </div>
+        
+        {/* Mobile Image Completion Overlay */}
+        {showCompletedImages && completedImages.length > 0 && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-background rounded-2xl p-6 max-w-sm w-full mx-4 animate-in slide-in-from-bottom-4">
+              <div className="text-center mb-4">
+                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-1">
+                  Image Generated! 🎨
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Your artwork is ready to view
+                </p>
+              </div>
+              
+              {/* Show the generated image */}
+              <div className="mb-4">
+                <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800">
+                  <img 
+                    src={completedImages[0]?.imageUrl} 
+                    alt="Generated artwork"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Button 
+                  onClick={() => {
+                    setShowCompletedImages(false);
+                    setActiveTab("gallery");
+                  }}
+                  className="w-full bg-primary hover:bg-primary/90"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View in Gallery
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowCompletedImages(false)}
+                  className="w-full"
+                >
+                  Continue Creating
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
