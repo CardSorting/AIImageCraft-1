@@ -250,6 +250,7 @@ export default function SimpleHome() {
   }
 
   if (error) {
+    console.error('Image loading error:', error);
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
@@ -264,7 +265,7 @@ export default function SimpleHome() {
     );
   }
 
-  if (!currentImage) {
+  if (!isLoading && (!images || images.length === 0)) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <h2 className="text-2xl font-bold mb-4">No images yet</h2>
