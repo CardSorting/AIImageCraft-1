@@ -41,25 +41,23 @@ export class RunwareImageGenerationService implements IImageGenerationService {
       
       // Convert model to Runware format if needed
       const runwareModel = this.convertToRunwareModel(request.model);
-      console.log(`[Runware] Calling requestImages with dimensions: ${width}x${height}, model: ${runwareModel}`);
+      console.log(`[Runware] Using model: ${runwareModel} (original: ${request.model})`);
       
+      // For testing, try with a known working model first
+      const testModel = "runware:100@1"; // Known working model
+      console.log(`[Runware] Testing with known model: ${testModel}, dimensions: ${width}x${height}`);
+      
+      // Try the simple requestImages format first with known working model
       const result = await this.runware.requestImages({
         positivePrompt: request.prompt,
         negativePrompt: request.negativePrompt || "",
         width: width,
         height: height,
-        model: runwareModel,
+        model: testModel, // Use known working model for now
         numberResults: request.numImages,
         outputType: "URL",
         outputFormat: "PNG",
-        checkNSFW: true,
-        onPartialImages: (images: any, error: any) => {
-          if (error) {
-            console.log(`[Runware] Partial generation error:`, error);
-          } else {
-            console.log(`[Runware] Received ${images.length} partial images`);
-          }
-        }
+        checkNSFW: true
       });
 
       console.log(`[Runware] Raw result received:`, {
