@@ -446,14 +446,14 @@ export default function SimpleHome() {
             }
           </div>
 
-          {/* Load More Button */}
-          {remainingCount > 0 && imageFeed && imageFeed.images.length > 0 && (
+          {/* Create Button */}
+          {images && images.length > 0 && (
             <div className="text-center mt-8">
               <button
-                onClick={goToNext}
+                onClick={() => navigate('/generate')}
                 className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
               >
-                Load More Unique Images ({remainingCount} remaining)
+                Create Your Own AI Art
               </button>
             </div>
           )}
