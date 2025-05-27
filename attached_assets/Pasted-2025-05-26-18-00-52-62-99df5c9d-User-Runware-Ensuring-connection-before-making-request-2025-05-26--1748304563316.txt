@@ -1,0 +1,140 @@
+2025-05-26 18:00:52.62
+99df5c9d
+User
+[Runware] Ensuring connection before making request
+2025-05-26 18:00:53.22
+99df5c9d
+User
+[Runware] Calling promptEnhance with taskUUID: AG9icyC00zuc9x4etEKki
+2025-05-26 18:00:53.22
+99df5c9d
+User
+[Runware] Enhancement request: {
+2025-05-26 18:00:53.22
+99df5c9d
+User
+"taskType": "promptEnhance",
+2025-05-26 18:00:53.22
+99df5c9d
+User
+"taskUUID": "AG9icyC00zuc9x4etEKki",
+2025-05-26 18:00:53.22
+99df5c9d
+User
+"prompt": "fox in the rain",
+2025-05-26 18:00:53.22
+99df5c9d
+User
+"promptMaxLength": 64,
+2025-05-26 18:00:53.22
+99df5c9d
+User
+"promptVersions": 1,
+2025-05-26 18:00:53.22
+99df5c9d
+User
+"includeCost": true
+2025-05-26 18:00:53.22
+99df5c9d
+User
+}
+2025-05-26 18:00:54.63
+99df5c9d
+User
+[Runware] Prompt enhancement error: { message: undefined, stack: undefined }
+2025-05-26 18:00:54.63
+99df5c9d
+User
+[Prompt Enhancement] Enhancement failed, using original prompt: Error: Prompt enhancement failed: Unknown error occurred
+2025-05-26 18:00:54.63
+99df5c9d
+User
+at RunwarePromptEnhancementService.enhancePrompt (file:///home/runner/workspace/dist/index.js:1911:17)
+2025-05-26 18:00:54.63
+99df5c9d
+User
+at async file:///home/runner/workspace/dist/index.js:2547:35
+2025-05-26 18:00:54.74
+99df5c9d
+User
+[Runware] Initializing service with API key: CONFIGURED
+2025-05-26 18:00:54.74
+99df5c9d
+User
+[Runware] Starting image generation request: {
+2025-05-26 18:00:54.74
+99df5c9d
+User
+prompt: 'fox in the rain...',
+2025-05-26 18:00:54.74
+99df5c9d
+User
+aspectRatio: '1:1',
+2025-05-26 18:00:54.74
+99df5c9d
+User
+numImages: 1,
+2025-05-26 18:00:54.74
+99df5c9d
+User
+hasNegativePrompt: true
+2025-05-26 18:00:54.74
+99df5c9d
+User
+}
+2025-05-26 18:00:54.74
+99df5c9d
+User
+[Runware] Ensuring connection before making request
+2025-05-26 18:00:55.13
+99df5c9d
+User
+12:00:55 AM [express] GET /api/credits/balance/5 200 in 53ms :: {"balance":115,"accountInfo":{"balanc…
+2025-05-26 18:00:55.14
+99df5c9d
+User
+[Runware] Using Civitai model via AIR system: civitai:130032@161986
+2025-05-26 18:00:55.14
+99df5c9d
+User
+[Runware] Calling requestImages with dimensions: 512x512, model: civitai:130032@161986
+2025-05-26 18:01:10.41
+99df5c9d
+User
+12:01:10 AM [express] GET /api/credits/balance/5 304 in 148ms :: {"balance":115,"accountInfo":{"balan…
+2025-05-26 18:02:56.15
+99df5c9d
+User
+[Runware] Generation error details: { message: undefined, stack: undefined }
+2025-05-26 18:02:58.93
+99df5c9d
+User
+[Credit System] Transaction result: {
+2025-05-26 18:02:58.93
+99df5c9d
+User
+success: false,
+2025-05-26 18:02:58.93
+99df5c9d
+User
+error: 'Image generation failed',
+2025-05-26 18:02:58.93
+99df5c9d
+User
+creditsUsed: undefined,
+2025-05-26 18:02:58.93
+99df5c9d
+User
+newBalance: undefined
+2025-05-26 18:02:58.93
+99df5c9d
+User
+}
+2025-05-26 18:02:58.93
+99df5c9d
+User
+12:02:58 AM [express] POST /api/generate-images 500 in 126441ms :: {"error":"Image generation failed"…
+2025-05-26 18:04:25.06
+af7bb6ff
+System
+system: received signal terminated

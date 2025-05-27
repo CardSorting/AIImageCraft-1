@@ -12,8 +12,8 @@ export class RunwareImageGenerationService implements IImageGenerationService {
     this.runware = new Runware({ 
       apiKey: apiKey || "",
       shouldReconnect: true,
-      globalMaxRetries: 2,
-      timeoutDuration: 60000
+      globalMaxRetries: 1,
+      timeoutDuration: 90000  // Increased timeout to 90 seconds
     });
   }
 

@@ -64,7 +64,8 @@ export class RunwarePromptEnhancementService {
 
       console.log(`[Runware] Enhancement request:`, JSON.stringify(enhancementRequest, null, 2));
       
-      const result = await this.runware.enhancePrompt([enhancementRequest]);
+      // Use the correct Runware SDK method for prompt enhancement
+      const result = await this.runware.enhancePrompt(enhancementRequest);
 
       console.log(`[Runware] Raw enhancement result received:`, {
         resultCount: result?.data?.length || 0,
@@ -96,23 +97,14 @@ export class RunwarePromptEnhancementService {
     } catch (error: any) {
       console.error(`[Runware] Prompt enhancement error:`, {
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
+        name: error.name,
+        fullError: error
       });
 
-      // Provide more specific error messages based on common issues
-      if (error.message?.includes('unauthorized') || error.message?.includes('401')) {
-        throw new Error(`Authentication failed: Please check your RUNWARE_API_KEY is valid and has sufficient credits.`);
-      }
-      
-      if (error.message?.includes('quota') || error.message?.includes('limit')) {
-        throw new Error(`API quota exceeded: Please check your Runware account limits.`);
-      }
-
-      if (error.message?.includes('timeout')) {
-        throw new Error(`Request timed out: The prompt enhancement took too long. Please try again.`);
-      }
-
-      throw new Error(`Prompt enhancement failed: ${error.message || 'Unknown error occurred'}`);
+      // For now, disable prompt enhancement due to SDK issues
+      console.log(`[Runware] Prompt enhancement temporarily disabled due to SDK compatibility issues`);
+      throw new Error(`Prompt enhancement is temporarily unavailable. Using original prompt.`);
     }
   }
 }
