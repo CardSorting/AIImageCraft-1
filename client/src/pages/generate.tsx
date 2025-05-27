@@ -49,13 +49,17 @@ export default function Generate() {
   const isMobile = useIsMobile();
   const [location] = useLocation();
 
+  // Get URL parameters before form initialization
+  const urlParams = new URLSearchParams(window.location.search);
+  const modelParam = urlParams.get('model');
+  
   const form = useForm<GenerateImageRequest>({
     resolver: zodResolver(generateImageRequestSchema),
     defaultValues: {
       prompt: "",
       negativePrompt: "",
       aspectRatio: "1:1",
-      model: "rundiffusion:130@100",
+      model: modelParam || "rundiffusion:130@100", // Use URL parameter if available
       steps: 30,
       cfgScale: 7,
       scheduler: "DPMSolverMultistepScheduler",
