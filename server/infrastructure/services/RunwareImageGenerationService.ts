@@ -29,8 +29,12 @@ export class RunwareImageGenerationService implements IImageGenerationService {
       const modelId = this.convertToRunwareModel(request.model);
       console.log(`[Runware] Using model: ${modelId}, size: ${size}`);
 
+      // For testing, let's try with the most basic working model first
+      const testModelId = "runware:100@1"; // FLUX.1 Schnell - fastest and most reliable
+      console.log(`[Runware] Testing with known working model: ${testModelId}`);
+
       // Create model instance
-      const model = runware.image(modelId);
+      const model = runware.image(testModelId);
 
       // Generate single image first (we can extend to multiple later)
       const result = await generateImage({
@@ -82,10 +86,17 @@ export class RunwareImageGenerationService implements IImageGenerationService {
       console.error(`[Runware] AI SDK generation error:`, {
         message: error.message,
         name: error.name,
-        stack: error.stack?.substring(0, 200)
+        cause: error.cause,
+        responseBody: error.responseBody,
+        statusCode: error.statusCode,
+        stack: error.stack?.substring(0, 300)
       });
 
       // Handle specific AI SDK errors
+      if (error.name === 'AI_APICallError' && error.message === 'Unknown Runware API error') {
+        throw new Error(`Authentication or API configuration issue: Please verify your Runware API key is valid and has sufficient credits. The API key might be expired or incorrect.`);
+      }
+      
       if (error.name === 'RunwareAPIError') {
         throw new Error(`Runware API Error: ${error.message}`);
       }
@@ -98,7 +109,7 @@ export class RunwareImageGenerationService implements IImageGenerationService {
         throw new Error(`API quota exceeded: Please check your Runware account limits.`);
       }
 
-      throw new Error(`Image generation failed: ${error.message || 'Unknown error occurred'}`);
+      throw new Error(`Image generation failed: ${error.message || 'Unknown error occurred'} - Please verify your Runware API key and account status.`);
     }
   }
 
