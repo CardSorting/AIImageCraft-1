@@ -121,6 +121,25 @@ export default function Generate() {
     staleTime: 30000, // Consider data fresh for 30 seconds
   });
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (authStatus && !authStatus.isAuthenticated) {
+      window.location.href = '/api/login';
+    }
+  }, [authStatus]);
+
+  // Show loading while checking authentication
+  if (!authStatus) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Sparkles className="h-8 w-8 text-primary mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Fetch existing images for authenticated user (today only)
   const { data: allImages = [], refetch } = useQuery({
     queryKey: ["/api/images/my"],
@@ -184,7 +203,9 @@ export default function Generate() {
           setNewlyCreatedImageIds(newestImageIds);
           
           // On mobile, show completed images immediately
+          console.log('Image generation complete:', { isMobile, newestImages: newestImages.length });
           if (isMobile) {
+            console.log('Setting completed images for mobile overlay');
             setCompletedImages(newestImages);
             setShowCompletedImages(true);
             // Auto-switch to gallery tab for easy access
