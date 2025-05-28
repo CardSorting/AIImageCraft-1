@@ -9,6 +9,7 @@ import SEOSitemap from "@/components/SEOSitemap";
 import UltraAdvancedSEO from "@/components/UltraAdvancedSEO";
 import MaximumSEOOptimization from "@/components/MaximumSEOOptimization";
 import CuttingEdgeSEO from "@/components/CuttingEdgeSEO";
+import SearchDominationSEO from "@/components/SearchDominationSEO";
 import { 
   Sparkles, 
   Zap, 
@@ -185,6 +186,7 @@ export default function Landing() {
       />
       <AdvancedSEO pageType="landing" />
       <CuttingEdgeSEO pageType="landing" />
+      <SearchDominationSEO pageType="landing" enableMaximumVisibility={true} />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-white overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 opacity-30">
