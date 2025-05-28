@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEOHead } from "@/components/SEOHead";
+import AdvancedSEO from "@/components/AdvancedSEO";
+import SEOSitemap from "@/components/SEOSitemap";
 import { 
   Sparkles, 
   Zap, 
@@ -178,6 +180,8 @@ export default function Landing() {
         }}
         author="Dream Bees Art Team"
       />
+      <AdvancedSEO pageType="landing" />
+      <SEOSitemap enableDynamicSitemap={true} enableRichSnippets={true} />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-white overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 opacity-30">
