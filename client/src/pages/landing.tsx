@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SEOHead } from "@/components/SEOHead";
 import { 
   Sparkles, 
   Zap, 
@@ -138,7 +139,46 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-white overflow-hidden">
+    <>
+      <SEOHead
+        title="Dream Bees Art - AI Art Generator & Creative Community"
+        description="Transform your imagination into stunning AI-generated artwork. Join thousands of artists creating beautiful images with advanced AI models. Free to start, premium features available."
+        keywords="AI art generator, create AI art, artificial intelligence artwork, digital art creation, AI image generator, creative AI tools, art community, text to image, AI drawing"
+        ogImage="https://dreambeesart.com/og-home.jpg"
+        ogType="website"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "Dream Bees Art",
+          "description": "AI-powered art generation platform for creative professionals and enthusiasts",
+          "url": "https://dreambeesart.com",
+          "applicationCategory": "DesignApplication",
+          "operatingSystem": "Web Browser",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          },
+          "creator": {
+            "@type": "Organization",
+            "name": "Dream Bees Art"
+          },
+          "audience": {
+            "@type": "Audience",
+            "audienceType": "Artists, Designers, Content Creators"
+          },
+          "featureList": [
+            "AI Image Generation",
+            "Multiple Art Styles",
+            "High-Quality Outputs",
+            "Creative Community",
+            "Easy-to-Use Interface"
+          ]
+        }}
+        author="Dream Bees Art Team"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-white overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 opacity-30">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,215,0,0.1),transparent_50%)]"></div>
@@ -488,6 +528,7 @@ export default function Landing() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }

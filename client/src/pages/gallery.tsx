@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { type GeneratedImage } from "@shared/schema";
+import { SEOHead } from "@/components/SEOHead";
 import { Download, Search, Filter, Grid3X3, List } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";

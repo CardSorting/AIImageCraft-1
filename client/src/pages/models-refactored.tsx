@@ -12,6 +12,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { SEOHead } from "@/components/SEOHead";
 import { 
   Search, Star, Heart, Bookmark, Filter, Sparkles, Brain, 
   ChevronLeft, ChevronRight, X, Zap, Download, Eye, Grid3X3, List
