@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { SEOHead } from "@/components/SEOHead";
 import AdvancedSEO from "@/components/AdvancedSEO";
 import SEOSitemap from "@/components/SEOSitemap";
+import UltraAdvancedSEO from "@/components/UltraAdvancedSEO";
+import MaximumSEOOptimization from "@/components/MaximumSEOOptimization";
+import CuttingEdgeSEO from "@/components/CuttingEdgeSEO";
 import { 
   Sparkles, 
   Zap, 
@@ -182,6 +185,9 @@ export default function Landing() {
       />
       <AdvancedSEO pageType="landing" />
       <SEOSitemap enableDynamicSitemap={true} enableRichSnippets={true} />
+      <UltraAdvancedSEO pageType="landing" enableAIOptimization={true} />
+      <MaximumSEOOptimization pageType="landing" enableAdvancedFeatures={true} />
+      <CuttingEdgeSEO pageType="landing" />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-white overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 opacity-30">
