@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, Users, Gavel, User, Coins, Sparkles, Menu, X, Plus } from "lucide-react";
+import { Heart, Users, Gavel, User, Coins, Sparkles, Menu, X, Plus, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useLocation } from "wouter";
@@ -20,6 +20,7 @@ interface MobileNavigationProps {
 const navigationItems: NavigationItem[] = [
   { id: "for-you", label: "For You", icon: Heart },
   { id: "following", label: "Following", icon: Users },
+  { id: "ai-cosplay", label: "AI Maker", icon: Wand2 },
 ];
 
 export function MobileNavigation({ 
@@ -31,7 +32,11 @@ export function MobileNavigation({
   const [location, setLocation] = useLocation();
 
   const handleNavigationClick = (itemId: string) => {
-    onNavigationClick(itemId);
+    if (itemId === 'ai-cosplay') {
+      setLocation('/ai-cosplay');
+    } else {
+      onNavigationClick(itemId);
+    }
     setIsMenuOpen(false);
   };
 

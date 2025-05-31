@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { Home, Image, Plus, Brain, User, Coins, LogIn } from "lucide-react";
+import { Home, Image, Plus, Brain, User, Coins, LogIn, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
@@ -19,10 +19,10 @@ const navItems: NavItem[] = [
     href: "/",
   },
   {
-    id: "gallery",
-    label: "Gallery",
-    icon: Image,
-    href: "/gallery",
+    id: "ai-maker",
+    label: "AI Maker",
+    icon: Wand2,
+    href: "/ai-cosplay",
   },
   {
     id: "generate",
@@ -31,10 +31,10 @@ const navItems: NavItem[] = [
     href: "/create",
   },
   {
-    id: "models",
-    label: "Models",
-    icon: Brain,
-    href: "/models",
+    id: "gallery",
+    label: "Gallery",
+    icon: Image,
+    href: "/gallery",
   },
   {
     id: "profile",

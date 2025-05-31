@@ -1,4 +1,4 @@
-import { Heart, Users, Gavel, User, Coins, Sparkles, Plus, Search, Bell, Settings, ChevronDown, LogOut } from "lucide-react";
+import { Heart, Users, Gavel, User, Coins, Sparkles, Plus, Search, Bell, Settings, ChevronDown, LogOut, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ interface DesktopNavigationProps {
 const navigationItems: NavigationItem[] = [
   { id: "home", label: "Home", icon: Heart },
   { id: "create", label: "Create", icon: Plus },
+  { id: "ai-cosplay", label: "AI Maker", icon: Wand2 },
   { id: "gallery", label: "Gallery", icon: Users },
   { id: "models", label: "Models", icon: Sparkles },
 ];
