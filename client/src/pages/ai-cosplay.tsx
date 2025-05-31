@@ -205,7 +205,14 @@ export default function AICosplayPage() {
                     Upload Your Photo
                   </h3>
                   
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
+                  <div 
+                    className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => {
+                      if (!imagePreview) {
+                        document.getElementById('image-upload')?.click();
+                      }
+                    }}
+                  >
                     {imagePreview ? (
                       <div className="space-y-4">
                         <img 
@@ -215,7 +222,8 @@ export default function AICosplayPage() {
                         />
                         <Button 
                           variant="outline" 
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setSelectedImage(null);
                             setImagePreview(null);
                           }}
@@ -237,11 +245,9 @@ export default function AICosplayPage() {
                           className="hidden"
                           id="image-upload"
                         />
-                        <label htmlFor="image-upload">
-                          <Button variant="outline" className="cursor-pointer">
-                            Browse Files
-                          </Button>
-                        </label>
+                        <Button variant="outline" className="pointer-events-none">
+                          Browse Files
+                        </Button>
                       </div>
                     )}
                   </div>
