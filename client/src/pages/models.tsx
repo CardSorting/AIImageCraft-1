@@ -554,8 +554,15 @@ function ModelCard({ model, onTagClick }: ModelCardProps) {
     }
   };
 
+  const getModelLink = () => {
+    if (model.modelId === 'bfl:3@1' || model.name === 'AI Cosplay') {
+      return '/ai-cosplay';
+    }
+    return `/models/${model.id}`;
+  };
+
   return (
-    <Link href={`/models/${model.id}`}>
+    <Link href={getModelLink()}>
       <Card className="ios-card group cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
         <CardContent className="p-0">
           {/* Model Preview */}

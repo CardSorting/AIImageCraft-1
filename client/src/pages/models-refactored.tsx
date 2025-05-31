@@ -149,9 +149,16 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
     return count.toString();
   };
 
+  const getModelLink = () => {
+    if (model.modelId === 'bfl:3@1' || model.name === 'AI Cosplay') {
+      return '/ai-cosplay';
+    }
+    return `/model/${model.id}`;
+  };
+
   if (viewMode === 'list') {
     return (
-      <Link href={`/model/${model.id}`}>
+      <Link href={getModelLink()}>
         <Card className="group hover:shadow-elegant transition-all duration-300 hover:scale-[1.01] cursor-pointer">
           <CardContent className="p-6">
             <div className="flex gap-6">
@@ -243,7 +250,7 @@ function ModelCard({ model, viewMode, onTagClick }: ModelCardProps) {
   }
 
   return (
-    <Link href={`/model/${model.id}`}>
+    <Link href={getModelLink()}>
       <Card className="group hover:shadow-dramatic transition-all duration-500 hover:scale-[1.03] cursor-pointer overflow-hidden">
         <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
           {model.thumbnail ? (
