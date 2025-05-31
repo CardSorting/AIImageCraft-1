@@ -79,7 +79,15 @@ export class RunwareImageGenerationAdapter implements IImageGenerationService {
       }));
 
     } catch (error: any) {
-      console.error(`[Runware] Generation error:`, error.message);
+      console.error(`[Runware] Generation error:`, {
+        message: error.message,
+        name: error.name,
+        code: error.code,
+        status: error.status,
+        statusCode: error.statusCode,
+        response: error.response?.data,
+        stack: error.stack?.substring(0, 300)
+      });
       
       if (error.message?.includes('unauthorized') || error.message?.includes('401')) {
         throw new Error(`Authentication failed: Please check your RUNWARE_API_KEY is valid and has sufficient credits.`);
@@ -93,7 +101,7 @@ export class RunwareImageGenerationAdapter implements IImageGenerationService {
         throw new Error(`Request timed out: The image generation took too long. Please try again.`);
       }
 
-      throw new Error(`Image generation failed: ${error.message || 'Unknown error occurred'}`);
+      throw new Error(`Image generation failed: ${error.message || 'Unknown error occurred'} - Please verify your Runware API key and account status.`);
     }
   }
 
