@@ -65,8 +65,8 @@ export function BottomNavigation() {
     
     // Check authentication for protected routes
     if (requiresAuth && !authStatus?.isAuthenticated) {
-      // Redirect to login or show auth modal
-      navigate('/auth/login');
+      // Redirect to existing Auth0 login route
+      window.location.href = '/login';
       return;
     }
     

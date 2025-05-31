@@ -42,7 +42,7 @@ export function MobileNavigation({
     if (itemId === 'ai-cosplay') {
       // Check authentication for AI Maker route
       if (!authStatus?.isAuthenticated) {
-        setLocation('/auth/login');
+        window.location.href = '/login';
         setIsMenuOpen(false);
         return;
       }
