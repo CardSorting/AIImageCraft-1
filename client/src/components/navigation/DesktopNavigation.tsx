@@ -74,7 +74,7 @@ export function DesktopNavigation({
             <div className="flex items-center bg-background/80 backdrop-blur-xl border border-border/60 rounded-2xl p-1.5 shadow-lg">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = activeItem === item.id;
+                const isActive = item.id === 'home' ? location === '/' : location.startsWith(`/${item.id}`);
                 
                 return (
                   <button
