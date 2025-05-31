@@ -156,24 +156,55 @@ export default function Gallery() {
       {/* Gallery Grid */}
       {!isLoading && filteredImages.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredImages.map((image) => (
-            <TradingCard
-              key={image.id}
-              image={{
-                id: image.id.toString(),
-                imageUrl: image.imageUrl,
-                prompt: image.prompt,
-                model: 'Runware',
-                dimensions: { width: 512, height: 512 },
-                createdAt: image.createdAt,
-                rarityTier: (image as any).rarityTier || 'COMMON',
-                rarityScore: (image as any).rarityScore || 50,
-                rarityStars: (image as any).rarityStars || 1,
-                rarityLetter: (image as any).rarityLetter || 'S',
-              }}
-              isNewest={false}
-            />
-          ))}
+          {filteredImages.map((image) => {
+            const isCosplayImage = image.modelId === "fal-ai/flux-pro/kontext";
+            
+            if (isCosplayImage) {
+              // Render cosplay images as simple cards without trading card styling
+              return (
+                <div 
+                  key={image.id} 
+                  className="card-ios group hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-hidden"
+                  onClick={() => openImageModal(image)}
+                >
+                  <div className="aspect-square overflow-hidden">
+                    <img 
+                      src={image.imageUrl} 
+                      alt={image.prompt}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <p className="text-sm text-foreground line-clamp-2 mb-2">{image.prompt}</p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>AI Cosplay</span>
+                      <span>{formatTimeAgo(new Date(image.createdAt))}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            } else {
+              // Render regular generated images with trading card styling
+              return (
+                <TradingCard
+                  key={image.id}
+                  image={{
+                    id: image.id.toString(),
+                    imageUrl: image.imageUrl,
+                    prompt: image.prompt,
+                    model: 'Runware',
+                    dimensions: { width: 512, height: 512 },
+                    createdAt: image.createdAt,
+                    rarityTier: (image as any).rarityTier || 'COMMON',
+                    rarityScore: (image as any).rarityScore || 50,
+                    rarityStars: (image as any).rarityStars || 1,
+                    rarityLetter: (image as any).rarityLetter || 'S',
+                  }}
+                  isNewest={false}
+                />
+              );
+            }
+          })}
         </div>
       )}
 
