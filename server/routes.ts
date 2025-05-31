@@ -794,64 +794,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   app.post("/api/generate-cosplay", upload.single('image'), async (req: MulterRequest, res: Response) => {
-    try {
-      if (!req.oidc.isAuthenticated()) {
-        return res.status(401).json({ error: "Authentication required" });
-      }
-
-      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
-      const { instruction } = req.body;
-      const imageFile = req.file;
-
-      if (!imageFile || !instruction) {
-        return res.status(400).json({ error: "Image and instruction are required" });
-      }
-
-      // Convert image buffer to base64 for the AI service
-      const imageBase64 = imageFile.buffer.toString('base64');
-      const imageDataUri = `data:${imageFile.mimetype};base64,${imageBase64}`;
-
-      // Use the CleanImageController for consistent processing
-      const cleanController = new (await import('./presentation/controllers/CleanImageController')).CleanImageController();
-      
-      // Create a request object that matches the expected format
-      const mockRequest = {
-        body: {
-          prompt: instruction,
-          model: "bfl:4@1",
-          aspectRatio: "1:1",
-          numberResults: 1,
-          inputImage: imageDataUri,
-          editMode: "instruct"
-        }
-      } as any;
-
-      const mockResponse = {
-        status: (code: number) => ({
-          json: (data: any) => {
-            if (code === 200 && data.success) {
-              res.json({
-                success: true,
-                image: data.data,
-                message: "Cosplay transformation completed successfully"
-              });
-            } else {
-              res.status(code).json(data);
-            }
-          }
-        }),
-        json: (data: any) => res.json(data)
-      } as any;
-
-      await cleanController.generateImages(mockRequest, mockResponse);
-
-    } catch (error: any) {
-      console.error("Cosplay generation error:", error);
-      res.status(500).json({ 
-        error: "Failed to generate cosplay transformation",
-        message: error.message 
-      });
-    }
+    const cosplayController = new (await import('./presentation/controllers/CosplayController')).CosplayController();
+    await cosplayController.generateCosplay(req, res);
   });
 
   // User interaction tracking endpoints for behavioral learning
