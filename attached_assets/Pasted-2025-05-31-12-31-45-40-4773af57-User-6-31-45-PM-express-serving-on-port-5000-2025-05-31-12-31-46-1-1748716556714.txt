@@ -1,0 +1,116 @@
+2025-05-31 12:31:45.40
+4773af57
+User
+6:31:45 PM [express] serving on port 5000
+2025-05-31 12:31:46.17
+4773af57
+User
+6:31:46 PM [express] GET /api/auth/profile 304 in 152ms :: {"isAuthenticated":true,"user":{"sid":"dW…
+2025-05-31 12:31:46.20
+4773af57
+User
+6:31:46 PM [express] GET /api/credits/balance/5 304 in 148ms :: {"balance":114,"accountInfo":{"balan…
+2025-05-31 12:31:51.30
+4773af57
+User
+6:31:51 PM [express] GET /api/auth/profile 304 in 29ms :: {"isAuthenticated":true,"user":{"sid":"dW0…
+2025-05-31 12:31:51.35
+4773af57
+User
+6:31:51 PM [express] GET /api/credits/balance/5 304 in 47ms :: {"balance":114,"accountInfo":{"balanc…
+2025-05-31 12:31:56.43
+4773af57
+User
+6:31:56 PM [express] GET /api/auth/profile 304 in 31ms :: {"isAuthenticated":true,"user":{"sid":"dW0…
+2025-05-31 12:31:56.49
+4773af57
+User
+6:31:56 PM [express] GET /api/credits/balance/5 304 in 50ms :: {"balance":114,"accountInfo":{"balanc…
+2025-05-31 12:31:57.08
+4773af57
+User
+[Runware] Initializing adapter with API key: CONFIGURED
+2025-05-31 12:31:57.08
+4773af57
+User
+[CleanImageController] Generating images for prompt: Transform this person into a ninja warrior with ma...
+2025-05-31 12:31:57.15
+4773af57
+User
+[Runware] Starting image generation: {
+2025-05-31 12:31:57.15
+4773af57
+User
+prompt: 'Transform this person into a ninja warrior with mask and traditional outfit...',
+2025-05-31 12:31:57.15
+4773af57
+User
+aspectRatio: '1:1',
+2025-05-31 12:31:57.15
+4773af57
+User
+numImages: 1
+2025-05-31 12:31:57.15
+4773af57
+User
+}
+2025-05-31 12:31:57.95
+4773af57
+User
+[Runware] Request format: {
+2025-05-31 12:31:57.95
+4773af57
+User
+"taskType": "imageInference",
+2025-05-31 12:31:57.95
+4773af57
+User
+"taskUUID": "dd0aaead-90a8-4841-ac56-88e7d91f7d9e",
+2025-05-31 12:31:57.95
+4773af57
+User
+"positivePrompt": "Transform this person into a ninja warrior with mask and traditional outfit",
+2025-05-31 12:31:57.95
+4773af57
+User
+"negativePrompt": "",
+2025-05-31 12:31:57.95
+4773af57
+User
+"model": "runware:100@1",
+2025-05-31 12:31:57.95
+4773af57
+User
+"height": 512,
+2025-05-31 12:31:57.95
+4773af57
+User
+"width": 512,
+2025-05-31 12:31:57.95
+4773af57
+User
+"numberResults": 1,
+2025-05-31 12:31:57.95
+4773af57
+User
+"outputType": "URL",
+2025-05-31 12:31:57.95
+4773af57
+User
+"outputFormat": "PNG",
+2025-05-31 12:31:57.95
+4773af57
+User
+"checkNSFW": true
+2025-05-31 12:31:57.95
+4773af57
+User
+}
+2025-05-31 12:31:59.71
+4773af57
+User
+[CleanImageController] Successfully generated 1 images
+2025-05-31 12:31:59.71
+4773af57
+User
+6:31:59 PM [express] POST /api/generate-cosplay 200 in 2666ms :: {"success":true,"image":{"id":"img_…
