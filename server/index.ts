@@ -59,14 +59,6 @@ try {
 // auth router attaches /login, /logout, and /callback routes to the baseURL
 app.use(auth(config));
 
-// Add custom middleware to redirect after successful login
-app.use((req, res, next) => {
-  if (req.path === '/callback' && req.oidc.isAuthenticated()) {
-    return res.redirect('/ai-cosplay');
-  }
-  next();
-});
-
 // Add debugging middleware to see what's happening with auth
 app.use((req, res, next) => {
   if (req.path === '/callback' || req.path === '/login') {
