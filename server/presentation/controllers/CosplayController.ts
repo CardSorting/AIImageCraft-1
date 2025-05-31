@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { FalAICosplayService } from '../../infrastructure/services/FalAICosplayService';
 import { storage } from '../../storage';
+import { CreditTransactionService } from '../../application/services/CreditTransactionService';
 
 /**
  * Cosplay Controller
@@ -8,6 +9,7 @@ import { storage } from '../../storage';
  */
 export class CosplayController {
   private falAIService = new FalAICosplayService();
+  private creditService = new CreditTransactionService();
 
   async generateCosplay(req: Request, res: Response): Promise<void> {
     try {
@@ -28,51 +30,86 @@ export class CosplayController {
       console.log(`[CosplayController] Processing cosplay transformation for user ${userId}`);
       console.log(`[CosplayController] Instruction: ${instruction.substring(0, 100)}...`);
 
-      // Convert image buffer to base64 for FAL AI
-      const imageBase64 = imageFile.buffer.toString('base64');
-      const imageDataUri = `data:${imageFile.mimetype};base64,${imageBase64}`;
-
-      // Transform the image using FAL AI
-      const transformedImages = await this.falAIService.transformImage({
-        imageUrl: imageDataUri,
-        prompt: instruction,
-        aspectRatio: "1:1",
-        numImages: 1,
-        guidanceScale: 3.5
-      });
-
-      if (!transformedImages || transformedImages.length === 0) {
-        res.status(500).json({ 
-          error: "No images generated",
-          message: "The transformation service did not return any images"
+      // Check and deduct credits first (10 credits for cosplay transformation)
+      const COSPLAY_COST = 10;
+      
+      // Get current balance
+      const currentBalance = await this.getCreditBalance(userId);
+      if (currentBalance < COSPLAY_COST) {
+        res.status(402).json({
+          success: false,
+          error: "Insufficient credits",
+          message: `Need ${COSPLAY_COST} credits for cosplay transformation`,
+          required: COSPLAY_COST,
+          available: currentBalance
         });
         return;
       }
 
-      // Store the generated image in database
-      const generatedImage = await storage.createImage({
-        userId: userId,
-        modelId: "fal-ai/flux-pro/kontext",
-        prompt: instruction,
-        imageUrl: transformedImages[0].url,
-        aspectRatio: "1:1",
-        seed: null
-      });
+      // Deduct credits before generation
+      await this.deductCredits(userId, COSPLAY_COST, "AI Cosplay transformation");
 
-      console.log(`[CosplayController] Successfully generated cosplay image with ID: ${generatedImage.id}`);
+      // Convert image buffer to base64 for FAL AI
+      const imageBase64 = imageFile.buffer.toString('base64');
+      const imageDataUri = `data:${imageFile.mimetype};base64,${imageBase64}`;
 
-      res.json({
-        success: true,
-        image: {
-          id: generatedImage.id,
-          url: transformedImages[0].url,
-          width: transformedImages[0].width,
-          height: transformedImages[0].height,
+      try {
+        // Transform the image using FAL AI
+        const transformedImages = await this.falAIService.transformImage({
+          imageUrl: imageDataUri,
           prompt: instruction,
-          model: "fal-ai/flux-pro/kontext"
-        },
-        message: "Cosplay transformation completed successfully"
-      });
+          aspectRatio: "1:1",
+          numImages: 1,
+          guidanceScale: 3.5
+        });
+
+        if (!transformedImages || transformedImages.length === 0) {
+          // Refund credits if no images generated
+          await this.refundCredits(userId, COSPLAY_COST, "No images generated - refund");
+          res.status(500).json({ 
+            error: "No images generated",
+            message: "The transformation service did not return any images. Credits have been refunded."
+          });
+          return;
+        }
+
+        // Store the generated image in database
+        const generatedImage = await storage.createImage({
+          userId: userId,
+          modelId: "fal-ai/flux-pro/kontext",
+          prompt: instruction,
+          imageUrl: transformedImages[0].url,
+          aspectRatio: "1:1",
+          seed: null
+        });
+
+        console.log(`[CosplayController] Successfully generated cosplay image with ID: ${generatedImage.id}`);
+
+        res.json({
+          success: true,
+          image: {
+            id: generatedImage.id,
+            url: transformedImages[0].url,
+            width: transformedImages[0].width,
+            height: transformedImages[0].height,
+            prompt: instruction,
+            model: "fal-ai/flux-pro/kontext",
+            creditsUsed: COSPLAY_COST
+          },
+          message: "Cosplay transformation completed successfully"
+        });
+
+      } catch (generationError: any) {
+        // Refund credits if image generation fails
+        await this.refundCredits(userId, COSPLAY_COST, "Image generation failed - refund");
+        console.error(`[CosplayController] Image generation failed:`, generationError.message);
+        res.status(500).json({
+          success: false,
+          error: generationError.message || 'Image generation failed',
+          message: "Credits have been refunded"
+        });
+        return;
+      }
 
     } catch (error: any) {
       console.error(`[CosplayController] Cosplay generation failed:`, error.message);
@@ -101,5 +138,53 @@ export class CosplayController {
     }
 
     return user.id;
+  }
+
+  private async getCreditBalance(userId: number): Promise<number> {
+    try {
+      const result = await storage.db.query(
+        'SELECT amount FROM credit_balances WHERE user_id = $1',
+        [userId]
+      );
+      return result.rows[0]?.amount || 0;
+    } catch (error) {
+      console.error('Error fetching credit balance:', error);
+      return 0;
+    }
+  }
+
+  private async deductCredits(userId: number, amount: number, description: string): Promise<void> {
+    try {
+      await storage.db.query(
+        'UPDATE credit_balances SET amount = amount - $1 WHERE user_id = $2',
+        [amount, userId]
+      );
+      
+      // Record transaction
+      await storage.db.query(
+        'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, (SELECT amount FROM credit_balances WHERE user_id = $2), NOW())',
+        [`tx_${Date.now()}`, userId, 'SPEND', -amount, description]
+      );
+    } catch (error) {
+      console.error('Error deducting credits:', error);
+      throw new Error('Failed to deduct credits');
+    }
+  }
+
+  private async refundCredits(userId: number, amount: number, description: string): Promise<void> {
+    try {
+      await storage.db.query(
+        'UPDATE credit_balances SET amount = amount + $1 WHERE user_id = $2',
+        [amount, userId]
+      );
+      
+      // Record refund transaction
+      await storage.db.query(
+        'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, (SELECT amount FROM credit_balances WHERE user_id = $2), NOW())',
+        [`tx_${Date.now()}`, userId, 'REFUND', amount, description]
+      );
+    } catch (error) {
+      console.error('Error refunding credits:', error);
+    }
   }
 }

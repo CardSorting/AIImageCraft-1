@@ -1,0 +1,85 @@
+6:51:07 PM [express] GET /api/auth/profile 304 in 121ms :: {"isAuthenticated":true,"user":{"sid":"GA…
+2025-05-31 12:51:07.93
+0d86f692
+User
+6:51:07 PM [express] GET /api/credits/balance/5 304 in 201ms :: {"balance":114,"accountInfo":{"balan…
+2025-05-31 12:51:48.94
+0d86f692
+User
+6:51:48 PM [express] GET /api/credits/balance/5 304 in 127ms :: {"balance":114,"accountInfo":{"balan…
+2025-05-31 12:51:53.12
+0d86f692
+User
+6:51:53 PM [express] GET /api/auth/profile 304 in 92ms :: {"isAuthenticated":true,"user":{"sid":"GAG…
+2025-05-31 12:51:54.09
+0d86f692
+User
+6:51:54 PM [express] GET /api/credits/balance/5 304 in 62ms :: {"balance":114,"accountInfo":{"balanc…
+2025-05-31 12:51:55.00
+0d86f692
+User
+6:51:55 PM [express] GET /api/credit-balance/1 304 in 32ms :: {"balance":719}
+2025-05-31 12:51:58.29
+0d86f692
+User
+6:51:58 PM [express] GET /api/auth/profile 304 in 21ms :: {"isAuthenticated":true,"user":{"sid":"GAG…
+2025-05-31 12:51:59.24
+0d86f692
+User
+6:51:59 PM [express] GET /api/credits/balance/5 304 in 45ms :: {"balance":114,"accountInfo":{"balanc…
+2025-05-31 12:52:01.44
+0d86f692
+User
+[FalAI] Initializing Cosplay service with API key: CONFIGURED
+2025-05-31 12:52:01.46
+0d86f692
+User
+[CosplayController] Processing cosplay transformation for user 5
+2025-05-31 12:52:01.46
+0d86f692
+User
+[CosplayController] Instruction: Transform this person into a Jedi Knight with lightsaber and robes...
+2025-05-31 12:52:01.47
+0d86f692
+User
+[FalAI] Starting cosplay transformation: {
+2025-05-31 12:52:01.47
+0d86f692
+User
+prompt: 'Transform this person into a Jedi Knight with lightsaber and robes...',
+2025-05-31 12:52:01.47
+0d86f692
+User
+aspectRatio: '1:1',
+2025-05-31 12:52:01.47
+0d86f692
+User
+numImages: 1,
+2025-05-31 12:52:01.47
+0d86f692
+User
+guidanceScale: 3.5
+2025-05-31 12:52:01.47
+0d86f692
+User
+}
+2025-05-31 12:52:09.50
+0d86f692
+User
+[FalAI] Transformation completed successfully
+2025-05-31 12:52:09.50
+0d86f692
+User
+[FalAI] Generated 1 images
+2025-05-31 12:52:09.86
+0d86f692
+User
+[CosplayController] Successfully generated cosplay image with ID: 28
+2025-05-31 12:52:09.89
+0d86f692
+User
+6:52:09 PM [express] POST /api/generate-cosplay 200 in 8441ms :: {"success":true,"image":{"id":28,"u…
+2025-05-31 12:52:14.50
+0d86f692
+User
+6:52:14 PM [express] GET /api/credits/balance/5 304 in 159ms :: {"balance":114,"accountInfo":{"balan…
