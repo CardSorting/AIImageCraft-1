@@ -286,9 +286,16 @@ export default function Gallery() {
               </div>
               <div className="p-6">
                 <DialogHeader>
-                  <DialogTitle className="text-xl font-semibold text-foreground mb-2">
-                    {selectedImage.prompt}
-                  </DialogTitle>
+                  {selectedImage.modelId !== "fal-ai/flux-pro/kontext" && (
+                    <DialogTitle className="text-xl font-semibold text-foreground mb-2">
+                      {selectedImage.prompt}
+                    </DialogTitle>
+                  )}
+                  {selectedImage.modelId === "fal-ai/flux-pro/kontext" && (
+                    <DialogTitle className="text-xl font-semibold text-foreground mb-2">
+                      AI Cosplay Transformation
+                    </DialogTitle>
+                  )}
                 </DialogHeader>
                 <div className="flex items-center justify-between mt-4">
                   <span className="text-sm text-muted-foreground">

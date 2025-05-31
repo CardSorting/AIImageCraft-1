@@ -501,8 +501,8 @@ export default function Home() {
         </main>
       )}
 
-      {/* Premium Gallery Section - Only show when not loading */}
-      {!generateImagesMutation.isPending && images.length > 0 && (
+      {/* Premium Gallery Section - Only show when not loading and has non-cosplay images */}
+      {!generateImagesMutation.isPending && images.filter(image => image.modelId !== "fal-ai/flux-pro/kontext").length > 0 && (
         <div className="px-4 sm:px-6 lg:px-8 mb-12 animate-fade-in">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -511,7 +511,7 @@ export default function Home() {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {images.slice(0, 8).map((image) => (
+              {images.filter(image => image.modelId !== "fal-ai/flux-pro/kontext").slice(0, 8).map((image) => (
                 <div key={image.id} className="group relative">
                   {/* Card with enhanced Apple styling */}
                   <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl overflow-hidden shadow-xl transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:border-primary/30">
