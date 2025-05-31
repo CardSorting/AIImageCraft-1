@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { Home, Image, Plus, Brain, User, Coins, LogIn, Wand2 } from "lucide-react";
+import { Sparkles, Image, Plus, Brain, User, Coins, LogIn, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
@@ -13,10 +13,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    id: "home",
-    label: "Home",
-    icon: Home,
-    href: "/",
+    id: "models",
+    label: "Models",
+    icon: Sparkles,
+    href: "/models",
   },
   {
     id: "ai-maker",
