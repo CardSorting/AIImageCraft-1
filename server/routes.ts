@@ -140,21 +140,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      res.json({
+      const response: any = {
         success: true,
         images: result.images,
         requestId: result.requestId,
         creditsUsed: result.creditsUsed,
         newBalance: result.newBalance,
-        isAuthenticated,
-        ...(enhancementResults && {
-          promptEnhancement: {
-            originalPrompt: prompt,
-            enhancedPrompt: finalPrompt,
-            allVersions: enhancementResults
-          }
-        })
-      });
+        isAuthenticated
+      };
+
+      if (enhancementResults) {
+        response.promptEnhancement = {
+          originalPrompt: prompt,
+          enhancedPrompt: finalPrompt,
+          allVersions: enhancementResults
+        };
+      }
+
+      res.json(response);
       
     } catch (error: any) {
       console.error("Advanced credit transaction error:", error);
