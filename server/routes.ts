@@ -818,7 +818,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const mockRequest = {
         body: {
           prompt: instruction,
-          model: "bfl:3@1",
+          model: "bfl:4@1",
           aspectRatio: "1:1",
           numberResults: 1,
           inputImage: imageDataUri,

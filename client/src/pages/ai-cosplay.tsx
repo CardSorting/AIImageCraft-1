@@ -94,7 +94,7 @@ export default function AICosplayPage() {
     mutationFn: async ({ image, style }: { image: File; style: string }) => {
       const formData = new FormData();
       formData.append('image', image);
-      formData.append('modelId', 'bfl:3@1');
+      formData.append('modelId', 'bfl:4@1');
       formData.append('instruction', `Transform this person into ${getStyleInstruction(style)}`);
       
       const response = await fetch('/api/generate-cosplay', {
