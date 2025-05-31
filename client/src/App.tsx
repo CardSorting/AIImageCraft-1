@@ -13,6 +13,7 @@ import ModelsPage from "@/pages/models-refactored";
 import ModelDetailPage from "@/pages/model-detail";
 import DreamCreditsPage from "@/pages/dreamcredits";
 import CheckoutPage from "@/pages/checkout";
+import AICosplayPage from "@/pages/ai-cosplay";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/credits" component={DreamCreditsPage} />
       <Route path="/dreamcredits" component={DreamCreditsPage} />
       <Route path="/checkout" component={CheckoutPage} />
+      <Route path="/ai-cosplay" component={AICosplayPage} />
       <Route component={NotFound} />
     </Switch>
   );
