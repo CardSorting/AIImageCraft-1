@@ -79,6 +79,12 @@ export function DesktopNavigation({
                   <button
                     key={item.id}
                     onClick={() => {
+                      // Check authentication for AI Maker route
+                      if (item.id === 'ai-cosplay' && !authStatus?.isAuthenticated) {
+                        setLocation('/auth/login');
+                        return;
+                      }
+                      
                       onNavigationClick(item.id);
                       setLocation(item.id === 'home' ? '/' : `/${item.id}`);
                     }}

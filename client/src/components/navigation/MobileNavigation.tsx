@@ -3,6 +3,7 @@ import { Heart, Users, Gavel, User, Coins, Sparkles, Menu, X, Plus, Wand2 } from
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 
 interface NavigationItem {
   id: string;
@@ -31,8 +32,20 @@ export function MobileNavigation({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location, setLocation] = useLocation();
 
+  // Fetch user authentication status
+  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
+    queryKey: ['/api/auth/profile'],
+    refetchInterval: 30000,
+  });
+
   const handleNavigationClick = (itemId: string) => {
     if (itemId === 'ai-cosplay') {
+      // Check authentication for AI Maker route
+      if (!authStatus?.isAuthenticated) {
+        setLocation('/auth/login');
+        setIsMenuOpen(false);
+        return;
+      }
       setLocation('/ai-cosplay');
     } else if (itemId === 'models') {
       setLocation('/models');

@@ -59,9 +59,17 @@ export function BottomNavigation() {
     refetchInterval: 30000,
   });
 
-  const handleNavigation = (href: string) => {
+  const handleNavigation = (href: string, requiresAuth: boolean = false) => {
     // Add haptic feedback simulation
     if (navigator.vibrate) navigator.vibrate(50);
+    
+    // Check authentication for protected routes
+    if (requiresAuth && !authStatus?.isAuthenticated) {
+      // Redirect to login or show auth modal
+      navigate('/auth/login');
+      return;
+    }
+    
     navigate(href);
   };
 
@@ -82,7 +90,7 @@ export function BottomNavigation() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => handleNavigation(item.href)}
+                  onClick={() => handleNavigation(item.href, false)}
                   className="relative -mt-6 w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-full shadow-lg flex items-center justify-center haptic-medium transform active:scale-90 transition-all duration-200 hover:shadow-xl"
                 >
                   <item.icon className="w-6 h-6 text-primary-foreground" />
@@ -91,10 +99,12 @@ export function BottomNavigation() {
               );
             }
 
+            const requiresAuth = item.id === "ai-maker";
+            
             return (
               <button
                 key={item.id}
-                onClick={() => handleNavigation(item.href)}
+                onClick={() => handleNavigation(item.href, requiresAuth)}
                 className={cn(
                   "flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all duration-200 haptic-light min-h-[60px] relative flex-1 max-w-[70px]",
                   isActive
