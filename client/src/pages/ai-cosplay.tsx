@@ -158,6 +158,14 @@ export default function AICosplayPage() {
     return styleMap[styleId] || "a character";
   };
 
+  const getStyleName = (styleId: string | null): string => {
+    if (!styleId) return "Unknown Style";
+    
+    const allStyles = STYLE_CATEGORIES.flatMap(cat => cat.styles);
+    const style = allStyles.find(s => s.id === styleId);
+    return style?.name || "Unknown Style";
+  };
+
   const handleGenerate = () => {
     if (!selectedImage || !selectedStyle) {
       toast({
