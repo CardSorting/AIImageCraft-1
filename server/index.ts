@@ -14,7 +14,7 @@ const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET,
-  baseURL: process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : process.env.AUTH0_BASE_URL,
+  baseURL: process.env.AUTH0_BASE_URL,
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: issuerBaseURL,
   session: {
