@@ -160,25 +160,40 @@ export default function Gallery() {
             const isCosplayImage = image.modelId === "fal-ai/flux-pro/kontext";
             
             if (isCosplayImage) {
-              // Render cosplay images as simple cards without trading card styling
+              // Render cosplay images as clean photo cards without any trading card elements
               return (
                 <div 
                   key={image.id} 
-                  className="card-ios group hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-hidden"
+                  className="bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group border border-border"
                   onClick={() => openImageModal(image)}
                 >
-                  <div className="aspect-square overflow-hidden">
+                  <div className="aspect-square overflow-hidden relative">
                     <img 
                       src={image.imageUrl} 
                       alt={image.prompt}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
+                    <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md">
+                      <span className="text-xs font-medium text-primary">Cosplay</span>
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <p className="text-sm text-foreground line-clamp-2 mb-2">{image.prompt}</p>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>AI Cosplay</span>
-                      <span>{formatTimeAgo(new Date(image.createdAt))}</span>
+                  <div className="p-4 space-y-2">
+                    <p className="text-sm text-foreground line-clamp-2 leading-relaxed">{image.prompt}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">
+                        {formatTimeAgo(new Date(image.createdAt))}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadImage(image.imageUrl, image.fileName || undefined);
+                        }}
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
                     </div>
                   </div>
                 </div>
