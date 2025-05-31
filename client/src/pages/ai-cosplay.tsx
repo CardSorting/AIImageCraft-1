@@ -61,6 +61,8 @@ export default function AICosplayPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("Movie Characters");
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [showResults, setShowResults] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -109,10 +111,20 @@ export default function AICosplayPage() {
       return response.json();
     },
     onSuccess: (data) => {
-      toast({
-        title: "Cosplay generated!",
-        description: "Your character transformation is ready",
-      });
+      if (data.success && data.image?.url) {
+        setGeneratedImage(data.image.url);
+        setShowResults(true);
+        toast({
+          title: "Cosplay generated!",
+          description: "Your character transformation is ready",
+        });
+      } else {
+        toast({
+          title: "Generation completed",
+          description: "But no image was returned. Please try again.",
+          variant: "destructive",
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ['/api/images'] });
     },
     onError: (error) => {
@@ -330,6 +342,88 @@ export default function AICosplayPage() {
             </div>
           </div>
         </div>
+
+        {/* Results Section */}
+        {showResults && generatedImage && (
+          <div className="max-w-4xl mx-auto mt-12">
+            <Card className="overflow-hidden">
+              <CardContent className="p-8">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl font-bold mb-2">Your Cosplay Transformation</h2>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Here's your character transformation using {getStyleName(selectedStyle)}
+                  </p>
+                </div>
+                
+                <div className="flex flex-col lg:flex-row gap-8 items-center">
+                  {/* Original Image */}
+                  {imagePreview && (
+                    <div className="flex-1 space-y-3">
+                      <h3 className="text-lg font-semibold text-center">Original</h3>
+                      <div className="relative">
+                        <img 
+                          src={imagePreview} 
+                          alt="Original" 
+                          className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Arrow or VS */}
+                  <div className="flex items-center justify-center p-4">
+                    <div className="text-2xl font-bold text-purple-600 bg-purple-100 dark:bg-purple-900 rounded-full w-12 h-12 flex items-center justify-center">
+                      →
+                    </div>
+                  </div>
+                  
+                  {/* Generated Image */}
+                  <div className="flex-1 space-y-3">
+                    <h3 className="text-lg font-semibold text-center">Transformed</h3>
+                    <div className="relative">
+                      <img 
+                        src={generatedImage} 
+                        alt="Generated cosplay" 
+                        className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-4 justify-center mt-8">
+                  <Button
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = generatedImage;
+                      link.download = `cosplay-${Date.now()}.png`;
+                      link.click();
+                    }}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                    Download Image
+                  </Button>
+                  
+                  <Button
+                    onClick={() => {
+                      setShowResults(false);
+                      setGeneratedImage(null);
+                      setSelectedImage(null);
+                      setImagePreview(null);
+                      setSelectedStyle(null);
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Create Another
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </>
   );
