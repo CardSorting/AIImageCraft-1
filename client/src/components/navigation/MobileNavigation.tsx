@@ -18,7 +18,7 @@ interface MobileNavigationProps {
 }
 
 const navigationItems: NavigationItem[] = [
-  { id: "for-you", label: "For You", icon: Heart },
+  { id: "models", label: "Models", icon: Sparkles },
   { id: "following", label: "Following", icon: Users },
   { id: "ai-cosplay", label: "AI Maker", icon: Wand2 },
 ];
@@ -34,6 +34,8 @@ export function MobileNavigation({
   const handleNavigationClick = (itemId: string) => {
     if (itemId === 'ai-cosplay') {
       setLocation('/ai-cosplay');
+    } else if (itemId === 'models') {
+      setLocation('/models');
     } else {
       onNavigationClick(itemId);
     }

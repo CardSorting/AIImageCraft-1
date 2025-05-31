@@ -19,7 +19,6 @@ interface DesktopNavigationProps {
 }
 
 const navigationItems: NavigationItem[] = [
-  { id: "home", label: "Home", icon: Heart },
   { id: "create", label: "Create", icon: Plus },
   { id: "ai-cosplay", label: "AI Maker", icon: Wand2 },
   { id: "gallery", label: "Gallery", icon: Users },
