@@ -2,10 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { type GeneratedImage } from "@shared/schema";
 import { SEOHead } from "@/components/SEOHead";
-import { Download, Search, Filter, Grid3X3, List } from "lucide-react";
+import { Download, Search, Filter, Grid3X3, List, Sparkles, Wand2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { useToast } from "@/hooks/use-toast";
 import { TradingCard } from "@/components/TradingCard";
@@ -15,6 +16,7 @@ export default function Gallery() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [activeTab, setActiveTab] = useState("all");
   const { toast } = useToast();
 
   // Check authentication status first
@@ -31,9 +33,15 @@ export default function Gallery() {
     staleTime: 20000, // Consider data fresh for 20 seconds
   });
 
-  const filteredImages = images.filter(image => 
-    image.prompt.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredImages = images?.filter((image) => {
+    const matchesSearch = image.prompt.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (activeTab === "all") return matchesSearch;
+    if (activeTab === "cosplay") return matchesSearch && image.modelId === "fal-ai/flux-pro/kontext";
+    if (activeTab === "generated") return matchesSearch && image.modelId !== "fal-ai/flux-pro/kontext";
+    
+    return matchesSearch;
+  }) || [];
 
   const downloadImage = async (imageUrl: string, fileName?: string) => {
     try {
@@ -82,8 +90,26 @@ export default function Gallery() {
       
       <div className="container-responsive py-6">
 
-      {/* Search and Controls */}
-      <div className="card-ios p-4 mb-6 space-y-4">
+      {/* Gallery Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
+          <TabsTrigger value="all" className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            All ({images?.length || 0})
+          </TabsTrigger>
+          <TabsTrigger value="cosplay" className="flex items-center gap-2">
+            <Wand2 className="w-4 h-4" />
+            Cosplay ({images?.filter(img => img.modelId === "fal-ai/flux-pro/kontext").length || 0})
+          </TabsTrigger>
+          <TabsTrigger value="generated" className="flex items-center gap-2">
+            <Grid3X3 className="w-4 h-4" />
+            Generated ({images?.filter(img => img.modelId !== "fal-ai/flux-pro/kontext").length || 0})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={activeTab} className="mt-6">
+          {/* Search and Controls */}
+          <div className="card-ios p-4 mb-6 space-y-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
@@ -236,6 +262,8 @@ export default function Gallery() {
           )}
         </DialogContent>
       </Dialog>
+        </TabsContent>
+      </Tabs>
       </div>
     </div>
   );
