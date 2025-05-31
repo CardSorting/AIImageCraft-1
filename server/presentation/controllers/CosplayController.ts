@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { FalAICosplayService } from '../../infrastructure/services/FalAICosplayService';
 import { storage } from '../../storage';
+import { db, pool } from '../../db';
 import { CreditTransactionService } from '../../application/services/CreditTransactionService';
 
 /**
@@ -142,7 +143,7 @@ export class CosplayController {
 
   private async getCreditBalance(userId: number): Promise<number> {
     try {
-      const result = await storage.db.query(
+      const result = await pool.query(
         'SELECT amount FROM credit_balances WHERE user_id = $1',
         [userId]
       );
@@ -155,13 +156,13 @@ export class CosplayController {
 
   private async deductCredits(userId: number, amount: number, description: string): Promise<void> {
     try {
-      await storage.db.query(
+      await pool.query(
         'UPDATE credit_balances SET amount = amount - $1 WHERE user_id = $2',
         [amount, userId]
       );
       
       // Record transaction
-      await storage.db.query(
+      await pool.query(
         'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, (SELECT amount FROM credit_balances WHERE user_id = $2), NOW())',
         [`tx_${Date.now()}`, userId, 'SPEND', -amount, description]
       );
@@ -173,13 +174,13 @@ export class CosplayController {
 
   private async refundCredits(userId: number, amount: number, description: string): Promise<void> {
     try {
-      await storage.db.query(
+      await pool.query(
         'UPDATE credit_balances SET amount = amount + $1 WHERE user_id = $2',
         [amount, userId]
       );
       
       // Record refund transaction
-      await storage.db.query(
+      await pool.query(
         'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, (SELECT amount FROM credit_balances WHERE user_id = $2), NOW())',
         [`tx_${Date.now()}`, userId, 'REFUND', amount, description]
       );
