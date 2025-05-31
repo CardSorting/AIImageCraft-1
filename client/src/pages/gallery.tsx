@@ -177,8 +177,7 @@ export default function Gallery() {
                       <span className="text-xs font-medium text-primary">Cosplay</span>
                     </div>
                   </div>
-                  <div className="p-4 space-y-2">
-                    <p className="text-sm text-foreground line-clamp-2 leading-relaxed">{image.prompt}</p>
+                  <div className="p-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
                         {formatTimeAgo(new Date(image.createdAt))}
