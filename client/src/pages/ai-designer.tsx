@@ -234,6 +234,8 @@ export default function AIDesigner() {
         <div className="flex-1 flex flex-col">
           <SimpleChatInterface 
             className="flex-1"
+            sessionId={currentSessionId}
+            onSessionCreated={setCurrentSessionId}
           />
         </div>
       </div>

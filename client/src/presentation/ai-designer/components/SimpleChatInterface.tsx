@@ -1,6 +1,6 @@
 // Simplified Chat Interface for AI Designer with Flux Integration
 import { useState, useRef, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -41,10 +41,41 @@ export function SimpleChatInterface({ className = "", sessionId, onSessionCreate
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Query to fetch messages for the current session
+  const { data: sessionMessages } = useQuery({
+    queryKey: ['/api/chat/messages', currentSessionId],
+    enabled: !!currentSessionId,
+  });
+
   const form = useForm<MessageInput>({
     resolver: zodResolver(messageSchema),
     defaultValues: { prompt: "" },
   });
+
+  // Update session when prop changes
+  useEffect(() => {
+    if (sessionId !== currentSessionId) {
+      setCurrentSessionId(sessionId);
+      // Clear current messages when switching sessions
+      if (!sessionId) {
+        setMessages([]);
+      }
+    }
+  }, [sessionId, currentSessionId]);
+
+  // Load messages from database when session changes
+  useEffect(() => {
+    if (sessionMessages && Array.isArray(sessionMessages)) {
+      const convertedMessages: SimpleMessage[] = sessionMessages.map((msg: any) => ({
+        id: msg.id?.toString() || crypto.randomUUID(),
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content || '',
+        timestamp: new Date(msg.createdAt || msg.timestamp),
+        imageUrl: msg.imageUrl || undefined,
+      }));
+      setMessages(convertedMessages);
+    }
+  }, [sessionMessages]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -150,7 +181,9 @@ export function SimpleChatInterface({ className = "", sessionId, onSessionCreate
         
         sessionId = sessionData.id;
         setCurrentSessionId(sessionId);
-        onSessionCreated?.(sessionId);
+        if (onSessionCreated) {
+          onSessionCreated(sessionId);
+        }
         
         // Refresh sessions in sidebar
         queryClient.invalidateQueries({ queryKey: ['/api/chat/sessions'] });
