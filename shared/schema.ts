@@ -150,6 +150,26 @@ export const creditPackages = pgTable("credit_packages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const chatSessions = pgTable("chat_sessions", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  title: text("title").notNull(),
+  previewImage: text("preview_image"),
+  messageCount: integer("message_count").notNull().default(0),
+  lastActivity: timestamp("last_activity").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull().references(() => chatSessions.id),
+  role: text("role").notNull(), // 'user' or 'assistant'
+  content: text("content").notNull(),
+  imageUrl: text("image_url"),
+  metadata: jsonb("metadata"), // For storing additional data like processing status
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -219,6 +239,16 @@ export const insertUserProviderAffinitySchema = createInsertSchema(userProviderA
   updatedAt: true,
 });
 
+export const insertChatSessionSchema = createInsertSchema(chatSessions).omit({
+  createdAt: true,
+  lastActivity: true,
+});
+
+export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
@@ -238,4 +268,8 @@ export type UserCategoryAffinity = typeof userCategoryAffinities.$inferSelect;
 export type InsertUserCategoryAffinity = z.infer<typeof insertUserCategoryAffinitySchema>;
 export type UserProviderAffinity = typeof userProviderAffinities.$inferSelect;
 export type InsertUserProviderAffinity = z.infer<typeof insertUserProviderAffinitySchema>;
+export type ChatSession = typeof chatSessions.$inferSelect;
+export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type GenerateImageRequest = z.infer<typeof generateImageRequestSchema>;
