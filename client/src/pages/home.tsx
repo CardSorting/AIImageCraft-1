@@ -150,7 +150,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       {/* Apple-Inspired Premium Loading Experience */}
       {generateImagesMutation.isPending ? (
         <div className="fixed inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-black dark:to-gray-900 overflow-hidden z-50">
@@ -252,20 +252,20 @@ export default function Home() {
         </div>
       ) : (
         /* Normal Create Interface - Only shown when NOT loading */
-        <main className="px-4 sm:px-6 lg:px-8 pt-8 pb-12 safe-area-top">
+        <main className="px-4 sm:px-6 lg:px-8 pt-4 pb-8 md:pt-8 md:pb-12 safe-area-top">
           <div className="max-w-4xl mx-auto">
             {/* Premium Generation Interface */}
             <div className="relative group">
               {/* Background gradient overlay */}
               <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-3xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-500" />
               
-              <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-2xl shadow-black/5 dark:shadow-black/20">
+              <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-2xl shadow-black/5 dark:shadow-black/20">
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
                   {/* Enhanced Prompt Input with Apple Design */}
                   <div className="space-y-4">
-                    <div className="text-center mb-8">
-                      <div className="flex items-center justify-center mb-6">
+                    <div className="text-center mb-6 md:mb-8">
+                      <div className="flex items-center justify-center mb-4 md:mb-6">
                         <div className="flex items-center space-x-3 bg-gradient-to-r from-background/80 to-background/60 backdrop-blur-xl border border-border/50 rounded-2xl px-6 py-4 shadow-lg">
                           <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow-lg">
                             <Coins className="h-4 w-4 text-yellow-900" />
@@ -290,8 +290,8 @@ export default function Home() {
                         </div>
                       )}
                       
-                      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">Create with AI</h1>
-                      <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">Transform your imagination into stunning visuals using advanced AI technology</p>
+                      <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4 tracking-tight">Create with AI</h1>
+                      <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">Transform your imagination into stunning visuals using advanced AI technology</p>
                     </div>
                     <label className="block text-lg font-semibold text-foreground mb-3">
                       Describe Your Vision
@@ -510,11 +510,11 @@ export default function Home() {
               <p className="text-lg text-muted-foreground">Masterpieces created with AI magic</p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
               {images.filter(image => image.modelId !== "fal-ai/flux-pro/kontext").slice(0, 8).map((image) => (
                 <div key={image.id} className="group relative">
                   {/* Card with enhanced Apple styling */}
-                  <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl overflow-hidden shadow-xl transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:border-primary/30">
+                  <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl md:rounded-3xl overflow-hidden shadow-xl transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:border-primary/30">
                     <div className="aspect-square overflow-hidden">
                       <img 
                         src={image.imageUrl} 
