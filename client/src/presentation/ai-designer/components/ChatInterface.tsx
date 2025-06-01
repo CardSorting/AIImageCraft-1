@@ -10,11 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User, Download, Upload, Sparkles, Palette, Eye } from "lucide-react";
 
-// Clean Architecture imports
-import { Message } from '../../../domain/ai-designer/entities/Message';
-import { EditImageCommand } from '../../../application/ai-designer/commands/EditImageCommand';
-import { GetChatHistoryQuery } from '../../../application/ai-designer/queries/GetChatHistoryQuery';
-import { SessionStorageService } from '../../../lib/sessionStorage';
+// Simple message interface
+interface SimpleMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  imageUrl?: string;
+}
 
 const messageSchema = z.object({
   prompt: z.string().min(1, "Please describe your edit").max(500, "Keep instructions under 500 characters"),
@@ -29,7 +32,7 @@ interface ChatInterfaceProps {
 }
 
 export function ChatInterface({ className = "", sessionId, onSessionCreated }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<SimpleMessage[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(sessionId || null);
@@ -47,16 +50,8 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
     setCurrentSessionId(sessionId || null);
   }, [sessionId]);
 
-  // Load chat history with Clean Architecture query
-  const { data: chatHistory } = useQuery({
-    queryKey: ['chat-history', currentSessionId],
-    queryFn: async () => {
-      const query: GetChatHistoryQuery = { sessionId: currentSessionId || undefined };
-      // This would normally be injected via DI container
-      return { messages: [], totalCount: 0, hasMore: false };
-    },
-    enabled: Boolean(currentSessionId),
-  });
+  // Chat history - simplified for now
+  // TODO: Implement database-backed chat history loading
 
   // Auto-scroll with smooth iOS-like animation
   useEffect(() => {
@@ -71,26 +66,60 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
     }
   }, [messages]);
 
-  // Edit image mutation with Clean Architecture command
+  // Edit image mutation using the working Flux endpoint
   const editImageMutation = useMutation({
-    mutationFn: async (command: EditImageCommand) => {
-      // This would normally be handled by dependency injection
-      return { success: true, messageId: '', sessionId: command.sessionId };
+    mutationFn: async ({ image, instruction }: { image: string; instruction: string }) => {
+      // Convert base64 data URL to blob
+      const response = await fetch(image);
+      const blob = await response.blob();
+      
+      const formData = new FormData();
+      formData.append('image', blob, 'edit-image.jpg');
+      formData.append('modelId', 'bfl:4@1');
+      formData.append('instruction', instruction);
+      
+      const apiResponse = await fetch('/api/generate-cosplay', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!apiResponse.ok) {
+        throw new Error('Failed to generate image');
+      }
+      
+      return apiResponse.json();
     },
-    onSuccess: (result) => {
-      if (result.success) {
+    onSuccess: (data) => {
+      if (data.success && data.image?.url) {
+        // Add assistant message with generated image
+        const assistantMessage = {
+          id: crypto.randomUUID(),
+          role: 'assistant' as const,
+          content: 'Here\'s your edited image:',
+          timestamp: new Date(),
+          imageUrl: data.image.url,
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        
         toast({
           title: "Image edited successfully",
           description: "Your image has been transformed",
         });
+      } else {
+        toast({
+          title: "Generation completed",
+          description: "But no image was returned. Please try again.",
+          variant: "destructive",
+        });
       }
       setIsProcessing(false);
     },
-    onError: () => {
+    onError: (error) => {
       setIsProcessing(false);
       toast({
         title: "Edit failed",
-        description: "Please try again",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -108,17 +137,21 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
       onSessionCreated?.(newSession);
     }
 
-    const userMessage = Message.create('user', data.prompt, selectedImage);
-    const assistantMessage = Message.createPending('assistant', 'Processing your edit...');
+    const userMessage = {
+      id: crypto.randomUUID(),
+      role: 'user' as const,
+      content: data.prompt,
+      timestamp: new Date(),
+      imageUrl: selectedImage,
+    };
 
-    setMessages(prev => [...prev, userMessage, assistantMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setIsProcessing(true);
     form.reset();
 
     await editImageMutation.mutateAsync({
-      sessionId: sessionId,
-      promptText: data.prompt,
-      imageUrl: selectedImage,
+      image: selectedImage,
+      instruction: data.prompt,
     });
   };
 
