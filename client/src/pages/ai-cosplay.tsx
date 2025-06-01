@@ -93,32 +93,13 @@ export default function AICosplayPage() {
   });
 
   const getStyleInstruction = (styleId: string): string => {
-    const styleMap: Record<string, string> = {
-      "marvel-hero": "a Marvel superhero with cape and costume",
-      "jedi-knight": "a Jedi Knight with lightsaber and robes",
-      "pirate-captain": "a pirate captain with hat and sword",
-      "wizard": "a fantasy wizard with magical robes and staff",
-      "detective": "a classic TV detective with coat and hat",
-      "sci-fi-officer": "a sci-fi space officer in uniform",
-      "medieval-knight": "a medieval knight in shining armor",
-      "western-cowboy": "a western cowboy with hat and boots",
-      "anime-hero": "an anime hero with spiky hair and determined expression",
-      "magical-girl": "a magical girl with colorful outfit and accessories",
-      "ninja-warrior": "a ninja warrior with mask and traditional outfit",
-      "mech-pilot": "a mech pilot in futuristic suit",
-      "renaissance": "a Renaissance-era noble in classical portrait style",
-      "pop-art": "a pop art character with bold colors and comic style",
-      "cyberpunk": "a cyberpunk character with neon and futuristic elements",
-      "steampunk": "a steampunk character with Victorian and mechanical elements",
-    };
-    return styleMap[styleId] || "a character";
+    const style = getStyleById(styleId);
+    return style?.prompt || "a character";
   };
 
   const getStyleName = (styleId: string | null): string => {
     if (!styleId) return "Unknown Style";
-    
-    const allStyles = STYLE_CATEGORIES.flatMap(cat => cat.styles);
-    const style = allStyles.find(s => s.id === styleId);
+    const style = getStyleById(styleId);
     return style?.name || "Unknown Style";
   };
 
@@ -144,7 +125,8 @@ export default function AICosplayPage() {
     generateCosplay.mutate({ image: selectedImage, style: selectedStyle });
   };
 
-  const currentStyles = STYLE_CATEGORIES.find(cat => cat.name === activeCategory)?.styles || [];
+  const currentCategory = getCategoryById(activeCategory);
+  const currentStyles = currentCategory?.styles || [];
 
   return (
     <>
@@ -261,74 +243,20 @@ export default function AICosplayPage() {
                     Choose Your Style
                   </h3>
 
-                  {/* Modern Mobile Tabs */}
-                  <div className="mb-4 md:mb-6">
-                    <div className="grid grid-cols-2 gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-xl">
-                      {STYLE_CATEGORIES.map((category) => (
-                        <button
-                          key={category.name}
-                          onClick={() => setActiveCategory(category.name)}
-                          className={`px-2 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium rounded-lg transition-all duration-200 ${
-                            activeCategory === category.name
-                              ? 'bg-white dark:bg-gray-800 text-purple-600 shadow-sm'
-                              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                          }`}
-                        >
-                          {category.name.split(' ')[0]}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  {/* Scalable Category Navigation */}
+                  <CategoryNavigation
+                    categories={COSPLAY_STYLE_LIBRARY}
+                    activeCategory={activeCategory}
+                    onCategoryChange={setActiveCategory}
+                    className="mb-4 md:mb-6"
+                  />
 
-                  {/* Modern Style Cards */}
-                  <div className="grid grid-cols-2 gap-2 md:gap-3">
-                    {currentStyles.map((style) => {
-                      const isSelected = selectedStyle === style.id;
-                      return (
-                        <div
-                          key={style.id}
-                          onClick={() => {
-                            setSelectedStyle(style.id);
-                            // Add haptic feedback for mobile
-                            if (navigator.vibrate) navigator.vibrate(30);
-                          }}
-                          className={`relative p-3 md:p-4 rounded-xl md:rounded-2xl border-2 cursor-pointer transition-all duration-200 active:scale-95 ${
-                            isSelected
-                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg'
-                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-purple-300 hover:shadow-md'
-                          }`}
-                        >
-                          {/* Selection indicator */}
-                          {isSelected && (
-                            <div className="absolute -top-1 -right-1 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                              <div className="w-2 h-2 bg-white rounded-full" />
-                            </div>
-                          )}
-                          
-                          {/* Popular badge */}
-                          {style.popular && (
-                            <div className="absolute top-2 left-2">
-                              <Badge variant="secondary" className="text-xs px-2 py-0 rounded-full bg-yellow-100 text-yellow-800">
-                                ⭐
-                              </Badge>
-                            </div>
-                          )}
-                          
-                          <div className="text-center space-y-2">
-                            <div className={`flex items-center justify-center ${style.popular ? 'mt-4' : ''}`}>
-                              <style.icon className={`w-6 h-6 md:w-8 md:h-8 ${isSelected ? 'text-purple-600' : 'text-gray-600 dark:text-gray-400'}`} />
-                            </div>
-                            <h4 className={`font-semibold text-xs md:text-sm leading-tight ${isSelected ? 'text-purple-700 dark:text-purple-300' : 'text-gray-900 dark:text-gray-100'}`}>
-                              {style.name}
-                            </h4>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight line-clamp-2">
-                              {style.description}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  {/* Enhanced Style Grid */}
+                  <StyleGrid
+                    styles={currentStyles}
+                    selectedStyle={selectedStyle}
+                    onStyleSelect={setSelectedStyle}
+                  />
                 </CardContent>
               </Card>
             </div>
