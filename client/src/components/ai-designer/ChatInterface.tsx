@@ -184,7 +184,7 @@ export function ChatInterface({ className = "" }: ChatInterfaceProps) {
     }
   };
 
-  const onSubmit = (data: MessageInput) => {
+  const onSubmit = async (data: MessageInput) => {
     if (!selectedImage) {
       toast({
         title: "No Image Selected",
@@ -211,6 +211,9 @@ export function ChatInterface({ className = "" }: ChatInterfaceProps) {
 
     setMessages(prev => [...prev, userMessage, processingMessage]);
     setIsProcessing(true);
+
+    // Save user message to chat history
+    await chatHistoryService.saveMessage(userMessage);
 
     editImageMutation.mutate({
       prompt: data.prompt,
