@@ -4,8 +4,8 @@ import { SEOHead } from "@/components/SEOHead";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CategoryNavigation } from "@/components/cosplay/CategoryNavigation";
-import { StyleGrid } from "@/components/cosplay/StyleGrid";
+import { StyleDiscovery } from "@/components/cosplay/StyleDiscovery";
+import { StyleRecommendations } from "@/components/cosplay/StyleRecommendations";
 import { Upload, Image as ImageIcon, Sparkles, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { COSPLAY_STYLE_LIBRARY, getCategoryById, getStyleById } from "@shared/cosplayStyles";
@@ -16,7 +16,7 @@ export default function AICosplayPage() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState("heroes");
+  const [recentStyles, setRecentStyles] = useState<string[]>([]);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
   const { toast } = useToast();
@@ -125,8 +125,15 @@ export default function AICosplayPage() {
     generateCosplay.mutate({ image: selectedImage, style: selectedStyle });
   };
 
-  const currentCategory = getCategoryById(activeCategory);
-  const currentStyles = currentCategory?.styles || [];
+  const handleStyleSelect = (styleId: string) => {
+    setSelectedStyle(styleId);
+    
+    // Track recently selected styles for recommendations
+    setRecentStyles(prev => {
+      const updated = [styleId, ...prev.filter(id => id !== styleId)];
+      return updated.slice(0, 10); // Keep last 10 selections
+    });
+  };
 
   return (
     <>
