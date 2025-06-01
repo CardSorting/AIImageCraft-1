@@ -1015,6 +1015,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Randomizer Style Management API Routes
+  app.get("/api/randomizer-styles", async (req, res) => {
+    try {
+      const { category, rarity } = req.query;
+      const styles = await storage.getRandomizerStyles(category as string, rarity as string);
+      res.json(styles);
+    } catch (error) {
+      console.error("Error fetching randomizer styles:", error);
+      res.status(500).json({ error: "Failed to fetch randomizer styles" });
+    }
+  });
+
+  app.get("/api/randomizer-styles/random", async (req, res) => {
+    try {
+      const randomStyle = await storage.getRandomStyleCombination();
+      if (!randomStyle) {
+        return res.status(404).json({ error: "No random styles available" });
+      }
+      res.json(randomStyle);
+    } catch (error) {
+      console.error("Error fetching random style:", error);
+      res.status(500).json({ error: "Failed to fetch random style" });
+    }
+  });
+
+  app.get("/api/randomizer-styles/:styleId", async (req, res) => {
+    try {
+      const { styleId } = req.params;
+      const style = await storage.getRandomizerStyleById(styleId);
+      if (!style) {
+        return res.status(404).json({ error: "Randomizer style not found" });
+      }
+      
+      // Increment usage count when style is accessed
+      await storage.incrementRandomizerUsage(styleId);
+      
+      res.json(style);
+    } catch (error) {
+      console.error("Error fetching randomizer style:", error);
+      res.status(500).json({ error: "Failed to fetch randomizer style" });
+    }
+  });
+
   // User interaction tracking endpoints for behavioral learning
   app.post("/api/interactions/track", async (req, res) => {
     try {
