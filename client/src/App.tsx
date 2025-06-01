@@ -20,7 +20,7 @@ import NotFound from "@/pages/not-found";
 
 function Router() {
   const [location, setLocation] = useLocation();
-  const { data: user } = useQuery({
+  const { data: user } = useQuery<{ isAuthenticated: boolean; user?: any }>({
     queryKey: ['/api/auth/profile'],
     refetchInterval: 5000
   });
@@ -53,6 +53,7 @@ function Router() {
       <Route path="/dreamcredits" component={DreamCreditsPage} />
       <Route path="/checkout" component={CheckoutPage} />
       <Route path="/ai-cosplay" component={AICosplayPage} />
+      <Route path="/ai-designer" component={AIDesignerPage} />
       <Route component={NotFound} />
     </Switch>
   );
