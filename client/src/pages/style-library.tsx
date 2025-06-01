@@ -611,7 +611,12 @@ export default function StyleLibraryPage() {
       filters,
       pagination: { ...prev.pagination, page: 1 }
     }));
-  }, []);
+    
+    // Invalidate existing queries to trigger refetch with new filters
+    queryClient.invalidateQueries({ 
+      queryKey: ['/api/cosplay-styles'] 
+    });
+  }, [queryClient]);
 
   const handlePageChange = useCallback((page: number) => {
     setState(prev => ({
