@@ -4,63 +4,19 @@ import { SEOHead } from "@/components/SEOHead";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Upload, Image as ImageIcon, Sparkles, Star, Crown, Wand2 } from "lucide-react";
+import { CategoryNavigation } from "@/components/cosplay/CategoryNavigation";
+import { StyleGrid } from "@/components/cosplay/StyleGrid";
+import { Upload, Image as ImageIcon, Sparkles, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { COSPLAY_STYLE_LIBRARY, getCategoryById, getStyleById } from "@shared/cosplayStyles";
 
-interface StyleCard {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  icon: any;
-  popular?: boolean;
-}
 
-const STYLE_CATEGORIES = [
-  {
-    name: "Movie Characters",
-    styles: [
-      { id: "marvel-hero", name: "Marvel Superhero", description: "Classic comic book superhero style", icon: Crown, popular: true },
-      { id: "jedi-knight", name: "Jedi Knight", description: "Star Wars Jedi warrior", icon: Wand2, popular: true },
-      { id: "pirate-captain", name: "Pirate Captain", description: "Swashbuckling pirate adventure", icon: Star },
-      { id: "wizard", name: "Fantasy Wizard", description: "Magical wizard with robes and staff", icon: Sparkles },
-    ]
-  },
-  {
-    name: "TV Shows",
-    styles: [
-      { id: "detective", name: "TV Detective", description: "Classic detective show character", icon: Star },
-      { id: "sci-fi-officer", name: "Sci-Fi Officer", description: "Space exploration uniform", icon: Crown },
-      { id: "medieval-knight", name: "Medieval Knight", description: "Game of Thrones style armor", icon: Wand2 },
-      { id: "western-cowboy", name: "Western Cowboy", description: "Wild west gunslinger", icon: Star },
-    ]
-  },
-  {
-    name: "Anime Characters",
-    styles: [
-      { id: "anime-hero", name: "Anime Hero", description: "Classic shounen protagonist style", icon: Sparkles, popular: true },
-      { id: "magical-girl", name: "Magical Girl", description: "Sailor Moon inspired transformation", icon: Star, popular: true },
-      { id: "ninja-warrior", name: "Ninja Warrior", description: "Naruto-style ninja outfit", icon: Wand2 },
-      { id: "mech-pilot", name: "Mech Pilot", description: "Gundam pilot suit", icon: Crown },
-    ]
-  },
-  {
-    name: "Artwork Styles",
-    styles: [
-      { id: "renaissance", name: "Renaissance Portrait", description: "Classical European painting style", icon: Crown },
-      { id: "pop-art", name: "Pop Art", description: "Andy Warhol inspired style", icon: Star },
-      { id: "cyberpunk", name: "Cyberpunk", description: "Futuristic neon aesthetic", icon: Sparkles, popular: true },
-      { id: "steampunk", name: "Steampunk", description: "Victorian era mechanical style", icon: Wand2 },
-    ]
-  }
-];
 
 export default function AICosplayPage() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState("Movie Characters");
+  const [activeCategory, setActiveCategory] = useState("heroes");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
   const { toast } = useToast();
