@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "wouter";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Link, useParams, useLocation } from "wouter";
 import { 
   Search, ArrowLeft, Star, Crown, 
   Zap, Shield, WandSparkles, Heart, Rocket, Sword, Camera, Palette
@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SEOHead } from "@/components/SEOHead";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
+import { useToast } from "@/hooks/use-toast";
 
 interface CosplayStyle {
   id: number;
@@ -51,6 +52,8 @@ const iconMap = {
 
 export default function CategoryDetailPage() {
   const { categoryId } = useParams();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<StyleFilter>({
@@ -59,6 +62,44 @@ export default function CategoryDetailPage() {
     popular: null,
   });
   const limit = 12;
+
+  // Track style usage mutation
+  const trackUsage = useMutation({
+    mutationFn: async (styleId: string) => {
+      const response = await fetch(`/api/cosplay-styles/${styleId}/usage`, {
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error('Failed to track usage');
+      return response.json();
+    }
+  });
+
+  // Handle style selection
+  const handleStyleSelect = (style: CosplayStyle) => {
+    // Store selection in localStorage for the AI cosplay page
+    localStorage.setItem('selectedCosplayStyle', JSON.stringify({
+      styleId: style.styleId,
+      name: style.name,
+      prompt: style.prompt,
+      negativePrompt: style.negativePrompt,
+      categoryId: style.categoryId,
+      iconName: style.iconName,
+      description: style.description
+    }));
+    
+    // Track usage
+    trackUsage.mutate(style.styleId);
+    
+    toast({
+      title: "Style Selected!",
+      description: `${style.name} has been selected for AI generation. Redirecting to the AI Cosplay page...`
+    });
+    
+    // Navigate to AI cosplay page
+    setTimeout(() => {
+      setLocation(`/ai-cosplay?selectedStyle=${style.styleId}`);
+    }, 1500);
+  };
 
   // Build query string for styles
   const stylesQueryString = useMemo(() => {
@@ -419,8 +460,13 @@ export default function CategoryDetailPage() {
                                 </span>
                               )}
                             </div>
-                            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                              Use Style
+                            <Button 
+                              size="sm" 
+                              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                              onClick={() => handleStyleSelect(style)}
+                              disabled={trackUsage.isPending}
+                            >
+                              {trackUsage.isPending ? "Selecting..." : "Use Style"}
                             </Button>
                           </div>
                         </CardContent>
