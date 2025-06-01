@@ -106,8 +106,16 @@ export class FalAICosplayService {
             console.warn(`[FalAI] Received base64 data URI instead of hosted URL, converting...`);
             // Convert base64 to hosted URL using FAL storage
             try {
-              const response = await fetch(imageUrl);
-              const blob = await response.blob();
+              // Convert base64 to blob
+              const base64Data = imageUrl.split(',')[1];
+              const binaryString = atob(base64Data);
+              const bytes = new Uint8Array(binaryString.length);
+              for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+              }
+              const blob = new Blob([bytes], { type: 'image/png' });
+              
+              // Upload to FAL storage
               imageUrl = await fal.storage.upload(blob);
               console.log(`[FalAI] Successfully converted base64 to hosted URL: ${imageUrl.substring(0, 50)}...`);
             } catch (uploadError) {
