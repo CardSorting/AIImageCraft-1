@@ -1,6 +1,6 @@
-import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike } from "@shared/schema";
+import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, chatSessions, chatMessages, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike, type ChatSession, type InsertChatSession, type ChatMessage, type InsertChatMessage } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, like, and, sql, count } from "drizzle-orm";
+import { eq, desc, asc, like, and, sql, count } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -473,7 +473,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select()
       .from(chatMessages)
       .where(eq(chatMessages.sessionId, sessionId))
-      .orderBy(asc(chatMessages.createdAt))
+      .orderBy(chatMessages.createdAt)
       .limit(limit);
   }
 

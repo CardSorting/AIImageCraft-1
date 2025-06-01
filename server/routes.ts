@@ -1350,6 +1350,184 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chat session API endpoints
+  app.get("/api/chat/sessions", requiresAuth(), async (req, res) => {
+    try {
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const { limit = 50 } = req.query;
+      const sessions = await storage.getChatSessions(userId, Number(limit));
+      res.json(sessions);
+    } catch (error) {
+      console.error("Error fetching chat sessions:", error);
+      res.status(500).json({ error: "Failed to fetch chat sessions" });
+    }
+  });
+
+  app.post("/api/chat/sessions", requiresAuth(), async (req, res) => {
+    try {
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const { id, title, previewImage } = req.body;
+      
+      if (!id || !title) {
+        return res.status(400).json({ error: "Missing required fields: id, title" });
+      }
+
+      const session = await storage.createChatSession({
+        id,
+        userId,
+        title,
+        previewImage: previewImage || null
+      });
+      
+      res.json(session);
+    } catch (error) {
+      console.error("Error creating chat session:", error);
+      res.status(500).json({ error: "Failed to create chat session" });
+    }
+  });
+
+  app.get("/api/chat/sessions/:sessionId", requiresAuth(), async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const session = await storage.getChatSessionById(sessionId);
+      
+      if (!session) {
+        return res.status(404).json({ error: "Session not found" });
+      }
+      
+      // Verify the session belongs to the authenticated user
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      if (session.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      
+      res.json(session);
+    } catch (error) {
+      console.error("Error fetching chat session:", error);
+      res.status(500).json({ error: "Failed to fetch chat session" });
+    }
+  });
+
+  app.put("/api/chat/sessions/:sessionId", requiresAuth(), async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { title, previewImage } = req.body;
+      
+      // Verify the session belongs to the authenticated user
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const existingSession = await storage.getChatSessionById(sessionId);
+      
+      if (!existingSession) {
+        return res.status(404).json({ error: "Session not found" });
+      }
+      
+      if (existingSession.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      
+      const updatedSession = await storage.updateChatSession(sessionId, {
+        title,
+        previewImage
+      });
+      
+      res.json(updatedSession);
+    } catch (error) {
+      console.error("Error updating chat session:", error);
+      res.status(500).json({ error: "Failed to update chat session" });
+    }
+  });
+
+  app.delete("/api/chat/sessions/:sessionId", requiresAuth(), async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      
+      // Verify the session belongs to the authenticated user
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const existingSession = await storage.getChatSessionById(sessionId);
+      
+      if (!existingSession) {
+        return res.status(404).json({ error: "Session not found" });
+      }
+      
+      if (existingSession.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      
+      const success = await storage.deleteChatSession(sessionId);
+      
+      if (!success) {
+        return res.status(500).json({ error: "Failed to delete session" });
+      }
+      
+      res.json({ success: true, message: "Session deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting chat session:", error);
+      res.status(500).json({ error: "Failed to delete chat session" });
+    }
+  });
+
+  // Chat message API endpoints
+  app.get("/api/chat/sessions/:sessionId/messages", requiresAuth(), async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { limit = 100 } = req.query;
+      
+      // Verify the session belongs to the authenticated user
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const session = await storage.getChatSessionById(sessionId);
+      
+      if (!session) {
+        return res.status(404).json({ error: "Session not found" });
+      }
+      
+      if (session.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      
+      const messages = await storage.getChatMessages(sessionId, Number(limit));
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching chat messages:", error);
+      res.status(500).json({ error: "Failed to fetch chat messages" });
+    }
+  });
+
+  app.post("/api/chat/sessions/:sessionId/messages", requiresAuth(), async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { role, content, imageUrl, metadata } = req.body;
+      
+      if (!role || !content) {
+        return res.status(400).json({ error: "Missing required fields: role, content" });
+      }
+      
+      // Verify the session belongs to the authenticated user
+      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      const session = await storage.getChatSessionById(sessionId);
+      
+      if (!session) {
+        return res.status(404).json({ error: "Session not found" });
+      }
+      
+      if (session.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      
+      const message = await storage.createChatMessage({
+        sessionId,
+        role,
+        content,
+        imageUrl: imageUrl || null,
+        metadata: metadata || null
+      });
+      
+      res.json(message);
+    } catch (error) {
+      console.error("Error creating chat message:", error);
+      res.status(500).json({ error: "Failed to create chat message" });
+    }
+  });
+
   // Webhook endpoint for Stripe events (also accessible at /webhook/stripe)
   const handleStripeWebhook = async (req: any, res: any) => {
     const sig = req.headers['stripe-signature'];

@@ -1,10 +1,20 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Sparkles, Wand2, Menu, ArrowLeft, MessageSquare, Plus, Trash2 } from "lucide-react";
 import { ChatInterface } from "@/presentation/ai-designer/components/ChatInterface";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { SessionStorageService, ChatSession } from "@/lib/sessionStorage";
+import { apiRequest } from "@/lib/queryClient";
+
+interface ChatSession {
+  id: string;
+  userId: number;
+  title: string;
+  previewImage?: string;
+  messageCount: number;
+  lastActivity: string;
+  createdAt: string;
+}
 
 export default function AIDesigner() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
