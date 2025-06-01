@@ -98,14 +98,11 @@ export function SimpleChatInterface({ className = "", sessionId, onSessionCreate
         // Save assistant message to database
         if (currentSessionId && currentSessionId !== 'temp') {
           try {
-            await apiRequest('/api/chat/messages', {
-              method: 'POST',
-              body: JSON.stringify({
-                sessionId: currentSessionId,
-                role: 'assistant',
-                content: 'Here\'s your edited image:',
-                imageUrl: data.image.url
-              })
+            await apiRequest('/api/chat/messages', 'POST', {
+              sessionId: currentSessionId,
+              role: 'assistant',
+              content: 'Here\'s your edited image:',
+              imageUrl: data.image.url
             });
             
             // Refresh sessions to update message count
@@ -146,12 +143,9 @@ export function SimpleChatInterface({ className = "", sessionId, onSessionCreate
     if (!sessionId) {
       try {
         // Create new session with first message as title
-        const sessionData = await apiRequest('/api/chat/sessions', {
-          method: 'POST',
-          body: JSON.stringify({
-            title: data.prompt.slice(0, 50) + (data.prompt.length > 50 ? '...' : ''),
-            previewImage: selectedImage
-          })
+        const sessionData = await apiRequest('/api/chat/sessions', 'POST', {
+          title: data.prompt.slice(0, 50) + (data.prompt.length > 50 ? '...' : ''),
+          previewImage: selectedImage
         });
         
         sessionId = sessionData.id;
@@ -183,14 +177,11 @@ export function SimpleChatInterface({ className = "", sessionId, onSessionCreate
     // Save user message to database
     if (sessionId && sessionId !== 'temp') {
       try {
-        await apiRequest('/api/chat/messages', {
-          method: 'POST',
-          body: JSON.stringify({
-            sessionId,
-            role: 'user',
-            content: data.prompt,
-            imageUrl: selectedImage
-          })
+        await apiRequest('/api/chat/messages', 'POST', {
+          sessionId,
+          role: 'user',
+          content: data.prompt,
+          imageUrl: selectedImage
         });
       } catch (error) {
         console.error('Failed to save user message:', error);
