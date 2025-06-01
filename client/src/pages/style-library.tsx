@@ -569,6 +569,7 @@ export default function StyleLibraryPage() {
   const [state, setState] = useState<StyleLibraryState>(createInitialState);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   // Queries
   const { data: categories = [], isLoading: categoriesLoading } = useStyleCategories();
@@ -611,12 +612,7 @@ export default function StyleLibraryPage() {
       filters,
       pagination: { ...prev.pagination, page: 1 }
     }));
-    
-    // Invalidate existing queries to trigger refetch with new filters
-    queryClient.invalidateQueries({ 
-      queryKey: ['/api/cosplay-styles'] 
-    });
-  }, [queryClient]);
+  }, []);
 
   const handlePageChange = useCallback((page: number) => {
     setState(prev => ({
