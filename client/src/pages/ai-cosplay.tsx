@@ -5,7 +5,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { StyleDiscovery } from "@/components/cosplay/StyleDiscovery";
+import { StyleSelector } from "@/components/cosplay/StyleSelector";
 import { StyleRecommendations } from "@/components/cosplay/StyleRecommendations";
 import { Upload, Image as ImageIcon, Sparkles, Star, Library, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -362,9 +362,9 @@ export default function AICosplayPage() {
                     </div>
                   )}
 
-                  {/* Advanced Style Discovery Interface */}
+                  {/* Simplified Style Selector */}
                   {!selectedStyle && (
-                    <StyleDiscovery
+                    <StyleSelector
                       selectedStyle={selectedStyle}
                       onStyleSelect={handleStyleSelect}
                     />
