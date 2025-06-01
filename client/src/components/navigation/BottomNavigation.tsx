@@ -19,10 +19,10 @@ const navItems: NavItem[] = [
     href: "/models",
   },
   {
-    id: "ai-maker",
-    label: "AI Maker",
-    icon: Wand2,
-    href: "/ai-cosplay",
+    id: "ai-designer",
+    label: "Designer",
+    icon: Palette,
+    href: "/ai-designer",
   },
   {
     id: "generate",
@@ -99,7 +99,7 @@ export function BottomNavigation() {
               );
             }
 
-            const requiresAuth = item.id === "ai-maker";
+            const requiresAuth = item.id === "ai-maker" || item.id === "ai-designer";
             
             return (
               <button
