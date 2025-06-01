@@ -40,7 +40,7 @@ export default function StyleCategoriesPage() {
   });
 
   const featuredCategories = categories?.filter(cat => cat.featured) || [];
-  const allCategories = categories || [];
+  const regularCategories = categories?.filter(cat => !cat.featured) || [];
 
   const getIcon = (iconName: string) => {
     const IconComponent = iconMap[iconName as keyof typeof iconMap] || Star;
@@ -162,13 +162,14 @@ export default function StyleCategoriesPage() {
           </div>
         )}
 
-        {/* All Categories */}
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6">
-            All Categories
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {allCategories.map((category) => {
+        {/* Other Categories */}
+        {regularCategories.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6">
+              More Categories
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {regularCategories.map((category) => {
               const IconComponent = getIcon(category.iconName);
               return (
                 <Link key={category.id} href={`/style-library/${category.categoryId}`}>
@@ -197,6 +198,7 @@ export default function StyleCategoriesPage() {
             })}
           </div>
         </div>
+        )}
       </div>
     </div>
   );
