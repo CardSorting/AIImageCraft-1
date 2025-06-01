@@ -409,6 +409,20 @@ export default function StyleLibraryDatabasePage() {
                                 ))}
                               </div>
                             )}
+
+                            {/* Use Style Button */}
+                            {state.selectedBaseStyle?.styleId === style.styleId && (
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStyleSelect(style);
+                                }}
+                                size="sm"
+                                className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white"
+                              >
+                                Use This Style
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </CardContent>
@@ -425,6 +439,58 @@ export default function StyleLibraryDatabasePage() {
                       : 'No styles available'
                     }
                   </p>
+                </div>
+              )}
+
+              {/* Artistic Enhancement Section */}
+              {state.selectedBaseStyle && (
+                <div className="mt-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                  <div className="text-center space-y-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Palette className="w-6 h-6 text-purple-600" />
+                      <h3 className="font-semibold text-xl">Artistic Enhancement</h3>
+                    </div>
+                    
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Enhance "{state.selectedBaseStyle.name}" with sophisticated artistic styles
+                    </p>
+
+                    {state.previewRandomStyle && (
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="font-medium text-purple-800 dark:text-purple-200">
+                            {state.selectedBaseStyle.name} + {state.previewRandomStyle.name}
+                          </p>
+                          <Button
+                            onClick={selectRandomStyle}
+                            size="sm"
+                            className="bg-purple-600 hover:bg-purple-700 text-white"
+                          >
+                            Combine Styles
+                          </Button>
+                        </div>
+                        <p className="text-sm text-purple-600 dark:text-purple-300">
+                          {state.selectedBaseStyle.description} enhanced with {state.previewRandomStyle.description?.toLowerCase()}
+                        </p>
+                        {state.previewRandomStyle.premium && (
+                          <Badge variant="secondary" className="text-xs mt-2 bg-purple-100 text-purple-800">
+                            Premium Enhancement
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={generateRandomStyle}
+                        variant="outline"
+                        className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 border-0"
+                      >
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        {state.previewRandomStyle ? 'Try Different Enhancement' : 'Generate Artistic Enhancement'}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
