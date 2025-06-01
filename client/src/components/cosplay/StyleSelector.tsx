@@ -49,6 +49,7 @@ export function StyleSelector({
 }: StyleSelectorProps) {
   const [activeTab, setActiveTab] = useState<TabType>('popular');
   const [randomizedStyle, setRandomizedStyle] = useState<string>("");
+  const [previewRandomStyle, setPreviewRandomStyle] = useState<CosplayStyle | null>(null);
 
   // Fetch styles from API
   const { data: stylesResponse } = useQuery<{ styles: CosplayStyle[] }>({
@@ -58,41 +59,55 @@ export function StyleSelector({
 
   const allStyles: CosplayStyle[] = (stylesResponse as any)?.styles || [];
 
-  // Organize styles by category - limit to 4 per tab
+  // Create fixed style cards for demonstration - 3 per tab
   const stylesByTab = useMemo(() => {
-    const popular = allStyles.filter((style: CosplayStyle) => style.popular).slice(0, 4);
-    const characters = allStyles.filter((style: CosplayStyle) => 
-      style.categoryId?.includes('cosplay') || 
-      style.categoryId?.includes('anime') ||
-      style.categoryId?.includes('movie')
-    ).slice(0, 4);
-    const artistic = allStyles.filter((style: CosplayStyle) => 
-      style.categoryId?.includes('artistic') ||
-      style.categoryId?.includes('style')
-    ).slice(0, 4);
+    const popular: CosplayStyle[] = [
+      { styleId: 'superhero', name: 'Superhero', description: 'Classic comic book hero', categoryId: 'popular', popular: true, iconName: 'Sparkles' },
+      { styleId: 'anime-character', name: 'Anime Character', description: 'Japanese animation style', categoryId: 'popular', popular: true, iconName: 'Sparkles' },
+      { styleId: 'fantasy-warrior', name: 'Fantasy Warrior', description: 'Epic battle-ready hero', categoryId: 'popular', popular: true, iconName: 'Sparkles' }
+    ];
+    
+    const characters: CosplayStyle[] = [
+      { styleId: 'disney-princess', name: 'Disney Princess', description: 'Fairy tale royalty', categoryId: 'characters', iconName: 'Sparkles' },
+      { styleId: 'marvel-hero', name: 'Marvel Hero', description: 'Cinematic universe hero', categoryId: 'characters', iconName: 'Sparkles' },
+      { styleId: 'anime-protagonist', name: 'Anime Protagonist', description: 'Main character energy', categoryId: 'characters', iconName: 'Sparkles' }
+    ];
+    
+    const artistic: CosplayStyle[] = [
+      { styleId: 'oil-painting', name: 'Oil Painting', description: 'Classical art style', categoryId: 'artistic', iconName: 'Sparkles' },
+      { styleId: 'watercolor', name: 'Watercolor', description: 'Soft flowing art', categoryId: 'artistic', iconName: 'Sparkles' },
+      { styleId: 'digital-art', name: 'Digital Art', description: 'Modern digital style', categoryId: 'artistic', iconName: 'Sparkles' }
+    ];
 
     return { popular, characters, artistic };
-  }, [allStyles]);
+  }, []);
 
   const generateRandomStyle = () => {
     const artistic = ARTISTIC_STYLES[Math.floor(Math.random() * ARTISTIC_STYLES.length)];
     const modifier = STYLE_MODIFIERS[Math.floor(Math.random() * STYLE_MODIFIERS.length)];
-    const blend = `${artistic} style with ${modifier}`;
+    const blend = `${artistic} with ${modifier}`;
     
     setRandomizedStyle(blend);
     
-    // Create a random style object
+    // Create a preview random style object (not auto-selected)
     const randomStyle = {
       styleId: 'random-' + Date.now(),
-      name: 'Random Artistic Blend',
+      name: 'I\'m Feeling Lucky',
       description: blend,
       prompt: blend,
       categoryId: 'random',
-      iconName: 'Palette',
-      random: true
+      iconName: 'Shuffle',
+      popular: false,
+      premium: false
     };
     
-    onStyleSelect(randomStyle);
+    setPreviewRandomStyle(randomStyle);
+  };
+
+  const selectRandomStyle = () => {
+    if (previewRandomStyle) {
+      onStyleSelect(previewRandomStyle);
+    }
   };
 
   const currentStyles = stylesByTab[activeTab];
@@ -194,37 +209,48 @@ export function StyleSelector({
         })}
       </div>
 
-      {/* Randomizer Section */}
+      {/* Randomizer Section - "I'm Feeling Lucky" Style */}
       <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-2">
             <Shuffle className="w-5 h-5 text-purple-600" />
-            <h3 className="font-semibold text-lg">Style Randomizer</h3>
+            <h3 className="font-semibold text-lg">I'm Feeling Lucky</h3>
           </div>
           
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Generate unique artistic style combinations
           </p>
 
-          {randomizedStyle && (
-            <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
-              <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                Current Random Style:
-              </p>
-              <p className="text-xs text-purple-600 dark:text-purple-300 mt-1">
-                {randomizedStyle}
+          {previewRandomStyle && (
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                  {previewRandomStyle.name}
+                </p>
+                <Button
+                  onClick={selectRandomStyle}
+                  size="sm"
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  Use This Style
+                </Button>
+              </div>
+              <p className="text-xs text-purple-600 dark:text-purple-300">
+                {previewRandomStyle.description}
               </p>
             </div>
           )}
 
-          <Button
-            onClick={generateRandomStyle}
-            variant="outline"
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 border-0"
-          >
-            <Shuffle className="w-4 h-4 mr-2" />
-            Generate Random Style
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={generateRandomStyle}
+              variant="outline"
+              className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 border-0"
+            >
+              <Shuffle className="w-4 h-4 mr-2" />
+              {previewRandomStyle ? 'Try Another' : 'I\'m Feeling Lucky'}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
