@@ -111,8 +111,17 @@ export default function StyleLibraryClean() {
     error: stylesError 
   } = useQuery<{ styles: CosplayStyle[]; total: number; totalPages: number }>({
     queryKey: ['/api/cosplay-styles', stylesQueryString],
+    queryFn: async () => {
+      const url = `/api/cosplay-styles${stylesQueryString ? `?${stylesQueryString}` : ''}`;
+      console.log('Fetching styles with URL:', url);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch styles');
+      }
+      return response.json();
+    },
     enabled: true,
-    staleTime: 1 * 60 * 1000, // 1 minute
+    staleTime: 30 * 1000, // 30 seconds
   });
 
   // Reset to page 1 when filters change
