@@ -65,6 +65,7 @@ export function StyleSelector({
   const [activeTab, setActiveTab] = useState<TabType>('popular');
   const [randomizedStyle, setRandomizedStyle] = useState<string>("");
   const [previewRandomStyle, setPreviewRandomStyle] = useState<CosplayStyle | null>(null);
+  const [selectedBaseStyle, setSelectedBaseStyle] = useState<CosplayStyle | null>(null);
 
   // Fetch styles from API
   const { data: stylesResponse } = useQuery<{ styles: CosplayStyle[] }>({
@@ -140,23 +141,28 @@ export function StyleSelector({
   };
 
   const selectRandomStyle = () => {
-    if (previewRandomStyle && selectedStyle) {
+    if (previewRandomStyle && selectedBaseStyle) {
       // Combine the selected base style with the artistic enhancement
       const combinedStyle: CosplayStyle = {
-        styleId: `${selectedStyle.styleId}-enhanced-${previewRandomStyle.styleId}`,
-        name: `${selectedStyle.name} + ${previewRandomStyle.name}`,
-        description: `${selectedStyle.description} enhanced with ${previewRandomStyle.description?.toLowerCase()}`,
-        prompt: `${selectedStyle.prompt || selectedStyle.description} enhanced with ${previewRandomStyle.prompt}`,
-        categoryId: selectedStyle.categoryId,
-        iconName: selectedStyle.iconName,
-        popular: selectedStyle.popular,
-        premium: selectedStyle.premium || previewRandomStyle.premium
+        styleId: `${selectedBaseStyle.styleId}-enhanced-${previewRandomStyle.styleId}`,
+        name: `${selectedBaseStyle.name} + ${previewRandomStyle.name}`,
+        description: `${selectedBaseStyle.description} enhanced with ${previewRandomStyle.description?.toLowerCase()}`,
+        prompt: `${selectedBaseStyle.prompt || selectedBaseStyle.description} enhanced with ${previewRandomStyle.prompt}`,
+        categoryId: selectedBaseStyle.categoryId,
+        iconName: selectedBaseStyle.iconName,
+        popular: selectedBaseStyle.popular,
+        premium: selectedBaseStyle.premium || previewRandomStyle.premium
       };
       onStyleSelect(combinedStyle);
-    } else if (previewRandomStyle && !selectedStyle) {
+    } else if (previewRandomStyle && !selectedBaseStyle) {
       // If no base style selected, just use the enhancement as the main style
       onStyleSelect(previewRandomStyle);
     }
+  };
+
+  const handleStyleCardClick = (style: CosplayStyle) => {
+    setSelectedBaseStyle(style);
+    // Don't immediately call onStyleSelect - wait for user to combine or use as-is
   };
 
   const currentStyles = stylesByTab[activeTab];
@@ -196,13 +202,13 @@ export function StyleSelector({
       {/* Style Grid - Fixed 4 cards */}
       <div className="grid grid-cols-2 gap-3">
         {currentStyles.map((style) => {
-          const isSelected = selectedStyle?.styleId === style.styleId;
+          const isSelected = selectedBaseStyle?.styleId === style.styleId;
           const Icon = getIconForStyle(style.iconName || 'Sparkles');
           
           return (
             <Card
               key={style.styleId}
-              onClick={() => onStyleSelect(style)}
+              onClick={() => handleStyleCardClick(style)}
               className={`
                 cursor-pointer transition-all duration-200 active:scale-95 hover:scale-[1.02]
                 ${isSelected
@@ -250,6 +256,20 @@ export function StyleSelector({
                   <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
                     {style.description || 'Transform your photo with this style'}
                   </p>
+                  
+                  {/* Use Style Button */}
+                  {isSelected && (
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onStyleSelect(style);
+                      }}
+                      size="sm"
+                      className="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white text-xs py-1"
+                    >
+                      Use This Style
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -266,8 +286,8 @@ export function StyleSelector({
           </div>
           
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {selectedStyle 
-              ? `Enhance "${selectedStyle.name}" with sophisticated artistic styles`
+            {selectedBaseStyle 
+              ? `Enhance "${selectedBaseStyle.name}" with sophisticated artistic styles`
               : "Select a style above, then add artistic enhancement"
             }
           </p>
@@ -276,20 +296,20 @@ export function StyleSelector({
             <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                  {selectedStyle?.name && `${selectedStyle.name} + `}{previewRandomStyle.name}
+                  {selectedBaseStyle?.name && `${selectedBaseStyle.name} + `}{previewRandomStyle.name}
                 </p>
                 <Button
                   onClick={selectRandomStyle}
                   size="sm"
                   className="bg-purple-600 hover:bg-purple-700 text-white"
-                  disabled={!selectedStyle}
+                  disabled={!selectedBaseStyle}
                 >
-                  {selectedStyle ? 'Combine Styles' : 'Select Base Style First'}
+                  {selectedBaseStyle ? 'Combine Styles' : 'Select Base Style First'}
                 </Button>
               </div>
               <p className="text-xs text-purple-600 dark:text-purple-300">
-                {selectedStyle 
-                  ? `${selectedStyle.description} enhanced with ${previewRandomStyle.description?.toLowerCase()}`
+                {selectedBaseStyle 
+                  ? `${selectedBaseStyle.description} enhanced with ${previewRandomStyle.description?.toLowerCase()}`
                   : previewRandomStyle.description
                 }
               </p>
