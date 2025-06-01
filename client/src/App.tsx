@@ -15,6 +15,7 @@ import ModelDetailPage from "@/pages/model-detail";
 import DreamCreditsPage from "@/pages/dreamcredits";
 import CheckoutPage from "@/pages/checkout";
 import AICosplayPage from "@/pages/ai-cosplay";
+import AIDesignerPage from "@/pages/ai-designer";
 import NotFound from "@/pages/not-found";
 
 function Router() {
