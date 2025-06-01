@@ -48,6 +48,14 @@ export function MobileNavigation({
         return;
       }
       setLocation('/ai-cosplay');
+    } else if (itemId === 'ai-designer') {
+      // Check authentication for AI Designer route
+      if (!authStatus?.isAuthenticated) {
+        window.location.href = '/login';
+        setIsMenuOpen(false);
+        return;
+      }
+      setLocation('/ai-designer');
     } else if (itemId === 'models') {
       setLocation('/models');
     } else {
