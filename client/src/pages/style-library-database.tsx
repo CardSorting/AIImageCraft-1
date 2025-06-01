@@ -23,6 +23,8 @@ import {
 interface StyleLibraryState {
   selectedCategory: string | null;
   selectedStyle: string | null;
+  selectedBaseStyle: CosplayStyle | null;
+  previewRandomStyle: CosplayStyle | null;
   searchQuery: string;
   viewMode: 'grid' | 'list';
   recentStyles: string[];
@@ -90,6 +92,8 @@ export default function StyleLibraryDatabasePage() {
   const [state, setState] = useState<StyleLibraryState>({
     selectedCategory: null,
     selectedStyle: null,
+    selectedBaseStyle: null,
+    previewRandomStyle: null,
     searchQuery: '',
     viewMode: 'grid',
     recentStyles: []
@@ -128,6 +132,19 @@ export default function StyleLibraryDatabasePage() {
     return allStyles;
   }, [state.searchQuery, state.selectedCategory, searchResults, categoryStyles, allStyles]);
 
+  // Add randomizer styles query
+  const { data: randomizerStyles = [] } = useQuery<CosplayStyle[]>({
+    queryKey: ['/api/randomizer-styles'],
+    enabled: true
+  });
+
+  const handleBaseStyleSelect = (style: CosplayStyle) => {
+    setState(prev => ({
+      ...prev,
+      selectedBaseStyle: style
+    }));
+  };
+
   const handleStyleSelect = (style: CosplayStyle) => {
     setState(prev => ({
       ...prev,
@@ -142,6 +159,35 @@ export default function StyleLibraryDatabasePage() {
       title: "Style Selected",
       description: `${style.name} style is ready to use!`
     });
+  };
+
+  const generateRandomStyle = () => {
+    if (randomizerStyles.length > 0) {
+      const randomIndex = Math.floor(Math.random() * randomizerStyles.length);
+      const randomStyle = randomizerStyles[randomIndex];
+      setState(prev => ({
+        ...prev,
+        previewRandomStyle: randomStyle
+      }));
+    }
+  };
+
+  const selectRandomStyle = () => {
+    if (state.previewRandomStyle && state.selectedBaseStyle) {
+      // Combine the selected base style with the artistic enhancement
+      const combinedStyle: CosplayStyle = {
+        ...state.selectedBaseStyle,
+        styleId: `${state.selectedBaseStyle.styleId}-enhanced-${state.previewRandomStyle.styleId}`,
+        name: `${state.selectedBaseStyle.name} + ${state.previewRandomStyle.name}`,
+        description: `${state.selectedBaseStyle.description} enhanced with ${state.previewRandomStyle.description?.toLowerCase()}`,
+        prompt: `${state.selectedBaseStyle.prompt || state.selectedBaseStyle.description} enhanced with ${state.previewRandomStyle.prompt}`,
+        premium: state.selectedBaseStyle.premium || state.previewRandomStyle.premium || 0
+      };
+      handleStyleSelect(combinedStyle);
+    } else if (state.previewRandomStyle && !state.selectedBaseStyle) {
+      // If no base style selected, just use the enhancement as the main style
+      handleStyleSelect(state.previewRandomStyle);
+    }
   };
 
   const handleCategorySelect = (categoryId: string) => {
@@ -320,9 +366,9 @@ export default function StyleLibraryDatabasePage() {
                     <Card 
                       key={style.styleId} 
                       className={`group cursor-pointer transition-all hover:shadow-lg hover:scale-105 ${
-                        state.selectedStyle === style.styleId ? 'ring-2 ring-purple-500' : ''
+                        state.selectedBaseStyle?.styleId === style.styleId ? 'ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/20' : ''
                       }`}
-                      onClick={() => handleStyleSelect(style)}
+                      onClick={() => handleBaseStyleSelect(style)}
                     >
                       <CardContent className="p-6">
                         <div className="flex items-start gap-4">
