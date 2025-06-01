@@ -703,28 +703,32 @@ export default function StyleLibraryPage() {
           </div>
 
           <div className="flex gap-8">
-            {/* Sidebar */}
-            <div className="hidden lg:block">
-              <FilterSidebar
-                filters={state.filters}
-                onFiltersChange={handleFiltersChange}
-                categories={categories}
-                isOpen={isFilterOpen}
-                onClose={() => setIsFilterOpen(false)}
-              />
+            {/* Desktop Sidebar */}
+            <div className="hidden lg:block w-80">
+              <div className="sticky top-4">
+                <FilterSidebar
+                  filters={state.filters}
+                  onFiltersChange={handleFiltersChange}
+                  categories={categories}
+                  isOpen={true}
+                  onClose={() => {}}
+                />
+              </div>
             </div>
 
             {/* Mobile Filter Overlay */}
             {isFilterOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setIsFilterOpen(false)} />
+              <>
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setIsFilterOpen(false)} />
+                <FilterSidebar
+                  filters={state.filters}
+                  onFiltersChange={handleFiltersChange}
+                  categories={categories}
+                  isOpen={isFilterOpen}
+                  onClose={() => setIsFilterOpen(false)}
+                />
+              </>
             )}
-            <FilterSidebar
-              filters={state.filters}
-              onFiltersChange={handleFiltersChange}
-              categories={categories}
-              isOpen={isFilterOpen}
-              onClose={() => setIsFilterOpen(false)}
-            />
 
             {/* Main Content */}
             <div className="flex-1">

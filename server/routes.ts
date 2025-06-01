@@ -877,16 +877,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Popular filter
       if (popular === 'true') {
-        conditions.push(`popular = true`);
+        conditions.push(`popular = $${paramIndex}`);
+        params.push(true);
+        paramIndex++;
       } else if (popular === 'false') {
-        conditions.push(`popular = false`);
+        conditions.push(`popular = $${paramIndex}`);
+        params.push(false);
+        paramIndex++;
       }
       
       // Premium filter
       if (premium === 'true') {
-        conditions.push(`premium = true`);
+        conditions.push(`premium = $${paramIndex}`);
+        params.push(true);
+        paramIndex++;
       } else if (premium === 'false') {
-        conditions.push(`premium = false`);
+        conditions.push(`premium = $${paramIndex}`);
+        params.push(false);
+        paramIndex++;
       }
       
       // Search filter
