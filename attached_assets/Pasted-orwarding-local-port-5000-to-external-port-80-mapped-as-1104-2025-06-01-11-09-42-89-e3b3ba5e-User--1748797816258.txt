@@ -1,0 +1,109 @@
+orwarding local port 5000 to external port 80 (mapped as 1104)
+2025-06-01 11:09:42.89
+e3b3ba5e
+User
+> rest-express@1.0.0 start
+2025-06-01 11:09:42.89
+e3b3ba5e
+User
+> NODE_ENV=production node dist/index.js
+2025-06-01 11:09:44.05
+e3b3ba5e
+User
+Auth0 Environment Variables:
+2025-06-01 11:09:44.05
+e3b3ba5e
+User
+AUTH0_SECRET: [PRESENT]
+2025-06-01 11:09:44.05
+e3b3ba5e
+User
+AUTH0_BASE_URL: https://dreambeesart.com
+2025-06-01 11:09:44.05
+e3b3ba5e
+User
+AUTH0_CLIENT_ID: 2hWEeuUIDvQl8L1y5AxqBsEf4GXiOufu
+2025-06-01 11:09:44.05
+e3b3ba5e
+User
+AUTH0_ISSUER_BASE_URL: dev-57c4wim3kish0u23.us.auth0.com
+2025-06-01 11:09:44.10
+e3b3ba5e
+User
+[Runware] Initializing AI SDK provider with API key: CONFIGURED
+2025-06-01 11:09:44.14
+e3b3ba5e
+User
+5:09:44 PM [express] serving on port 5000
+2025-06-01 11:09:44.65
+e3b3ba5e
+User
+[AUTH DEBUG] GET /api/auth/profile
+2025-06-01 11:09:44.65
+e3b3ba5e
+User
+- Is Authenticated: true
+2025-06-01 11:09:44.65
+e3b3ba5e
+User
+- User: Present
+2025-06-01 11:09:44.65
+e3b3ba5e
+User
+- Session ID: No session
+2025-06-01 11:09:44.65
+e3b3ba5e
+User
+- Cookies: None
+2025-06-01 11:09:44.86
+e3b3ba5e
+User
+5:09:44 PM [express] GET /api/auth/profile 304 in 206ms :: {"isAuthenticated":true,"user":{"sid":"aq…
+2025-06-01 11:09:44.88
+e3b3ba5e
+User
+5:09:44 PM [express] GET /api/credits/balance/5 304 in 189ms :: {"balance":2914,"accountInfo":{"bala…
+2025-06-01 11:09:46.18
+e3b3ba5e
+System
+system: received signal terminated
+2025-06-01 11:09:46.46
+e3b3ba5e
+User
+5:09:46 PM [express] GET /api/images/my 200 in 1497ms :: [{"id":58,"userId":5,"modelId":"fal-ai/flux…
+2025-06-01 11:09:48.76
+e3b3ba5e
+System
+starting up user application
+2025-06-01 11:09:48.92
+e3b3ba5e
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-06-01 11:09:50.07
+e3b3ba5e
+User
+> rest-express@1.0.0 start
+2025-06-01 11:09:50.07
+e3b3ba5e
+User
+> NODE_ENV=production node dist/index.js
+2025-06-01 11:09:51.24
+e3b3ba5e
+User
+Auth0 Environment Variables:
+2025-06-01 11:09:51.24
+e3b3ba5e
+User
+AUTH0_SECRET: [PRESENT]
+2025-06-01 11:09:51.24
+e3b3ba5e
+User
+AUTH0_BASE_URL: https://dreambeesart.com
+2025-06-01 11:09:51.24
+e3b3ba5e
+User
+AUTH0_CLIENT_ID: 2hWEeuUIDvQl8L1y5AxqBsEf4GXiOufu
+2025-06-01 11:09:51.24
+e3b3ba5e
+User
+AUTH0_ISSUER_BASE_URL: dev-57c4wim3kish0u23.us.auth0.com
