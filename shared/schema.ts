@@ -150,6 +150,40 @@ export const creditPackages = pgTable("credit_packages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Cosplay Style Categories
+export const styleCategories = pgTable("style_categories", {
+  id: serial("id").primaryKey(),
+  categoryId: text("category_id").notNull().unique(),
+  name: text("name").notNull(),
+  shortName: text("short_name").notNull(),
+  description: text("description").notNull(),
+  iconName: text("icon_name").notNull(),
+  featured: integer("featured").default(0), // Use integer for boolean
+  color: text("color"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Cosplay Styles
+export const cosplayStyles = pgTable("cosplay_styles", {
+  id: serial("id").primaryKey(),
+  styleId: text("style_id").notNull().unique(),
+  categoryId: text("category_id").notNull().references(() => styleCategories.categoryId),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  prompt: text("prompt").notNull(),
+  negativePrompt: text("negative_prompt"),
+  iconName: text("icon_name").notNull(),
+  previewImage: text("preview_image"),
+  difficulty: text("difficulty").notNull().default("medium"), // easy, medium, hard
+  premium: integer("premium").default(0), // Use integer for boolean
+  popular: integer("popular").default(0), // Use integer for boolean
+  popularity: text("popularity").default("0.5"), // Store as text for precision
+  tags: text("tags").array().default([]),
+  usageCount: integer("usage_count").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -219,6 +253,17 @@ export const insertUserProviderAffinitySchema = createInsertSchema(userProviderA
   updatedAt: true,
 });
 
+export const insertStyleCategorySchema = createInsertSchema(styleCategories).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCosplayStyleSchema = createInsertSchema(cosplayStyles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
@@ -239,3 +284,7 @@ export type InsertUserCategoryAffinity = z.infer<typeof insertUserCategoryAffini
 export type UserProviderAffinity = typeof userProviderAffinities.$inferSelect;
 export type InsertUserProviderAffinity = z.infer<typeof insertUserProviderAffinitySchema>;
 export type GenerateImageRequest = z.infer<typeof generateImageRequestSchema>;
+export type StyleCategory = typeof styleCategories.$inferSelect;
+export type InsertStyleCategory = z.infer<typeof insertStyleCategorySchema>;
+export type CosplayStyle = typeof cosplayStyles.$inferSelect;
+export type InsertCosplayStyle = z.infer<typeof insertCosplayStyleSchema>;

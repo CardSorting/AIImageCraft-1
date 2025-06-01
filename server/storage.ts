@@ -1,4 +1,4 @@
-import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike } from "@shared/schema";
+import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, styleCategories, cosplayStyles, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike, type StyleCategory, type InsertStyleCategory, type CosplayStyle, type InsertCosplayStyle } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, like, and, sql, count } from "drizzle-orm";
 
