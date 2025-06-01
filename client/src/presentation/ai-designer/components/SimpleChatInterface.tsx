@@ -129,7 +129,7 @@ export function SimpleChatInterface({ className = "", sessionId, onSessionCreate
         // Save assistant message to database
         if (currentSessionId && currentSessionId !== 'temp') {
           try {
-            await apiRequest('/api/chat/messages', 'POST', {
+            await apiRequest('POST', '/api/chat/messages', {
               sessionId: currentSessionId,
               role: 'assistant',
               content: 'Here\'s your edited image:',
@@ -174,10 +174,11 @@ export function SimpleChatInterface({ className = "", sessionId, onSessionCreate
     if (!sessionId) {
       try {
         // Create new session with first message as title
-        const sessionData = await apiRequest('/api/chat/sessions', 'POST', {
+        const response = await apiRequest('POST', '/api/chat/sessions', {
           title: data.prompt.slice(0, 50) + (data.prompt.length > 50 ? '...' : ''),
           previewImage: selectedImage
         });
+        const sessionData = await response.json();
         
         sessionId = sessionData.id;
         setCurrentSessionId(sessionId);
@@ -210,7 +211,7 @@ export function SimpleChatInterface({ className = "", sessionId, onSessionCreate
     // Save user message to database
     if (sessionId && sessionId !== 'temp') {
       try {
-        await apiRequest('/api/chat/messages', 'POST', {
+        await apiRequest('POST', '/api/chat/messages', {
           sessionId,
           role: 'user',
           content: data.prompt,
