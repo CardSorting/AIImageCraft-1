@@ -19,7 +19,12 @@ const config = {
   issuerBaseURL: issuerBaseURL,
   session: {
     rollingDuration: 24 * 60 * 60, // 24 hours
-    absoluteDuration: 7 * 24 * 60 * 60 // 7 days
+    absoluteDuration: 7 * 24 * 60 * 60, // 7 days
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax'
+    }
   },
   routes: {
     login: '/login',
@@ -61,11 +66,13 @@ app.use(auth(config));
 
 // Add debugging middleware to see what's happening with auth
 app.use((req, res, next) => {
-  if (req.path === '/callback' || req.path === '/login') {
-    console.log('Auth Route:', req.path);
-    console.log('Headers:', req.headers);
-    console.log('Query:', req.query);
-    console.log('Is Authenticated:', req.oidc?.isAuthenticated());
+  // Log all authentication-related requests
+  if (req.path.includes('/api/auth') || req.path === '/callback' || req.path === '/login' || req.path === '/logout') {
+    console.log(`[AUTH DEBUG] ${req.method} ${req.path}`);
+    console.log('- Is Authenticated:', req.oidc?.isAuthenticated());
+    console.log('- User:', req.oidc?.user ? 'Present' : 'None');
+    console.log('- Session ID:', (req as any).sessionID || 'No session');
+    console.log('- Cookies:', Object.keys(req.cookies || {}).join(', ') || 'None');
   }
   next();
 });
