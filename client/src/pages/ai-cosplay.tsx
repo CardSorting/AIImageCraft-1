@@ -93,11 +93,17 @@ export default function AICosplayPage() {
   };
 
   const generateCosplay = useMutation({
-    mutationFn: async ({ image, style }: { image: File; style: string }) => {
+    mutationFn: async ({ image, style, styleInstruction }: { image: File; style: string; styleInstruction?: string }) => {
       const formData = new FormData();
       formData.append('image', image);
       formData.append('modelId', 'bfl:4@1');
-      formData.append('instruction', `Transform this person into ${getStyleInstruction(style)}`);
+      
+      // Use provided styleInstruction or fallback to constructing it
+      const instruction = styleInstruction 
+        ? `Transform this person into ${styleInstruction}`
+        : `Transform this person into ${getStyleInstruction(style)}`;
+      
+      formData.append('instruction', instruction);
       
       const response = await fetch('/api/generate-cosplay', {
         method: 'POST',
@@ -136,14 +142,22 @@ export default function AICosplayPage() {
     },
   });
 
-  const getStyleInstruction = (styleId: string): string => {
-    const style = getStyleById(styleId);
+  const getStyleInstruction = (styleData: any): string => {
+    if (styleData && typeof styleData === 'object') {
+      return styleData.prompt || "a character";
+    }
+    // Fallback for old string-based styleId
+    const style = getStyleById(styleData);
     return style?.prompt || "a character";
   };
 
-  const getStyleName = (styleId: string | null): string => {
-    if (!styleId) return "Unknown Style";
-    const style = getStyleById(styleId);
+  const getStyleName = (styleData: any): string => {
+    if (!styleData) return "Unknown Style";
+    if (typeof styleData === 'object' && styleData.name) {
+      return styleData.name;
+    }
+    // Fallback for old string-based styleId
+    const style = getStyleById(styleData);
     return style?.name || "Unknown Style";
   };
 
@@ -166,9 +180,13 @@ export default function AICosplayPage() {
       return;
     }
 
-    // Extract style ID from the selected style object
+    // Use the actual style instruction from the selected style data
+    const styleInstruction = getStyleInstruction(selectedStyle);
+    console.log('Using style instruction:', styleInstruction);
+    
+    // Extract style ID for tracking
     const styleId = selectedStyle.styleId || selectedStyle;
-    generateCosplay.mutate({ image: selectedImage, style: styleId });
+    generateCosplay.mutate({ image: selectedImage, style: styleId, styleInstruction });
   };
 
   const handleStyleSelect = (styleId: string) => {
