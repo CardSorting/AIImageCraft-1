@@ -825,6 +825,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/cosplay-styles", async (req, res) => {
     try {
+      console.log("Cosplay styles request with params:", req.query);
+      
       const { 
         categoryId,
         categories,
@@ -834,8 +836,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         search, 
         sortBy = 'newest',
         page = '1', 
-        limit = '12',
-        tags
+        limit = '12'
       } = req.query;
       
       // Parse pagination parameters
@@ -855,7 +856,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ? categoryFilter.split(',') 
           : Array.isArray(categoryFilter) ? categoryFilter : [categoryFilter];
         
-        if (categoryList.length > 0) {
+        if (categoryList.length > 0 && categoryList[0] !== '') {
           const placeholders = categoryList.map(() => `$${paramIndex++}`).join(',');
           conditions.push(`category_id IN (${placeholders})`);
           params.push(...categoryList);
