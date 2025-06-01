@@ -17,6 +17,7 @@ import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { StyleLibraryAdapter } from "@/infrastructure/adapters/StyleLibraryAdapter";
 import { StyleLibraryQueryHandler } from "@/application/queries/StyleLibraryQueries";
 import { StyleSelectionCommandHandler } from "@/application/commands/StyleSelectionCommands";
+import { StyleCategory, CosplayStyle } from "@/domain/entities/StyleLibrary";
 import { StyleCategoryGrid } from "@/components/style-library/StyleCategoryGrid";
 import { StyleDetailView } from "@/components/style-library/StyleDetailView";
 import { StyleSearchResults } from "@/components/style-library/StyleSearchResults";
@@ -40,7 +41,7 @@ export default function StyleLibraryPage() {
     return queryHandler.handle({
       type: 'GET_CATEGORY_BY_ID',
       categoryId
-    });
+    }) as StyleCategory | null;
   }, [categoryId, queryHandler]);
 
   const currentStyle = useMemo(() => {
@@ -48,21 +49,21 @@ export default function StyleLibraryPage() {
     return queryHandler.handle({
       type: 'GET_STYLE_BY_ID',
       styleId
-    });
+    }) as CosplayStyle | null;
   }, [styleId, queryHandler]);
 
   const featuredCategories = useMemo(() => {
     return queryHandler.handle({
       type: 'GET_FEATURED_CATEGORIES',
       limit: 6
-    });
+    }) as readonly StyleCategory[];
   }, [queryHandler]);
 
   const popularStyles = useMemo(() => {
     return queryHandler.handle({
       type: 'GET_POPULAR_STYLES',
       limit: 8
-    });
+    }) as readonly CosplayStyle[];
   }, [queryHandler]);
 
   const searchResults = useMemo(() => {
@@ -72,7 +73,7 @@ export default function StyleLibraryPage() {
       query: searchQuery,
       categoryId: categoryId,
       limit: 20
-    });
+    }) as readonly CosplayStyle[];
   }, [searchQuery, categoryId, queryHandler]);
 
   // Handle style selection
