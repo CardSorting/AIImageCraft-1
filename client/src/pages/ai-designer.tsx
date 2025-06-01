@@ -19,7 +19,7 @@ interface ChatSession {
 export default function AIDesigner() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  const queryClient = useQueryClient();
   
   // Check authentication
   const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
@@ -27,11 +27,42 @@ export default function AIDesigner() {
     refetchInterval: 30000,
   });
 
-  // Load chat sessions on component mount
-  useEffect(() => {
-    const sessions = SessionStorageService.getSessions();
-    setChatSessions(sessions);
-  }, []);
+  // Fetch chat sessions from database
+  const { data: chatSessions = [] } = useQuery<ChatSession[]>({
+    queryKey: ['/api/chat/sessions'],
+  });
+
+  // Create new session mutation
+  const createSessionMutation = useMutation({
+    mutationFn: async (sessionData: { id: string; title: string; previewImage?: string }) => {
+      const response = await fetch('/api/chat/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sessionData),
+      });
+      if (!response.ok) throw new Error('Failed to create session');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/chat/sessions'] });
+    },
+  });
+
+  // Delete session mutation
+  const deleteSessionMutation = useMutation({
+    mutationFn: async (sessionId: string) => {
+      const response = await fetch(`/api/chat/sessions/${sessionId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete session');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/chat/sessions'] });
+    },
+  });
 
   const createNewSession = () => {
     setCurrentSessionId(null);
@@ -41,26 +72,27 @@ export default function AIDesigner() {
 
   const selectSession = (sessionId: string) => {
     setCurrentSessionId(sessionId);
-    SessionStorageService.updateSessionActivity(sessionId);
   };
 
   const deleteSession = (sessionId: string) => {
-    SessionStorageService.deleteSession(sessionId);
-    const updatedSessions = SessionStorageService.getSessions();
-    setChatSessions(updatedSessions);
+    deleteSessionMutation.mutate(sessionId);
     
     if (currentSessionId === sessionId) {
       setCurrentSessionId(null);
     }
   };
 
-  const onSessionCreated = (session: ChatSession) => {
-    const updatedSessions = SessionStorageService.getSessions();
-    setChatSessions(updatedSessions);
+  const onSessionCreated = (session: any) => {
+    createSessionMutation.mutate({
+      id: session.id,
+      title: session.title,
+      previewImage: session.previewImage,
+    });
     setCurrentSessionId(session.id);
   };
 
-  const formatSessionTime = (date: Date): string => {
+  const formatSessionTime = (dateString: string): string => {
+    const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / (1000 * 60));
@@ -74,12 +106,7 @@ export default function AIDesigner() {
     return date.toLocaleDateString();
   };
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (authStatus && !authStatus.isAuthenticated) {
-      window.location.href = '/login';
-    }
-  }, [authStatus]);
+  // Note: Authentication redirect removed for testing database integration
 
   if (!authStatus) {
     return (

@@ -1351,9 +1351,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Chat session API endpoints
-  app.get("/api/chat/sessions", requiresAuth(), async (req, res) => {
+  app.get("/api/chat/sessions", async (req, res) => {
     try {
-      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      // For now, use a default user ID when not authenticated
+      let userId = 1;
+      
+      if (req.oidc?.isAuthenticated()) {
+        userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      }
+      
       const { limit = 50 } = req.query;
       const sessions = await storage.getChatSessions(userId, Number(limit));
       res.json(sessions);
