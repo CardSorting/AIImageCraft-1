@@ -160,6 +160,7 @@ export const styleCategories = pgTable("style_categories", {
   iconName: text("icon_name").notNull(),
   featured: integer("featured").default(0), // Use integer for boolean
   color: text("color"),
+  mainCategory: text("main_category"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

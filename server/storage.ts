@@ -40,7 +40,7 @@ export interface IStorage {
   isModelLiked(userId: number, modelId: number): Promise<boolean>;
   
   // Style management methods
-  getStyleCategories(): Promise<StyleCategory[]>;
+  getStyleCategories(mainCategory?: string): Promise<StyleCategory[]>;
   getStyleCategoryById(categoryId: string): Promise<StyleCategory | undefined>;
   createStyleCategory(category: InsertStyleCategory): Promise<StyleCategory>;
   getCosplayStyles(categoryId?: string): Promise<CosplayStyle[]>;
@@ -403,8 +403,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Style management implementation
-  async getStyleCategories(): Promise<StyleCategory[]> {
-    return db.select().from(styleCategories).orderBy(styleCategories.name);
+  async getStyleCategories(mainCategory?: string): Promise<StyleCategory[]> {
+    let query = db.select().from(styleCategories);
+    
+    if (mainCategory) {
+      query = query.where(eq(styleCategories.mainCategory, mainCategory));
+    }
+    
+    const categories = await query.orderBy(desc(styleCategories.featured), asc(styleCategories.name));
+    
+    return categories.map(cat => ({
+      ...cat,
+      featured: Boolean(cat.featured)
+    }));
   }
 
   async getStyleCategoryById(categoryId: string): Promise<StyleCategory | undefined> {
