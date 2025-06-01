@@ -63,7 +63,7 @@ export default function AIDesigner() {
 
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-border/20">
-            <Link href="/">
+            <Link href="/gallery">
               <Button 
                 variant="ghost" 
                 size="sm" 

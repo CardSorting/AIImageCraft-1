@@ -26,10 +26,11 @@ interface ChatInterfaceProps {
   sessionId?: string;
 }
 
-export function ChatInterface({ className = "", sessionId = crypto.randomUUID() }: ChatInterfaceProps) {
+export function ChatInterface({ className = "", sessionId }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string>(sessionId || crypto.randomUUID());
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -41,13 +42,13 @@ export function ChatInterface({ className = "", sessionId = crypto.randomUUID() 
 
   // Load chat history with Clean Architecture query
   const { data: chatHistory } = useQuery({
-    queryKey: ['chat-history', sessionId],
+    queryKey: ['chat-history', currentSessionId],
     queryFn: async () => {
-      const query: GetChatHistoryQuery = { sessionId };
+      const query: GetChatHistoryQuery = { sessionId: currentSessionId };
       // This would normally be injected via DI container
       return { messages: [], totalCount: 0, hasMore: false };
     },
-    enabled: Boolean(sessionId),
+    enabled: Boolean(currentSessionId),
   });
 
   // Auto-scroll with smooth iOS-like animation
@@ -99,7 +100,7 @@ export function ChatInterface({ className = "", sessionId = crypto.randomUUID() 
     form.reset();
 
     await editImageMutation.mutateAsync({
-      sessionId,
+      sessionId: currentSessionId,
       promptText: data.prompt,
       imageUrl: selectedImage,
     });
