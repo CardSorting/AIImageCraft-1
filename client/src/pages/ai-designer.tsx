@@ -63,14 +63,16 @@ export default function AIDesigner() {
 
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-border/20">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="w-full justify-start h-9 text-sm hover:bg-muted/50"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
+            <Link href="/">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full justify-start h-9 text-sm hover:bg-muted/50"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Go to Gallery
+              </Button>
+            </Link>
           </div>
         </div>
 

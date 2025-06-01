@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Download, Upload, Sparkles } from "lucide-react";
+import { Send, Bot, User, Download, Upload, Sparkles, Palette, Eye } from "lucide-react";
 
 // Clean Architecture imports
 import { Message } from '../../../domain/ai-designer/entities/Message';
@@ -275,15 +275,64 @@ export function ChatInterface({ className = "", sessionId = crypto.randomUUID() 
         {/* Quick actions when no image selected */}
         {!selectedImage && (
           <div className="mb-4">
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              variant="outline"
-              size="sm"
-              className="h-9 px-4 rounded-full border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors"
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Image
-            </Button>
+            <div className="flex flex-wrap gap-2 mb-2">
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 rounded-full border-orange-200 text-orange-600 hover:bg-orange-50 transition-colors"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Upload Image
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 rounded-full border-purple-200 text-purple-600 hover:bg-purple-50 transition-colors"
+                disabled
+              >
+                <Palette className="h-4 w-4 mr-2" />
+                Style Transfer
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 rounded-full border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors"
+                disabled
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                AI Generate
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 rounded-full border-green-200 text-green-600 hover:bg-green-50 transition-colors"
+                disabled
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Enhance Quality
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 rounded-full border-pink-200 text-pink-600 hover:bg-pink-50 transition-colors"
+                disabled
+              >
+                <User className="h-4 w-4 mr-2" />
+                Face Swap
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-4 rounded-full border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors"
+                disabled
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Remove Background
+              </Button>
+            </div>
           </div>
         )}
 
