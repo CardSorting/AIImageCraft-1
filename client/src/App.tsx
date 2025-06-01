@@ -55,7 +55,8 @@ function Router() {
       <Route path="/checkout" component={CheckoutPage} />
       <Route path="/ai-cosplay" component={AICosplayPage} />
       <Route path="/style-library" component={StyleCategoriesPage} />
-      <Route path="/style-library/:categoryId" component={CategoryDetailPage} />
+      <Route path="/style-categories" component={StyleCategoriesPage} />
+      <Route path="/category/:categoryId" component={CategoryDetailPage} />
       <Route component={NotFound} />
     </Switch>
   );

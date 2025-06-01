@@ -1,6 +1,6 @@
 import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, styleCategories, cosplayStyles, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike, type StyleCategory, type InsertStyleCategory, type CosplayStyle, type InsertCosplayStyle } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, like, and, sql, count } from "drizzle-orm";
+import { eq, desc, asc, like, and, sql, count } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -410,12 +410,9 @@ export class DatabaseStorage implements IStorage {
       query = query.where(eq(styleCategories.mainCategory, mainCategory));
     }
     
-    const categories = await query.orderBy(desc(styleCategories.featured), asc(styleCategories.name));
+    const categories = await query.orderBy(desc(styleCategories.featured), styleCategories.name);
     
-    return categories.map(cat => ({
-      ...cat,
-      featured: Boolean(cat.featured)
-    }));
+    return categories;
   }
 
   async getStyleCategoryById(categoryId: string): Promise<StyleCategory | undefined> {
