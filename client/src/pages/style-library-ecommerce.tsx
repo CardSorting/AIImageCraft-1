@@ -153,6 +153,11 @@ export default function StyleLibraryEcommercePage() {
     tags: false
   });
 
+  const [state, setState] = useState({
+    selectedStyle: null as string | null,
+    recentStyles: [] as string[]
+  });
+
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
 
@@ -604,6 +609,7 @@ export default function StyleLibraryEcommercePage() {
                       <Card 
                         key={style.styleId} 
                         className="group cursor-pointer transition-all hover:shadow-lg hover:scale-105"
+                        onClick={() => handleStyleSelect(style)}
                       >
                         <CardContent className="p-6">
                           <div className="flex items-start gap-4">
