@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { Sparkles, Image, Plus, Brain, User, Coins, LogIn, Wand2 } from "lucide-react";
+import { Sparkles, Image, Plus, Brain, User, Coins, LogIn, Wand2, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
