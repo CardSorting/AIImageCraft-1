@@ -56,8 +56,10 @@ export class EditImageCommandHandler implements IEditImageCommandHandler {
         eventId: crypto.randomUUID(),
         eventType: 'ImageEditStarted',
         occurredOn: new Date(),
-        requestId: editRequest.requestId,
-        prompt: command.promptText
+        data: {
+          requestId: editRequest.requestId,
+          prompt: command.promptText
+        }
       });
 
       // Execute image edit
@@ -79,8 +81,10 @@ export class EditImageCommandHandler implements IEditImageCommandHandler {
           eventId: crypto.randomUUID(),
           eventType: 'ImageEditCompleted',
           occurredOn: new Date(),
-          requestId: editRequest.requestId,
-          resultImageUrl: result.imageData.url
+          data: {
+            requestId: editRequest.requestId,
+            resultImageUrl: result.imageData.url
+          }
         });
 
         return {
@@ -101,8 +105,10 @@ export class EditImageCommandHandler implements IEditImageCommandHandler {
           eventId: crypto.randomUUID(),
           eventType: 'ImageEditFailed',
           occurredOn: new Date(),
-          requestId: editRequest.requestId,
-          error: result.error || 'Unknown error'
+          data: {
+            requestId: editRequest.requestId,
+            error: result.error || 'Unknown error'
+          }
         });
 
         return {

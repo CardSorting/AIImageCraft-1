@@ -24,20 +24,26 @@ export interface DomainEvent {
 
 export interface ImageEditStartedEvent extends DomainEvent {
   eventType: 'ImageEditStarted';
-  requestId: string;
-  prompt: string;
+  data: {
+    requestId: string;
+    prompt: string;
+  };
 }
 
 export interface ImageEditCompletedEvent extends DomainEvent {
   eventType: 'ImageEditCompleted';
-  requestId: string;
-  resultImageUrl: string;
+  data: {
+    requestId: string;
+    resultImageUrl: string;
+  };
 }
 
 export interface ImageEditFailedEvent extends DomainEvent {
   eventType: 'ImageEditFailed';
-  requestId: string;
-  error: string;
+  data: {
+    requestId: string;
+    error: string;
+  };
 }
 
 export type ImageEditEvent = ImageEditStartedEvent | ImageEditCompletedEvent | ImageEditFailedEvent;
