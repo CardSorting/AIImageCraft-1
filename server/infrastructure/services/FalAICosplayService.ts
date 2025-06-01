@@ -94,38 +94,41 @@ export class FalAICosplayService {
       }
 
       // Process images and ensure we have proper URLs
-      const processedImages = result.data.images.map((image: any) => {
-        let imageUrl = image.url;
-        
-        // Debug: Log each image object
-        console.log(`[FalAI] Processing image:`, JSON.stringify(image, null, 2));
-        
-        // Check if we got a base64 data URI instead of a URL
-        if (imageUrl && imageUrl.startsWith('data:')) {
-          console.warn(`[FalAI] Received base64 data URI instead of hosted URL, converting...`);
-          // Convert base64 to hosted URL using FAL storage
-          try {
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-            imageUrl = await fal.storage.upload(blob);
-            console.log(`[FalAI] Successfully converted base64 to hosted URL: ${imageUrl.substring(0, 50)}...`);
-          } catch (uploadError) {
-            console.error(`[FalAI] Failed to upload base64 image to FAL storage:`, uploadError);
-            // Keep the base64 as fallback
+      const processedImages = await Promise.all(
+        result.data.images.map(async (image: any) => {
+          let imageUrl = image.url;
+          
+          // Debug: Log each image object
+          console.log(`[FalAI] Processing image:`, JSON.stringify(image, null, 2));
+          
+          // Check if we got a base64 data URI instead of a URL
+          if (imageUrl && imageUrl.startsWith('data:')) {
+            console.warn(`[FalAI] Received base64 data URI instead of hosted URL, converting...`);
+            // Convert base64 to hosted URL using FAL storage
+            try {
+              const response = await fetch(imageUrl);
+              const blob = await response.blob();
+              imageUrl = await fal.storage.upload(blob);
+              console.log(`[FalAI] Successfully converted base64 to hosted URL: ${imageUrl.substring(0, 50)}...`);
+            } catch (uploadError) {
+              console.error(`[FalAI] Failed to upload base64 image to FAL storage:`, uploadError);
+              // Keep the base64 as fallback - this should not happen in production
+              throw new Error("Failed to convert image to hosted URL");
+            }
+          } else if (!imageUrl) {
+            console.error(`[FalAI] No URL found in image response`);
+            throw new Error("Image URL missing from FAL AI response");
+          } else {
+            console.log(`[FalAI] Got proper hosted URL: ${imageUrl.substring(0, 50)}...`);
           }
-        } else if (!imageUrl) {
-          console.error(`[FalAI] No URL found in image response`);
-          throw new Error("Image URL missing from FAL AI response");
-        } else {
-          console.log(`[FalAI] Got proper hosted URL: ${imageUrl.substring(0, 50)}...`);
-        }
 
-        return {
-          url: imageUrl,
-          width: image.width || 1024,
-          height: image.height || 1024,
-        };
-      });
+          return {
+            url: imageUrl,
+            width: image.width || 1024,
+            height: image.height || 1024,
+          };
+        })
+      );
 
       return processedImages;
     } catch (error: any) {
