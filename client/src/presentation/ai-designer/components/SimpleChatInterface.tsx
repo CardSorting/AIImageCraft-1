@@ -1,6 +1,6 @@
-// Presentation Layer - Following Apple's Design Philosophy
+// Simplified Chat Interface for AI Designer with Flux Integration
 import { useState, useRef, useEffect } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,9 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Download, Upload, Sparkles, Palette, Eye } from "lucide-react";
+import { Send, Bot, User, Download, Upload, Sparkles } from "lucide-react";
 
-// Simple message interface
+const messageSchema = z.object({
+  prompt: z.string().min(1, "Please describe your edit").max(500, "Keep instructions under 500 characters"),
+});
+
+type MessageInput = z.infer<typeof messageSchema>;
+
 interface SimpleMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -19,23 +24,14 @@ interface SimpleMessage {
   imageUrl?: string;
 }
 
-const messageSchema = z.object({
-  prompt: z.string().min(1, "Please describe your edit").max(500, "Keep instructions under 500 characters"),
-});
-
-type MessageInput = z.infer<typeof messageSchema>;
-
-interface ChatInterfaceProps {
+interface SimpleChatInterfaceProps {
   className?: string;
-  sessionId?: string | null;
-  onSessionCreated?: (session: import('../../../lib/sessionStorage').ChatSession) => void;
 }
 
-export function ChatInterface({ className = "", sessionId, onSessionCreated }: ChatInterfaceProps) {
+export function SimpleChatInterface({ className = "" }: SimpleChatInterfaceProps) {
   const [messages, setMessages] = useState<SimpleMessage[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(sessionId || null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -45,15 +41,7 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
     defaultValues: { prompt: "" },
   });
 
-  // Update session ID when prop changes
-  useEffect(() => {
-    setCurrentSessionId(sessionId || null);
-  }, [sessionId]);
-
-  // Chat history - simplified for now
-  // TODO: Implement database-backed chat history loading
-
-  // Auto-scroll with smooth iOS-like animation
+  // Auto-scroll to bottom
   useEffect(() => {
     if (scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
@@ -66,8 +54,8 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
     }
   }, [messages]);
 
-  // Edit image mutation using the working Flux endpoint
-  const editImageMutation = useMutation({
+  // Image generation using the working Flux endpoint
+  const generateImageMutation = useMutation({
     mutationFn: async ({ image, instruction }: { image: string; instruction: string }) => {
       // Convert base64 data URL to blob
       const response = await fetch(image);
@@ -92,9 +80,9 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
     onSuccess: (data) => {
       if (data.success && data.image?.url) {
         // Add assistant message with generated image
-        const assistantMessage = {
+        const assistantMessage: SimpleMessage = {
           id: crypto.randomUUID(),
-          role: 'assistant' as const,
+          role: 'assistant',
           content: 'Here\'s your edited image:',
           timestamp: new Date(),
           imageUrl: data.image.url,
@@ -128,17 +116,9 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
   const onSubmit = async (data: MessageInput) => {
     if (!selectedImage || isProcessing) return;
 
-    // Create session if it doesn't exist
-    let sessionId = currentSessionId;
-    if (!sessionId) {
-      sessionId = crypto.randomUUID();
-      setCurrentSessionId(sessionId);
-      // TODO: Create session via API
-    }
-
-    const userMessage = {
+    const userMessage: SimpleMessage = {
       id: crypto.randomUUID(),
-      role: 'user' as const,
+      role: 'user',
       content: data.prompt,
       timestamp: new Date(),
       imageUrl: selectedImage,
@@ -148,7 +128,7 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
     setIsProcessing(true);
     form.reset();
 
-    await editImageMutation.mutateAsync({
+    await generateImageMutation.mutateAsync({
       image: selectedImage,
       instruction: data.prompt,
     });
@@ -172,13 +152,8 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
       const result = e.target?.result as string;
       setSelectedImage(result);
       
-      // Apple-style haptic feedback simulation
-      if ('vibrate' in navigator) {
-        navigator.vibrate(10);
-      }
-      
       toast({
-        title: "Image ready",
+        title: "Image uploaded",
         description: "Now describe how you'd like to edit it",
       });
     };
@@ -199,13 +174,23 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
     });
   };
 
+  const formatTimestamp = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className={`flex flex-col h-full bg-background ${className}`}>
-      {/* Chat Messages - Apple-inspired design */}
+      {/* Chat Messages */}
       <ScrollArea ref={scrollAreaRef} className="flex-1 px-0">
         <div className="pb-4">
           {messages.length === 0 ? (
-            /* Welcome state with Apple-like hierarchy */
+            /* Welcome state */
             <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl mb-6 animate-pulse">
                 <Sparkles className="h-10 w-10 text-white" />
@@ -229,27 +214,27 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
               </Button>
             </div>
           ) : (
-            /* Message list with Apple-like spacing */
+            /* Message list */
             <div className="space-y-1">
-              {messages.map((message, index) => (
+              {messages.map((message) => (
                 <div
-                  key={message.id.value}
+                  key={message.id}
                   className={`px-4 py-4 ${
-                    message.isFromAssistant() 
+                    message.role === 'assistant' 
                       ? 'bg-muted/20' 
                       : 'bg-background'
                   }`}
                 >
                   <div className="flex gap-3 max-w-4xl mx-auto">
                     
-                    {/* Avatar with Apple-style design */}
+                    {/* Avatar */}
                     <div className="flex-shrink-0 pt-1">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${
-                        message.isFromAssistant()
+                        message.role === 'assistant'
                           ? 'bg-gradient-to-br from-blue-500 to-purple-600'
                           : 'bg-gradient-to-br from-gray-600 to-gray-800'
                       }`}>
-                        {message.isFromAssistant() ? (
+                        {message.role === 'assistant' ? (
                           <Bot className="h-4 w-4 text-white" />
                         ) : (
                           <User className="h-4 w-4 text-white" />
@@ -257,20 +242,20 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
                       </div>
                     </div>
 
-                    {/* Message content with Apple typography */}
+                    {/* Message content */}
                     <div className="flex-1 min-w-0">
                       {/* Image content */}
-                      {message.hasImage() && (
+                      {message.imageUrl && (
                         <div className="mb-3">
                           <div className="relative group inline-block">
                             <img 
-                              src={message.content.imageUrl} 
+                              src={message.imageUrl} 
                               alt="Image"
                               className="max-w-sm rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-200"
                             />
-                            {message.isFromAssistant() && (
+                            {message.role === 'assistant' && (
                               <Button
-                                onClick={() => downloadImage(message.content.imageUrl!)}
+                                onClick={() => downloadImage(message.imageUrl!)}
                                 size="sm"
                                 variant="secondary"
                                 className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 h-8 w-8 p-0 rounded-full bg-black/20 backdrop-blur-sm hover:bg-black/30 border-0"
@@ -281,33 +266,17 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
                           </div>
                         </div>
                       )}
-                      
-                      {/* Text content with Apple typography */}
-                      <div className="text-base leading-relaxed text-foreground">
-                        {message.content.text}
+
+                      {/* Text content */}
+                      <div className="prose prose-sm max-w-none">
+                        <p className="text-foreground text-[15px] leading-relaxed m-0 font-normal">
+                          {message.content}
+                        </p>
                       </div>
-                      
-                      {/* Timestamp with Apple's subtle styling */}
-                      <div className="flex items-center justify-between mt-3">
-                        <span className="text-xs text-muted-foreground font-medium">
-                          {message.timestamp.value.toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </span>
-                        
-                        {/* Apple-style typing indicator */}
-                        {message.isPending() && (
-                          <div className="flex gap-1">
-                            {[0, 1, 2].map((i) => (
-                              <div
-                                key={i}
-                                className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                                style={{ animationDelay: `${i * 0.15}s` }}
-                              />
-                            ))}
-                          </div>
-                        )}
+
+                      {/* Timestamp */}
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        {formatTimestamp(message.timestamp)}
                       </div>
                     </div>
                   </div>
@@ -318,54 +287,41 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
         </div>
       </ScrollArea>
 
-      {/* Input area with Apple-inspired design */}
-      <div className="border-t bg-background/95 backdrop-blur-xl px-4 py-4 safe-area-bottom">
-        
-        {/* Quick actions when image is selected - mobile optimized */}
-        {selectedImage && (
-          <div className="mb-4">
-            <div className="grid grid-cols-3 gap-2 mb-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 text-xs rounded-lg border-purple-200 text-purple-600 hover:bg-purple-50 transition-colors flex-1"
-                disabled
-              >
-                <Palette className="h-3 w-3 mr-1" />
-                Style
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 text-xs rounded-lg border-green-200 text-green-600 hover:bg-green-50 transition-colors flex-1"
-                disabled
-              >
-                <Eye className="h-3 w-3 mr-1" />
-                Enhance
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 text-xs rounded-lg border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors flex-1"
-                disabled
-              >
-                <Sparkles className="h-3 w-3 mr-1" />
-                Remove BG
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Apple-style input form */}
-        <form onSubmit={form.handleSubmit(onSubmit)} className="relative">
-          <div className="relative flex items-end gap-3 bg-muted/30 rounded-3xl border border-border/30 p-3 transition-all duration-200 focus-within:border-blue-300 focus-within:bg-background/80">
+      {/* Input Form */}
+      <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="px-4 py-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             
-            <div className="flex-1">
+            {/* Image upload */}
+            {selectedImage && (
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <img 
+                    src={selectedImage} 
+                    alt="Selected" 
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                  <span className="text-sm text-muted-foreground">Image uploaded</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedImage(null)}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Remove
+                </Button>
+              </div>
+            )}
+
+            {/* Text input */}
+            <div className="flex gap-3">
               <Textarea
-                placeholder={selectedImage ? "Describe your edit..." : "Upload an image first"}
-                className="min-h-[44px] max-h-32 resize-none border-0 bg-transparent p-0 text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 leading-relaxed"
-                disabled={!selectedImage || isProcessing}
                 {...form.register("prompt")}
+                placeholder={selectedImage ? "Describe how you'd like to edit this image..." : "Upload an image first"}
+                disabled={!selectedImage || isProcessing}
+                className="flex-1 min-h-[44px] resize-none rounded-2xl border-2 focus:border-blue-500 transition-colors"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -373,39 +329,40 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
                   }
                 }}
               />
+              
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="h-11 w-11 rounded-xl"
+                >
+                  <Upload className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  type="submit"
+                  disabled={!selectedImage || isProcessing || !form.watch("prompt")}
+                  size="icon"
+                  className="h-11 w-11 rounded-xl bg-blue-500 hover:bg-blue-600"
+                >
+                  {isProcessing ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
-            
-            {/* Apple-style send button */}
-            <Button
-              type="submit"
-              disabled={!selectedImage || isProcessing || !form.watch("prompt")?.trim()}
-              size="sm"
-              className="h-9 w-9 p-0 rounded-full bg-blue-500 hover:bg-blue-600 disabled:opacity-30 transition-all duration-200 shadow-lg disabled:shadow-none"
-            >
-              <Send className="h-4 w-4 text-white" />
-            </Button>
-          </div>
-        </form>
 
-        {/* Selected image preview with Apple styling */}
-        {selectedImage && (
-          <div className="mt-3 flex items-center gap-3 p-2 bg-muted/20 rounded-2xl">
-            <div className="w-10 h-10 rounded-xl overflow-hidden border border-border/30">
-              <img src={selectedImage} alt="Selected" className="w-full h-full object-cover" />
-            </div>
-            <span className="flex-1 text-sm text-muted-foreground font-medium truncate">
-              Image ready for editing
-            </span>
-            <Button
-              onClick={() => setSelectedImage(null)}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground rounded-full"
-            >
-              ×
-            </Button>
-          </div>
-        )}
+            {form.formState.errors.prompt && (
+              <p className="text-sm text-red-500">
+                {form.formState.errors.prompt.message}
+              </p>
+            )}
+          </form>
+        </div>
       </div>
 
       {/* Hidden file input */}

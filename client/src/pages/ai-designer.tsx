@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Sparkles, Wand2, Menu, ArrowLeft, MessageSquare, Plus, Trash2 } from "lucide-react";
-import { ChatInterface } from "@/presentation/ai-designer/components/ChatInterface";
+import { SimpleChatInterface } from "@/presentation/ai-designer/components/SimpleChatInterface";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
@@ -232,10 +232,8 @@ export default function AIDesigner() {
 
         {/* Chat Interface Area */}
         <div className="flex-1 flex flex-col">
-          <ChatInterface 
-            className="flex-1" 
-            sessionId={currentSessionId}
-            onSessionCreated={onSessionCreated}
+          <SimpleChatInterface 
+            className="flex-1"
           />
         </div>
       </div>
