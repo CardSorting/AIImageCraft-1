@@ -1,206 +1,146 @@
 /**
  * Style Library Domain Entity
- * Following DDD principles with rich domain objects
- * Apple's Philosophy: Simple, elegant domain modeling with clear responsibilities
+ * Core business logic for cosplay style management
+ * Following Domain-Driven Design principles
  */
 
+export interface StyleId {
+  readonly value: string;
+}
+
 export interface StyleMetadata {
-  readonly id: string;
   readonly name: string;
   readonly description: string;
-  readonly difficulty: 'beginner' | 'intermediate' | 'advanced';
-  readonly estimatedTime: number; // in minutes
-  readonly popularity: number; // 0-100 scale
   readonly tags: readonly string[];
-  readonly category: string;
-  readonly subcategory?: string;
+  readonly difficulty: 'easy' | 'medium' | 'hard';
+  readonly premium: boolean;
+  readonly popularity: number;
 }
 
 export interface StylePrompt {
   readonly positive: string;
   readonly negative?: string;
-  readonly enhancementTips?: readonly string[];
 }
 
-export interface StyleAssets {
-  readonly previewImage?: string;
-  readonly thumbnailImage?: string;
+export interface StyleVisuals {
   readonly iconName: string;
-  readonly colorScheme?: {
-    primary: string;
-    secondary: string;
-    accent: string;
-  };
-}
-
-export interface StyleAccessibility {
-  readonly isPremium: boolean;
-  readonly requiredCredits: number;
-  readonly minimumTier: 'free' | 'pro' | 'premium';
-  readonly restrictions?: readonly string[];
+  readonly previewImage?: string;
+  readonly color?: string;
 }
 
 export class CosplayStyle {
   constructor(
+    public readonly id: StyleId,
     public readonly metadata: StyleMetadata,
     public readonly prompt: StylePrompt,
-    public readonly assets: StyleAssets,
-    public readonly accessibility: StyleAccessibility,
-    public readonly createdAt: Date = new Date(),
-    public readonly updatedAt: Date = new Date()
+    public readonly visuals: StyleVisuals
   ) {}
 
-  get isPopular(): boolean {
-    return this.metadata.popularity >= 70;
+  public isPopular(): boolean {
+    return this.metadata.popularity >= 0.8;
   }
 
-  get isDifficult(): boolean {
-    return this.metadata.difficulty === 'advanced';
+  public isPremium(): boolean {
+    return this.metadata.premium;
   }
 
-  get isAccessibleToUser(): boolean {
-    return !this.accessibility.isPremium || this.accessibility.minimumTier === 'free';
-  }
-
-  hasTag(tag: string): boolean {
+  public matchesTag(tag: string): boolean {
     return this.metadata.tags.includes(tag.toLowerCase());
   }
 
-  belongsToCategory(category: string): boolean {
-    return this.metadata.category.toLowerCase() === category.toLowerCase();
-  }
-
-  calculateRelevanceScore(userPreferences: readonly string[]): number {
-    const tagMatches = userPreferences.filter(pref => this.hasTag(pref)).length;
-    const popularityBonus = this.isPopular ? 0.2 : 0;
-    const baseScore = (tagMatches / Math.max(userPreferences.length, 1)) + popularityBonus;
-    
-    return Math.min(baseScore, 1.0);
+  public getSearchableText(): string {
+    return [
+      this.metadata.name,
+      this.metadata.description,
+      ...this.metadata.tags
+    ].join(' ').toLowerCase();
   }
 }
 
-export interface StyleCategoryMetadata {
-  readonly id: string;
+export interface CategoryId {
+  readonly value: string;
+}
+
+export interface CategoryMetadata {
   readonly name: string;
   readonly shortName: string;
   readonly description: string;
-  readonly iconName: string;
-  readonly themeColor: string;
-  readonly isFeatured: boolean;
-  readonly sortOrder: number;
+  readonly featured: boolean;
+  readonly color?: string;
 }
 
 export class StyleCategory {
   constructor(
-    public readonly metadata: StyleCategoryMetadata,
-    private readonly _styles: readonly CosplayStyle[] = []
+    public readonly id: CategoryId,
+    public readonly metadata: CategoryMetadata,
+    public readonly iconName: string,
+    private readonly styles: readonly CosplayStyle[]
   ) {}
 
-  get styles(): readonly CosplayStyle[] {
-    return this._styles;
+  public getStyles(): readonly CosplayStyle[] {
+    return this.styles;
   }
 
-  get styleCount(): number {
-    return this._styles.length;
+  public getPopularStyles(limit: number = 4): readonly CosplayStyle[] {
+    return this.styles
+      .filter(style => style.isPopular())
+      .slice(0, limit);
   }
 
-  get popularStyles(): readonly CosplayStyle[] {
-    return this._styles.filter(style => style.isPopular);
-  }
-
-  get freeStyles(): readonly CosplayStyle[] {
-    return this._styles.filter(style => style.isAccessibleToUser);
-  }
-
-  getStyleById(id: string): CosplayStyle | undefined {
-    return this._styles.find(style => style.metadata.id === id);
-  }
-
-  getStylesByDifficulty(difficulty: StyleMetadata['difficulty']): readonly CosplayStyle[] {
-    return this._styles.filter(style => style.metadata.difficulty === difficulty);
-  }
-
-  searchStyles(query: string): readonly CosplayStyle[] {
-    const lowerQuery = query.toLowerCase();
-    return this._styles.filter(style => 
-      style.metadata.name.toLowerCase().includes(lowerQuery) ||
-      style.metadata.description.toLowerCase().includes(lowerQuery) ||
-      style.metadata.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+  public searchStyles(query: string): readonly CosplayStyle[] {
+    const searchTerm = query.toLowerCase();
+    return this.styles.filter(style => 
+      style.getSearchableText().includes(searchTerm)
     );
   }
-}
 
-export interface StyleLibraryStats {
-  readonly totalStyles: number;
-  readonly totalCategories: number;
-  readonly popularStylesCount: number;
-  readonly freeStylesCount: number;
-  readonly premiumStylesCount: number;
+  public getStyleCount(): number {
+    return this.styles.length;
+  }
 }
 
 export class StyleLibrary {
   constructor(
-    private readonly _categories: readonly StyleCategory[] = []
+    private readonly categories: readonly StyleCategory[]
   ) {}
 
-  get categories(): readonly StyleCategory[] {
-    return this._categories.sort((a, b) => a.metadata.sortOrder - b.metadata.sortOrder);
+  public getCategories(): readonly StyleCategory[] {
+    return this.categories;
   }
 
-  get featuredCategories(): readonly StyleCategory[] {
-    return this._categories.filter(cat => cat.metadata.isFeatured);
+  public getFeaturedCategories(): readonly StyleCategory[] {
+    return this.categories.filter(category => category.metadata.featured);
   }
 
-  get allStyles(): readonly CosplayStyle[] {
-    return this._categories.flatMap(cat => cat.styles);
+  public getCategoryById(id: string): StyleCategory | undefined {
+    return this.categories.find(category => category.id.value === id);
   }
 
-  get stats(): StyleLibraryStats {
-    const allStyles = this.allStyles;
-    return {
-      totalStyles: allStyles.length,
-      totalCategories: this._categories.length,
-      popularStylesCount: allStyles.filter(s => s.isPopular).length,
-      freeStylesCount: allStyles.filter(s => s.isAccessibleToUser).length,
-      premiumStylesCount: allStyles.filter(s => !s.isAccessibleToUser).length
-    };
-  }
-
-  getCategoryById(id: string): StyleCategory | undefined {
-    return this._categories.find(cat => cat.metadata.id === id);
-  }
-
-  getStyleById(id: string): CosplayStyle | undefined {
-    for (const category of this._categories) {
-      const style = category.getStyleById(id);
+  public getStyleById(styleId: string): CosplayStyle | undefined {
+    for (const category of this.categories) {
+      const style = category.getStyles().find(s => s.id.value === styleId);
       if (style) return style;
     }
     return undefined;
   }
 
-  searchStyles(query: string): readonly CosplayStyle[] {
-    return this._categories.flatMap(cat => cat.searchStyles(query));
+  public getAllStyles(): readonly CosplayStyle[] {
+    return this.categories.flatMap(category => category.getStyles());
   }
 
-  getStylesByCategory(categoryId: string): readonly CosplayStyle[] {
-    const category = this.getCategoryById(categoryId);
-    return category ? category.styles : [];
-  }
-
-  getRecommendations(userPreferences: readonly string[], limit = 10): readonly CosplayStyle[] {
-    return this.allStyles
-      .map(style => ({
-        style,
-        relevance: style.calculateRelevanceScore(userPreferences)
-      }))
-      .sort((a, b) => b.relevance - a.relevance)
-      .slice(0, limit)
-      .map(item => item.style);
-  }
-
-  getTrendingStyles(limit = 10): readonly CosplayStyle[] {
-    return this.allStyles
-      .sort((a, b) => b.metadata.popularity - a.metadata.popularity)
+  public getPopularStyles(limit: number = 10): readonly CosplayStyle[] {
+    return [...this.getAllStyles()]
+      .filter(style => style.isPopular())
+      .sort((a: CosplayStyle, b: CosplayStyle) => b.metadata.popularity - a.metadata.popularity)
       .slice(0, limit);
+  }
+
+  public searchAllStyles(query: string): readonly CosplayStyle[] {
+    if (!query.trim()) return [];
+    
+    const searchTerm = query.toLowerCase();
+    return this.getAllStyles().filter(style => 
+      style.getSearchableText().includes(searchTerm)
+    );
   }
 }
