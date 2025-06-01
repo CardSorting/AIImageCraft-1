@@ -1,18 +1,68 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Sparkles, Wand2, Menu, ArrowLeft, MessageSquare, Plus } from "lucide-react";
+import { Sparkles, Wand2, Menu, ArrowLeft, MessageSquare, Plus, Trash2 } from "lucide-react";
 import { ChatInterface } from "@/presentation/ai-designer/components/ChatInterface";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { SessionStorageService, ChatSession } from "@/lib/sessionStorage";
 
 export default function AIDesigner() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   
   // Check authentication
   const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
     queryKey: ['/api/auth/profile'],
     refetchInterval: 30000,
   });
+
+  // Load chat sessions on component mount
+  useEffect(() => {
+    const sessions = SessionStorageService.getSessions();
+    setChatSessions(sessions);
+  }, []);
+
+  const createNewSession = () => {
+    setCurrentSessionId(null);
+    const newSessionId = crypto.randomUUID();
+    setCurrentSessionId(newSessionId);
+  };
+
+  const selectSession = (sessionId: string) => {
+    setCurrentSessionId(sessionId);
+    SessionStorageService.updateSessionActivity(sessionId);
+  };
+
+  const deleteSession = (sessionId: string) => {
+    SessionStorageService.deleteSession(sessionId);
+    const updatedSessions = SessionStorageService.getSessions();
+    setChatSessions(updatedSessions);
+    
+    if (currentSessionId === sessionId) {
+      setCurrentSessionId(null);
+    }
+  };
+
+  const onSessionCreated = (session: ChatSession) => {
+    const updatedSessions = SessionStorageService.getSessions();
+    setChatSessions(updatedSessions);
+    setCurrentSessionId(session.id);
+  };
+
+  const formatSessionTime = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return 'now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -49,7 +99,7 @@ export default function AIDesigner() {
             
             <Button 
               className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors"
-              onClick={() => window.location.reload()}
+              onClick={createNewSession}
             >
               <Plus className="h-4 w-4 mr-2" />
               New Creation
@@ -57,8 +107,49 @@ export default function AIDesigner() {
           </div>
 
           {/* Chat History */}
-          <div className="flex-1 p-4">
-            <div className="text-sm text-muted-foreground mb-4">No chats yet</div>
+          <div className="flex-1 p-4 overflow-y-auto">
+            {chatSessions.length === 0 ? (
+              <div className="text-sm text-muted-foreground mb-4">No chats yet</div>
+            ) : (
+              <div className="space-y-2">
+                {chatSessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className={`group relative p-3 rounded-lg cursor-pointer transition-colors hover:bg-muted/50 ${
+                      currentSessionId === session.id ? 'bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800' : ''
+                    }`}
+                    onClick={() => selectSession(session.id)}
+                  >
+                    <div className="flex items-start gap-3">
+                      {session.previewImage && (
+                        <div className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0">
+                          <img src={session.previewImage} alt="" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-foreground truncate">
+                          {session.title}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {session.messageCount} messages • {formatSessionTime(session.lastActivity)}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteSession(session.id);
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Sidebar Footer */}
@@ -104,7 +195,11 @@ export default function AIDesigner() {
 
         {/* Chat Interface Area */}
         <div className="flex-1 flex flex-col">
-          <ChatInterface className="flex-1" />
+          <ChatInterface 
+            className="flex-1" 
+            sessionId={currentSessionId}
+            onSessionCreated={onSessionCreated}
+          />
         </div>
       </div>
     </div>

@@ -23,14 +23,15 @@ type MessageInput = z.infer<typeof messageSchema>;
 
 interface ChatInterfaceProps {
   className?: string;
-  sessionId?: string;
+  sessionId?: string | null;
+  onSessionCreated?: (session: import('../../../lib/sessionStorage').ChatSession) => void;
 }
 
-export function ChatInterface({ className = "", sessionId }: ChatInterfaceProps) {
+export function ChatInterface({ className = "", sessionId, onSessionCreated }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [currentSessionId, setCurrentSessionId] = useState<string>(sessionId || crypto.randomUUID());
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(sessionId);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
