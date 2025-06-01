@@ -129,32 +129,30 @@ export class CosplayController {
 
   /**
    * Format prompts to be content-filter safe and character-consistent
-   * Emphasizes costume/styling transformation while preserving facial features
+   * Uses cleaner, shorter formatting to avoid AI confusion
    */
   private formatSafePrompt(instruction: string): string {
-    // Base safety prefix that clarifies this is costume/styling transformation
-    const safetyPrefix = "Professional costume styling and makeup transformation: ";
-    
-    // Character consistency suffix
-    const consistencySuffix = ", maintaining the person's natural facial features, bone structure, and identity. Focus on costume, clothing, accessories, and styling elements only. High-quality professional cosplay photography.";
+    // Check if prompt is already formatted
+    if (instruction.startsWith("Professional costume styling and makeup transformation:")) {
+      // Extract just the core styling instruction, removing verbose suffix
+      const corePrompt = instruction
+        .replace("Professional costume styling and makeup transformation: ", "")
+        .replace(/, maintaining the person's natural facial features.*$/, "");
+      
+      // Return with cleaner formatting
+      return `Costume styling: ${corePrompt}, keeping facial features`;
+    }
     
     // Clean the instruction to remove potentially problematic words
     let cleanInstruction = instruction
-      .replace(/transform this person into/gi, "style this person as")
-      .replace(/transform into/gi, "style as")
+      .replace(/transform this person into/gi, "dress as")
+      .replace(/transform into/gi, "dress as")
       .replace(/turn into/gi, "dress as")
       .replace(/become/gi, "cosplay as")
       .replace(/change into/gi, "wear costume of");
     
-    // Ensure it starts with styling language
-    if (!cleanInstruction.toLowerCase().includes("style") && 
-        !cleanInstruction.toLowerCase().includes("costume") && 
-        !cleanInstruction.toLowerCase().includes("cosplay") &&
-        !cleanInstruction.toLowerCase().includes("dress")) {
-      cleanInstruction = "cosplay styling as " + cleanInstruction;
-    }
-    
-    return safetyPrefix + cleanInstruction + consistencySuffix;
+    // Return with simple, clear formatting
+    return `Costume styling: ${cleanInstruction}, keeping facial features`;
   }
 
   private async getOrCreateUserFromAuth0(oidcUser: any): Promise<number> {
