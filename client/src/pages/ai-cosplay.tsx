@@ -250,20 +250,23 @@ export default function AICosplayPage() {
                     Choose Your Style
                   </h3>
 
-                  {/* Scalable Category Navigation */}
-                  <CategoryNavigation
-                    categories={COSPLAY_STYLE_LIBRARY}
-                    activeCategory={activeCategory}
-                    onCategoryChange={setActiveCategory}
-                    className="mb-4 md:mb-6"
+                  {/* Advanced Style Discovery Interface */}
+                  <StyleDiscovery
+                    selectedStyle={selectedStyle}
+                    onStyleSelect={handleStyleSelect}
                   />
 
-                  {/* Enhanced Style Grid */}
-                  <StyleGrid
-                    styles={currentStyles}
-                    selectedStyle={selectedStyle}
-                    onStyleSelect={setSelectedStyle}
-                  />
+                  {/* Smart Recommendations */}
+                  {selectedStyle && (
+                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                      <StyleRecommendations
+                        selectedStyle={selectedStyle}
+                        recentStyles={recentStyles}
+                        onStyleSelect={handleStyleSelect}
+                        maxRecommendations={6}
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
