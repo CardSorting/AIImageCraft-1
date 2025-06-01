@@ -15,7 +15,7 @@ import ModelDetailPage from "@/pages/model-detail";
 import DreamCreditsPage from "@/pages/dreamcredits";
 import CheckoutPage from "@/pages/checkout";
 import AICosplayPage from "@/pages/ai-cosplay";
-import StyleLibraryPage from "@/pages/style-library";
+import StyleLibraryPage from "@/pages/style-library-clean";
 import NotFound from "@/pages/not-found";
 
 function Router() {

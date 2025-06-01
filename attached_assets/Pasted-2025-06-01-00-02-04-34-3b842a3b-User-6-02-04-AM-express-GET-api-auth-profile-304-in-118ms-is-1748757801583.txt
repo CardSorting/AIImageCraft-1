@@ -1,0 +1,68 @@
+2025-06-01 00:02:04.34
+3b842a3b
+User
+6:02:04 AM [express] GET /api/auth/profile 304 in 118ms :: {"isAuthenticated":true,"user":{"sid":"GA…
+2025-06-01 00:02:04.39
+3b842a3b
+User
+6:02:04 AM [express] GET /api/style-categories 304 in 207ms :: [{"id":3,"categoryId":"anime","name":…
+2025-06-01 00:02:04.41
+3b842a3b
+User
+6:02:04 AM [express] GET /api/credits/balance/5 304 in 191ms :: {"balance":104,"accountInfo":{"balan…
+2025-06-01 00:02:04.42
+3b842a3b
+User
+6:02:04 AM [express] GET /api/cosplay-styles 304 in 207ms :: {"styles":[{"id":18,"styleId":"impressi…
+2025-06-01 00:02:06.14
+3b842a3b
+User
+6:02:06 AM [express] GET /api/cosplay-styles 304 in 58ms :: {"styles":[{"id":18,"styleId":"impressio…
+2025-06-01 00:02:08.40
+3b842a3b
+User
+6:02:08 AM [express] GET /api/cosplay-styles 304 in 60ms :: {"styles":[{"id":18,"styleId":"impressio…
+2025-06-01 00:02:09.09
+3b842a3b
+User
+6:02:09 AM [express] GET /api/cosplay-styles 304 in 61ms :: {"styles":[{"id":18,"styleId":"impressio…
+2025-06-01 00:02:09.47
+3b842a3b
+User
+6:02:09 AM [express] GET /api/auth/profile 304 in 28ms :: {"isAuthenticated":true,"user":{"sid":"GAG…
+2025-06-01 00:02:09.60
+3b842a3b
+User
+6:02:09 AM [express] GET /api/credits/balance/5 304 in 65ms :: {"balance":104,"accountInfo":{"balanc…
+2025-06-01 00:02:09.79
+3b842a3b
+User
+6:02:09 AM [express] GET /api/cosplay-styles 304 in 57ms :: {"styles":[{"id":18,"styleId":"impressio…
+2025-06-01 00:02:10.57
+3b842a3b
+User
+6:02:10 AM [express] GET /api/cosplay-styles 304 in 51ms :: {"styles":[{"id":18,"styleId":"impressio…
+2025-06-01 00:02:11.27
+3b842a3b
+User
+6:02:11 AM [express] GET /api/cosplay-styles 304 in 54ms :: {"styles":[{"id":18,"styleId":"impressio…
+2025-06-01 00:02:12.04
+3b842a3b
+User
+6:02:12 AM [express] GET /api/cosplay-styles 304 in 54ms :: {"styles":[{"id":18,"styleId":"impressio…
+2025-06-01 00:02:14.59
+3b842a3b
+User
+6:02:14 AM [express] GET /api/auth/profile 304 in 27ms :: {"isAuthenticated":true,"user":{"sid":"GAG…
+2025-06-01 00:02:14.77
+3b842a3b
+User
+6:02:14 AM [express] GET /api/credits/balance/5 304 in 68ms :: {"balance":104,"accountInfo":{"balanc…
+2025-06-01 00:02:19.73
+3b842a3b
+User
+6:02:19 AM [express] GET /api/auth/profile 304 in 32ms :: {"isAuthenticated":true,"user":{"sid":"GAG…
+2025-06-01 00:02:19.94
+3b842a3b
+User
+6:02:19 AM [express] GET /api/credits/balance/5 304 in 55ms :: {"balance":104,"accountInfo":{"balanc
