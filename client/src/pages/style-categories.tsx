@@ -101,15 +101,15 @@ export default function StyleCategoriesPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/">
+          <Link href="/ai-cosplay">
             <button className="flex items-center gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 mb-4 transition-colors">
               <ArrowLeft className="w-4 h-4" />
-              Back to Home
+              Back to AI Cosplay
             </button>
           </Link>
           
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            Style Categories
+            Style Library
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-lg">
             Choose a category to explore our curated collection of styles

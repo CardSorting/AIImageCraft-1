@@ -157,7 +157,7 @@ export default function CategoryDetailPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Category not found</h1>
-            <Link href="/style-categories">
+            <Link href="/style-library">
               <Button className="mt-4">Browse Categories</Button>
             </Link>
           </div>
@@ -182,10 +182,10 @@ export default function CategoryDetailPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/style-categories">
+          <Link href="/style-library">
             <button className="flex items-center gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 mb-4 transition-colors">
               <ArrowLeft className="w-4 h-4" />
-              Back to Categories
+              Back to Style Library
             </button>
           </Link>
           
