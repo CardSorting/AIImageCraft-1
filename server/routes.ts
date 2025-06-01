@@ -826,14 +826,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/cosplay-styles", async (req, res) => {
     try {
       const { 
-        categoryId, 
+        categoryId,
+        categories,
         popular, 
         premium,
         difficulty,
         search, 
         sortBy = 'newest',
         page = '1', 
-        limit = '24',
+        limit = '12',
         tags
       } = req.query;
       
@@ -848,31 +849,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let paramIndex = 1;
       
       // Category filter (support multiple categories)
-      if (categoryId) {
-        const categories = Array.isArray(categoryId) ? categoryId : [categoryId];
-        const placeholders = categories.map(() => `$${paramIndex++}`).join(',');
-        conditions.push(`category_id IN (${placeholders})`);
-        params.push(...categories);
+      const categoryFilter = categories || categoryId;
+      if (categoryFilter) {
+        const categoryList = typeof categoryFilter === 'string' 
+          ? categoryFilter.split(',') 
+          : Array.isArray(categoryFilter) ? categoryFilter : [categoryFilter];
+        
+        if (categoryList.length > 0) {
+          const placeholders = categoryList.map(() => `$${paramIndex++}`).join(',');
+          conditions.push(`category_id IN (${placeholders})`);
+          params.push(...categoryList);
+        }
       }
       
       // Difficulty filter (support multiple difficulties)
       if (difficulty) {
-        const difficulties = Array.isArray(difficulty) ? difficulty : [difficulty];
-        const placeholders = difficulties.map(() => `$${paramIndex++}`).join(',');
-        conditions.push(`difficulty IN (${placeholders})`);
-        params.push(...difficulties);
+        const difficultyList = typeof difficulty === 'string' 
+          ? difficulty.split(',') 
+          : Array.isArray(difficulty) ? difficulty : [difficulty];
+        
+        if (difficultyList.length > 0) {
+          const placeholders = difficultyList.map(() => `$${paramIndex++}`).join(',');
+          conditions.push(`difficulty IN (${placeholders})`);
+          params.push(...difficultyList);
+        }
       }
       
       // Popular filter
       if (popular === 'true') {
-        conditions.push(`popular = 1`);
+        conditions.push(`popular = true`);
+      } else if (popular === 'false') {
+        conditions.push(`popular = false`);
       }
       
       // Premium filter
       if (premium === 'true') {
-        conditions.push(`premium = 1`);
+        conditions.push(`premium = true`);
       } else if (premium === 'false') {
-        conditions.push(`premium = 0`);
+        conditions.push(`premium = false`);
       }
       
       // Search filter
