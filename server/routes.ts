@@ -1369,9 +1369,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/chat/sessions", requiresAuth(), async (req, res) => {
+  app.post("/api/chat/sessions", async (req, res) => {
     try {
-      const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      // For now, use a default user ID when not authenticated
+      let userId = 1;
+      
+      if (req.oidc?.isAuthenticated()) {
+        userId = await getOrCreateUserFromAuth0(req.oidc.user);
+      }
+      
       const { id, title, previewImage } = req.body;
       
       if (!id || !title) {
