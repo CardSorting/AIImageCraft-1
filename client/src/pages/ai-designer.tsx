@@ -33,112 +33,77 @@ export default function AIDesigner() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Apple-inspired iOS-like layout with clean hierarchy */}
-      <div className="flex-1 flex flex-col max-w-none md:max-w-5xl md:mx-auto w-full h-screen">
-        
-        {/* iOS-style Navigation Header */}
-        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-3xl border-b border-border/10 px-4 py-2 md:px-6 md:py-3 safe-area-top">
-          <div className="flex items-center justify-between">
-            
-            {/* Left section - Navigation and branding */}
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <Link href="/">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-9 w-9 p-0 md:hidden rounded-full hover:bg-muted/50 transition-colors"
-                >
-                  <ArrowLeft className="h-4 w-4 text-blue-600" />
-                </Button>
-              </Link>
-              
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 md:w-11 md:h-11 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-                  <Wand2 className="h-4 w-4 md:h-5 md:w-5 text-white" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-lg md:text-2xl font-bold text-foreground tracking-tight">AI Designer</h1>
-                  <p className="text-sm md:text-base text-muted-foreground hidden md:block font-medium">Transform images with natural language</p>
-                </div>
+    <div className="h-screen bg-background flex">
+      {/* Sidebar - ChatGPT style */}
+      <div className={`${showMobileMenu ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:relative z-50 w-80 h-full bg-muted/30 dark:bg-muted/20 border-r border-border/20 transition-transform duration-300 ease-in-out`}>
+        <div className="flex flex-col h-full">
+          
+          {/* Sidebar Header */}
+          <div className="p-4 border-b border-border/20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center">
+                <Wand2 className="h-4 w-4 text-white" />
               </div>
+              <span className="font-semibold text-foreground">DreamBees Art</span>
             </div>
-
-            {/* Right section - Actions with iOS-style buttons */}
-            <div className="flex items-center gap-2">
-              
-              {/* New Chat - iOS style */}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="hidden md:flex h-9 px-4 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-medium transition-colors"
-                onClick={() => window.location.reload()}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                New Chat
-              </Button>
-              
-              {/* Chat History - Desktop */}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="hidden md:flex h-9 px-4 rounded-full hover:bg-muted/50 transition-colors"
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                History
-              </Button>
-              
-              {/* Mobile menu with iOS-style design */}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-9 w-9 p-0 md:hidden rounded-full hover:bg-muted/50 transition-colors"
-                onClick={() => setShowMobileMenu(!showMobileMenu)}
-              >
-                <Menu className="h-4 w-4" />
-              </Button>
-            </div>
+            
+            <Button 
+              className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors"
+              onClick={() => window.location.reload()}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Creation
+            </Button>
           </div>
 
-          {/* iOS-style dropdown menu with blur effect */}
-          {showMobileMenu && (
-            <div className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-3xl border-b border-border/10 shadow-xl shadow-black/5">
-              <div className="px-4 py-3 space-y-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start h-11 text-base rounded-xl hover:bg-muted/50 transition-colors"
-                  onClick={() => window.location.reload()}
-                >
-                  <Plus className="h-5 w-5 mr-3 text-blue-600" />
-                  New Chat
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start h-11 text-base rounded-xl hover:bg-muted/50 transition-colors"
-                >
-                  <MessageSquare className="h-5 w-5 mr-3" />
-                  Chat History
-                </Button>
-                <div className="border-t border-border/20 my-2" />
-                <Link href="/">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="w-full justify-start h-11 text-base rounded-xl hover:bg-muted/50 transition-colors"
-                  >
-                    <ArrowLeft className="h-5 w-5 mr-3" />
-                    Back to Home
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          )}
+          {/* Chat History */}
+          <div className="flex-1 p-4">
+            <div className="text-sm text-muted-foreground mb-4">No chats yet</div>
+          </div>
+
+          {/* Sidebar Footer */}
+          <div className="p-4 border-t border-border/20">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full justify-start h-9 text-sm hover:bg-muted/50"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Settings
+            </Button>
+          </div>
         </div>
 
-        {/* Chat Interface with Apple-inspired design */}
-        <ChatInterface className="flex-1 min-h-0" />
+        {/* Mobile overlay */}
+        {showMobileMenu && (
+          <div 
+            className="md:hidden fixed inset-0 bg-black/20 z-40"
+            onClick={() => setShowMobileMenu(false)}
+          />
+        )}
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col h-full">
+        
+        {/* Mobile Header - only visible on mobile */}
+        <div className="md:hidden flex items-center justify-between p-4 border-b border-border/20">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-9 w-9 p-0"
+            onClick={() => setShowMobileMenu(true)}
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+          <h1 className="font-semibold text-foreground">AI Designer</h1>
+          <div className="w-9" /> {/* Spacer for centering */}
+        </div>
+
+        {/* Chat Interface Area */}
+        <div className="flex-1 flex flex-col">
+          <ChatInterface className="flex-1" />
+        </div>
       </div>
     </div>
   );
