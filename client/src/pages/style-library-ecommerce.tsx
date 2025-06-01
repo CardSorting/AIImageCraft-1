@@ -154,6 +154,7 @@ export default function StyleLibraryEcommercePage() {
   });
 
   const { toast } = useToast();
+  const [location, setLocation] = useLocation();
 
   // API queries
   const { data: categories = [], isLoading: categoriesLoading } = useStyleCategories();
@@ -170,6 +171,50 @@ export default function StyleLibraryEcommercePage() {
   useEffect(() => {
     setPagination(prev => ({ ...prev, total: totalItems }));
   }, [totalItems]);
+
+  // Track style usage mutation
+  const trackUsage = useMutation({
+    mutationFn: async (styleId: string) => {
+      const response = await fetch(`/api/cosplay-styles/${styleId}/usage`, {
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error('Failed to track usage');
+      return response.json();
+    }
+  });
+
+  // Handle style selection
+  const handleStyleSelect = (style: CosplayStyle) => {
+    // Store selection in localStorage for the AI cosplay page
+    localStorage.setItem('selectedCosplayStyle', JSON.stringify({
+      styleId: style.styleId,
+      name: style.name,
+      prompt: style.prompt,
+      negativePrompt: style.negativePrompt,
+      categoryId: style.categoryId,
+      iconName: style.iconName,
+      description: style.description
+    }));
+
+    // Update selected style in local state  
+    setState(prev => ({
+      ...prev,
+      selectedStyle: style.styleId
+    }));
+    
+    // Track usage
+    trackUsage.mutate(style.styleId);
+    
+    toast({
+      title: "Style Selected!",
+      description: `${style.name} has been selected for AI generation. Redirecting to the AI Cosplay page...`
+    });
+    
+    // Navigate to AI cosplay page
+    setTimeout(() => {
+      setLocation(`/ai-cosplay?selectedStyle=${style.styleId}`);
+    }, 1500);
+  };
 
   // Filter handlers
   const toggleCategory = (categoryId: string) => {
