@@ -825,23 +825,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/cosplay-styles", async (req, res) => {
     try {
-      const { categoryId, popular, search, limit } = req.query;
+      const { 
+        categoryId, 
+        popular, 
+        premium,
+        difficulty,
+        search, 
+        sortBy = 'newest',
+        page = '1', 
+        limit = '24',
+        tags
+      } = req.query;
       
-      if (search) {
-        const styles = await storage.searchStyles(search as string, Number(limit) || 20);
-        return res.json(styles);
+      // Parse pagination parameters
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
+      const offset = (pageNum - 1) * limitNum;
+      
+      // Build query conditions
+      const conditions: string[] = [];
+      const params: any[] = [];
+      let paramIndex = 1;
+      
+      // Category filter (support multiple categories)
+      if (categoryId) {
+        const categories = Array.isArray(categoryId) ? categoryId : [categoryId];
+        const placeholders = categories.map(() => `$${paramIndex++}`).join(',');
+        conditions.push(`category_id IN (${placeholders})`);
+        params.push(...categories);
       }
       
+      // Difficulty filter (support multiple difficulties)
+      if (difficulty) {
+        const difficulties = Array.isArray(difficulty) ? difficulty : [difficulty];
+        const placeholders = difficulties.map(() => `$${paramIndex++}`).join(',');
+        conditions.push(`difficulty IN (${placeholders})`);
+        params.push(...difficulties);
+      }
+      
+      // Popular filter
       if (popular === 'true') {
-        const styles = await storage.getPopularStyles(Number(limit) || 10);
-        return res.json(styles);
+        conditions.push(`popular = 1`);
       }
       
-      const styles = await storage.getCosplayStyles(categoryId as string);
-      res.json(styles);
+      // Premium filter
+      if (premium === 'true') {
+        conditions.push(`premium = 1`);
+      } else if (premium === 'false') {
+        conditions.push(`premium = 0`);
+      }
+      
+      // Search filter
+      if (search && typeof search === 'string' && search.length > 2) {
+        conditions.push(`(name ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`);
+        params.push(`%${search}%`);
+        paramIndex++;
+      }
+      
+      // Build ORDER BY clause
+      let orderBy = 'created_at DESC'; // default newest
+      switch (sortBy) {
+        case 'oldest':
+          orderBy = 'created_at ASC';
+          break;
+        case 'popular':
+          orderBy = 'popular DESC, usage_count DESC';
+          break;
+        case 'usage':
+          orderBy = 'usage_count DESC';
+          break;
+        case 'name_asc':
+          orderBy = 'name ASC';
+          break;
+        case 'name_desc':
+          orderBy = 'name DESC';
+          break;
+        case 'difficulty_easy':
+          orderBy = "CASE difficulty WHEN 'easy' THEN 1 WHEN 'medium' THEN 2 WHEN 'hard' THEN 3 END ASC";
+          break;
+        case 'difficulty_hard':
+          orderBy = "CASE difficulty WHEN 'hard' THEN 1 WHEN 'medium' THEN 2 WHEN 'easy' THEN 3 END ASC";
+          break;
+      }
+      
+      // Build WHERE clause
+      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+      
+      // Get total count
+      const countQuery = `SELECT COUNT(*) as total FROM cosplay_styles ${whereClause}`;
+      const countParams = params.slice(0, params.length - (paramIndex > params.length ? 0 : 2));
+      const countResult = await pool.query(countQuery, countParams);
+      const total = Number(countResult.rows[0]?.total || 0);
+      
+      // Get paginated results
+      const dataQuery = `
+        SELECT * FROM cosplay_styles 
+        ${whereClause} 
+        ORDER BY ${orderBy} 
+        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+      `;
+      params.push(limitNum, offset);
+      
+      const result = await pool.query(dataQuery, params);
+      const styles = result.rows.map((row: any) => ({
+        id: row.id,
+        styleId: row.style_id,
+        categoryId: row.category_id,
+        name: row.name,
+        description: row.description,
+        prompt: row.prompt,
+        negativePrompt: row.negative_prompt,
+        iconName: row.icon_name,
+        previewImage: row.preview_image,
+        difficulty: row.difficulty,
+        premium: Boolean(row.premium),
+        popular: Boolean(row.popular),
+        popularity: row.popularity,
+        tags: row.tags || [],
+        usageCount: row.usage_count,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      }));
+      
+      res.json({
+        styles,
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum)
+      });
     } catch (error) {
       console.error("Error fetching cosplay styles:", error);
       res.status(500).json({ error: "Failed to fetch cosplay styles" });
+    }
+  });
+
+  // Get all unique tags for filtering
+  app.get("/api/cosplay-styles/tags", async (req, res) => {
+    try {
+      const result = await pool.query(`SELECT DISTINCT unnest(tags) as tag FROM cosplay_styles WHERE tags IS NOT NULL ORDER BY tag`);
+      
+      const tags = result.rows.map((row: any) => row.tag).filter(Boolean);
+      res.json(tags);
+    } catch (error) {
+      console.error("Error fetching style tags:", error);
+      res.status(500).json({ error: "Failed to fetch style tags" });
     }
   });
 
