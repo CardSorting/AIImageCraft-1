@@ -324,32 +324,54 @@ export default function AICosplayPage() {
                     </div>
                   </div>
 
-                  {/* Style Cards */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {currentStyles.map((style) => (
-                      <Card
-                        key={style.id}
-                        className={`cursor-pointer transition-all hover:scale-105 ${
-                          selectedStyle === style.id
-                            ? 'ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                            : 'hover:shadow-md'
-                        }`}
-                        onClick={() => setSelectedStyle(style.id)}
-                      >
-                        <CardContent className="p-4 text-center">
-                          <div className="flex items-center justify-center mb-2">
-                            <style.icon className="w-8 h-8 text-purple-600" />
-                          </div>
-                          <h4 className="font-semibold text-sm mb-1">{style.name}</h4>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">{style.description}</p>
-                          {style.popular && (
-                            <Badge variant="secondary" className="mt-2 text-xs">
-                              Popular
-                            </Badge>
+                  {/* Modern Style Cards */}
+                  <div className="grid grid-cols-2 gap-2 md:gap-3">
+                    {currentStyles.map((style) => {
+                      const isSelected = selectedStyle === style.id;
+                      return (
+                        <div
+                          key={style.id}
+                          onClick={() => {
+                            setSelectedStyle(style.id);
+                            // Add haptic feedback for mobile
+                            if (navigator.vibrate) navigator.vibrate(30);
+                          }}
+                          className={`relative p-3 md:p-4 rounded-xl md:rounded-2xl border-2 cursor-pointer transition-all duration-200 active:scale-95 ${
+                            isSelected
+                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg'
+                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-purple-300 hover:shadow-md'
+                          }`}
+                        >
+                          {/* Selection indicator */}
+                          {isSelected && (
+                            <div className="absolute -top-1 -right-1 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white rounded-full" />
+                            </div>
                           )}
-                        </CardContent>
-                      </Card>
-                    ))}
+                          
+                          {/* Popular badge */}
+                          {style.popular && (
+                            <div className="absolute top-2 left-2">
+                              <Badge variant="secondary" className="text-xs px-2 py-0 rounded-full bg-yellow-100 text-yellow-800">
+                                ⭐
+                              </Badge>
+                            </div>
+                          )}
+                          
+                          <div className="text-center space-y-2">
+                            <div className={`flex items-center justify-center ${style.popular ? 'mt-4' : ''}`}>
+                              <style.icon className={`w-6 h-6 md:w-8 md:h-8 ${isSelected ? 'text-purple-600' : 'text-gray-600 dark:text-gray-400'}`} />
+                            </div>
+                            <h4 className={`font-semibold text-xs md:text-sm leading-tight ${isSelected ? 'text-purple-700 dark:text-purple-300' : 'text-gray-900 dark:text-gray-100'}`}>
+                              {style.name}
+                            </h4>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight line-clamp-2">
+                              {style.description}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
