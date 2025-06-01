@@ -48,7 +48,7 @@ export class FalAICosplayService {
           num_images: params.numImages || 1,
           aspect_ratio: params.aspectRatio || "1:1",
           output_format: "png",
-          safety_tolerance: "2",
+          safety_tolerance: "4",
           sync_mode: true,
           ...(params.seed && { seed: params.seed })
         },
