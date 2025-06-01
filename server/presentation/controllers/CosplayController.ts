@@ -55,10 +55,14 @@ export class CosplayController {
       const imageDataUri = `data:${imageFile.mimetype};base64,${imageBase64}`;
 
       try {
+        // Format the prompt to be content-filter safe and character-consistent
+        const safePrompt = this.formatSafePrompt(instruction);
+        console.log(`[CosplayController] Formatted prompt: ${safePrompt.substring(0, 150)}...`);
+        
         // Transform the image using FAL AI
         const transformedImages = await this.falAIService.transformImage({
           imageUrl: imageDataUri,
-          prompt: instruction,
+          prompt: safePrompt,
           aspectRatio: "1:1",
           numImages: 1,
           guidanceScale: 3.5
@@ -78,7 +82,7 @@ export class CosplayController {
         const generatedImage = await storage.createImage({
           userId: userId,
           modelId: "fal-ai/flux-pro/kontext",
-          prompt: instruction,
+          prompt: safePrompt,
           imageUrl: transformedImages[0].url,
           aspectRatio: "1:1",
           seed: null
@@ -121,6 +125,36 @@ export class CosplayController {
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
     }
+  }
+
+  /**
+   * Format prompts to be content-filter safe and character-consistent
+   * Emphasizes costume/styling transformation while preserving facial features
+   */
+  private formatSafePrompt(instruction: string): string {
+    // Base safety prefix that clarifies this is costume/styling transformation
+    const safetyPrefix = "Professional costume styling and makeup transformation: ";
+    
+    // Character consistency suffix
+    const consistencySuffix = ", maintaining the person's natural facial features, bone structure, and identity. Focus on costume, clothing, accessories, and styling elements only. High-quality professional cosplay photography.";
+    
+    // Clean the instruction to remove potentially problematic words
+    let cleanInstruction = instruction
+      .replace(/transform this person into/gi, "style this person as")
+      .replace(/transform into/gi, "style as")
+      .replace(/turn into/gi, "dress as")
+      .replace(/become/gi, "cosplay as")
+      .replace(/change into/gi, "wear costume of");
+    
+    // Ensure it starts with styling language
+    if (!cleanInstruction.toLowerCase().includes("style") && 
+        !cleanInstruction.toLowerCase().includes("costume") && 
+        !cleanInstruction.toLowerCase().includes("cosplay") &&
+        !cleanInstruction.toLowerCase().includes("dress")) {
+      cleanInstruction = "cosplay styling as " + cleanInstruction;
+    }
+    
+    return safetyPrefix + cleanInstruction + consistencySuffix;
   }
 
   private async getOrCreateUserFromAuth0(oidcUser: any): Promise<number> {
