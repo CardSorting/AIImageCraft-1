@@ -14,6 +14,7 @@ import { Send, Bot, User, Download, Upload, Sparkles, Palette, Eye } from "lucid
 import { Message } from '../../../domain/ai-designer/entities/Message';
 import { EditImageCommand } from '../../../application/ai-designer/commands/EditImageCommand';
 import { GetChatHistoryQuery } from '../../../application/ai-designer/queries/GetChatHistoryQuery';
+import { SessionStorageService } from '../../../lib/sessionStorage';
 
 const messageSchema = z.object({
   prompt: z.string().min(1, "Please describe your edit").max(500, "Keep instructions under 500 characters"),
@@ -31,7 +32,7 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(sessionId);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(sessionId || null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -41,11 +42,16 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
     defaultValues: { prompt: "" },
   });
 
+  // Update session ID when prop changes
+  useEffect(() => {
+    setCurrentSessionId(sessionId || null);
+  }, [sessionId]);
+
   // Load chat history with Clean Architecture query
   const { data: chatHistory } = useQuery({
     queryKey: ['chat-history', currentSessionId],
     queryFn: async () => {
-      const query: GetChatHistoryQuery = { sessionId: currentSessionId };
+      const query: GetChatHistoryQuery = { sessionId: currentSessionId || undefined };
       // This would normally be injected via DI container
       return { messages: [], totalCount: 0, hasMore: false };
     },
@@ -93,6 +99,15 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
   const onSubmit = async (data: MessageInput) => {
     if (!selectedImage || isProcessing) return;
 
+    // Create session if it doesn't exist
+    let sessionId = currentSessionId;
+    if (!sessionId) {
+      const newSession = SessionStorageService.createNewSession(data.prompt, selectedImage);
+      sessionId = newSession.id;
+      setCurrentSessionId(sessionId);
+      onSessionCreated?.(newSession);
+    }
+
     const userMessage = Message.create('user', data.prompt, selectedImage);
     const assistantMessage = Message.createPending('assistant', 'Processing your edit...');
 
@@ -101,7 +116,7 @@ export function ChatInterface({ className = "", sessionId, onSessionCreated }: C
     form.reset();
 
     await editImageMutation.mutateAsync({
-      sessionId: currentSessionId,
+      sessionId: sessionId,
       promptText: data.prompt,
       imageUrl: selectedImage,
     });
