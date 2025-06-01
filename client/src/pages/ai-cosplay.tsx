@@ -189,10 +189,11 @@ export default function AICosplayPage() {
     generateCosplay.mutate({ image: selectedImage, style: styleId, styleInstruction });
   };
 
-  const handleStyleSelect = (styleId: string) => {
-    setSelectedStyle(styleId);
+  const handleStyleSelect = (style: any) => {
+    setSelectedStyle(style);
     
     // Track recently selected styles for recommendations
+    const styleId = style.styleId || style.id || style;
     setRecentStyles(prev => {
       const updated = [styleId, ...prev.filter(id => id !== styleId)];
       return updated.slice(0, 10); // Keep last 10 selections

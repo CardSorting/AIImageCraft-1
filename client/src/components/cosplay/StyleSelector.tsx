@@ -134,7 +134,7 @@ export function StyleSelector({
       <div className="grid grid-cols-2 gap-3">
         {currentStyles.map((style) => {
           const isSelected = selectedStyle?.styleId === style.styleId;
-          const Icon = getIconForStyle(style.iconName);
+          const Icon = getIconForStyle(style.iconName || 'Sparkles');
           
           return (
             <Card
