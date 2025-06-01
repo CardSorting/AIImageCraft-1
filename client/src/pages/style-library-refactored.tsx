@@ -16,15 +16,9 @@ import { SEOHead } from "@/components/SEOHead";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  COSPLAY_STYLE_LIBRARY, 
-  getCategoryById, 
-  getStyleById,
-  getPopularStyles,
-  getFeaturedCategories,
-  searchStyles,
-  type CosplayStyle,
-  type StyleCategory 
-} from "@shared/cosplayStyles";
+  type CosplayStyle as DatabaseCosplayStyle,
+  type StyleCategory as DatabaseStyleCategory
+} from "@shared/schema";
 
 interface StyleLibraryState {
   selectedCategory: string | null;
