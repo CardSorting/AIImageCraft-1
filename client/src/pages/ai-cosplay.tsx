@@ -31,10 +31,13 @@ export default function AICosplayPage() {
     if (savedStyle) {
       try {
         const styleData = JSON.parse(savedStyle);
+        console.log('Loaded style from localStorage:', styleData);
         setSelectedStyle(styleData);
         setRecentStyles(prev => [styleData.styleId, ...prev.filter(id => id !== styleData.styleId)].slice(0, 10));
+        return; // Exit early if we found saved style
       } catch (error) {
         console.error('Failed to parse saved style:', error);
+        localStorage.removeItem('selectedCosplayStyle'); // Clean up invalid data
       }
     }
 
@@ -42,9 +45,13 @@ export default function AICosplayPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const styleParam = urlParams.get('selectedStyle');
     if (styleParam && !selectedStyle) {
-      // If we have URL param but no localStorage, we need to fetch the style data
-      // For now, just store the ID
-      setSelectedStyle({ styleId: styleParam });
+      console.log('Style from URL parameter:', styleParam);
+      // If we have URL param but no localStorage, create minimal style object
+      setSelectedStyle({ 
+        styleId: styleParam,
+        name: 'Selected Style',
+        description: 'Style loaded from URL'
+      });
       setRecentStyles(prev => [styleParam, ...prev.filter(id => id !== styleParam)].slice(0, 10));
     }
   }, [location]);
@@ -159,7 +166,9 @@ export default function AICosplayPage() {
       return;
     }
 
-    generateCosplay.mutate({ image: selectedImage, style: selectedStyle });
+    // Extract style ID from the selected style object
+    const styleId = selectedStyle.styleId || selectedStyle;
+    generateCosplay.mutate({ image: selectedImage, style: styleId });
   };
 
   const handleStyleSelect = (styleId: string) => {
@@ -359,8 +368,8 @@ export default function AICosplayPage() {
                     </div>
                   )}
 
-                  {/* Smart Recommendations */}
-                  {selectedStyle && (
+                  {/* Smart Recommendations - Only show when no style is selected */}
+                  {!selectedStyle && recentStyles.length > 0 && (
                     <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                       <StyleRecommendations
                         selectedStyle={selectedStyle}
