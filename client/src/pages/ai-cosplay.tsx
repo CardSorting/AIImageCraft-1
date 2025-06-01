@@ -16,7 +16,7 @@ import { COSPLAY_STYLE_LIBRARY, getCategoryById, getStyleById } from "@shared/co
 export default function AICosplayPage() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState<any | null>(null);
   const [recentStyles, setRecentStyles] = useState<string[]>([]);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
@@ -24,16 +24,40 @@ export default function AICosplayPage() {
   const queryClient = useQueryClient();
   const [location] = useLocation();
 
-  // Check for style parameter in URL
+  // Check for selected style in localStorage and URL parameter
   useEffect(() => {
+    // First check localStorage for selected style data
+    const savedStyle = localStorage.getItem('selectedCosplayStyle');
+    if (savedStyle) {
+      try {
+        const styleData = JSON.parse(savedStyle);
+        setSelectedStyle(styleData);
+        setRecentStyles(prev => [styleData.styleId, ...prev.filter(id => id !== styleData.styleId)].slice(0, 10));
+      } catch (error) {
+        console.error('Failed to parse saved style:', error);
+      }
+    }
+
+    // Also check URL parameter as fallback
     const urlParams = new URLSearchParams(window.location.search);
-    const styleParam = urlParams.get('style');
+    const styleParam = urlParams.get('selectedStyle');
     if (styleParam && !selectedStyle) {
-      setSelectedStyle(styleParam);
-      // Add to recent styles
+      // If we have URL param but no localStorage, we need to fetch the style data
+      // For now, just store the ID
+      setSelectedStyle({ styleId: styleParam });
       setRecentStyles(prev => [styleParam, ...prev.filter(id => id !== styleParam)].slice(0, 10));
     }
-  }, [location, selectedStyle]);
+  }, [location]);
+
+  // Clear selected style function
+  const clearSelectedStyle = () => {
+    setSelectedStyle(null);
+    localStorage.removeItem('selectedCosplayStyle');
+    toast({
+      title: "Style cleared",
+      description: "You can now select a new style"
+    });
+  };
 
   // Get user profile for authentication
   const { data: profile } = useQuery({
@@ -278,36 +302,62 @@ export default function AICosplayPage() {
 
                   {/* Selected Style Display */}
                   {selectedStyle && (
-                    <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-xl border border-green-200 dark:border-green-800">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Sparkles className="w-4 h-4 text-white" />
+                        <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="w-5 h-5 text-white" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-sm text-blue-900 dark:text-blue-100">
-                            {getStyleById(selectedStyle)?.name || 'Selected Style'}
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-semibold text-green-900 dark:text-green-100">
+                              {selectedStyle.name || 'Selected Style'}
+                            </p>
+                            <span className="px-2 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 text-xs rounded-full font-medium">
+                              Active
+                            </span>
+                          </div>
+                          <p className="text-sm text-green-700 dark:text-green-300 mb-2">
+                            {selectedStyle.description || 'Ready to transform your photo'}
                           </p>
-                          <p className="text-xs text-blue-700 dark:text-blue-300">
-                            {getStyleById(selectedStyle)?.description || 'Ready to transform'}
+                          <p className="text-xs text-green-600 dark:text-green-400">
+                            Style is locked in for generation. Clear to choose a different one.
                           </p>
                         </div>
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          onClick={() => setSelectedStyle(null)}
-                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 p-1"
+                          onClick={clearSelectedStyle}
+                          className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 border-green-300 hover:bg-green-100 dark:hover:bg-green-900/30"
                         >
-                          ×
+                          Clear Style
                         </Button>
                       </div>
                     </div>
                   )}
 
                   {/* Advanced Style Discovery Interface */}
-                  <StyleDiscovery
-                    selectedStyle={selectedStyle}
-                    onStyleSelect={handleStyleSelect}
-                  />
+                  {!selectedStyle && (
+                    <StyleDiscovery
+                      selectedStyle={selectedStyle}
+                      onStyleSelect={handleStyleSelect}
+                    />
+                  )}
+
+                  {/* Style Selection Disabled Message */}
+                  {selectedStyle && (
+                    <div className="text-center py-8 px-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                      <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Sparkles className="w-8 h-8 text-green-600 dark:text-green-400" />
+                      </div>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Style Ready!</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Your selected style is locked in and ready for generation. Upload an image above to begin.
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500">
+                        Clear the current style to browse and select a different one.
+                      </p>
+                    </div>
+                  )}
 
                   {/* Smart Recommendations */}
                   {selectedStyle && (
