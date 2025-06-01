@@ -28,7 +28,7 @@ export default function Gallery() {
 
   const { data: images = [], isLoading } = useQuery<GeneratedImage[]>({
     queryKey: ["/api/images/my"],
-    enabled: authStatus?.isAuthenticated || false, // Only fetch user images if authenticated
+    enabled: authStatus?.isAuthenticated === true, // Only fetch user images if authenticated
     refetchInterval: 45000, // Refresh every 45 seconds instead of default
     staleTime: 20000, // Consider data fresh for 20 seconds
   });
