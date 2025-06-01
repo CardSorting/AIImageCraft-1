@@ -42,7 +42,7 @@ interface StyleSelectorProps {
   className?: string;
 }
 
-type TabType = 'popular' | 'characters' | 'artistic';
+type TabType = 'popular' | 'characters';
 
 // Artistic style combinations for randomizer
 const ARTISTIC_STYLES = [
@@ -80,27 +80,23 @@ export function StyleSelector({
 
   const allStyles: CosplayStyle[] = (stylesResponse as any)?.styles || [];
 
-  // Create fixed style cards for demonstration - 3 per tab
+  // Create fixed style cards for demonstration - 4 per tab (now 2 tabs)
   const stylesByTab = useMemo(() => {
     const popular: CosplayStyle[] = [
       { styleId: 'superhero', name: 'Superhero', description: 'Classic comic book hero', categoryId: 'popular', popular: true, iconName: 'Sparkles' },
       { styleId: 'anime-character', name: 'Anime Character', description: 'Japanese animation style', categoryId: 'popular', popular: true, iconName: 'Sparkles' },
-      { styleId: 'fantasy-warrior', name: 'Fantasy Warrior', description: 'Epic battle-ready hero', categoryId: 'popular', popular: true, iconName: 'Sparkles' }
+      { styleId: 'fantasy-warrior', name: 'Fantasy Warrior', description: 'Epic battle-ready hero', categoryId: 'popular', popular: true, iconName: 'Sparkles' },
+      { styleId: 'sci-fi-explorer', name: 'Sci-Fi Explorer', description: 'Futuristic space adventure', categoryId: 'popular', popular: true, iconName: 'Sparkles' }
     ];
     
     const characters: CosplayStyle[] = [
       { styleId: 'disney-princess', name: 'Disney Princess', description: 'Fairy tale royalty', categoryId: 'characters', iconName: 'Sparkles' },
       { styleId: 'marvel-hero', name: 'Marvel Hero', description: 'Cinematic universe hero', categoryId: 'characters', iconName: 'Sparkles' },
-      { styleId: 'anime-protagonist', name: 'Anime Protagonist', description: 'Main character energy', categoryId: 'characters', iconName: 'Sparkles' }
-    ];
-    
-    const artistic: CosplayStyle[] = [
-      { styleId: 'oil-painting', name: 'Oil Painting', description: 'Classical art style', categoryId: 'artistic', iconName: 'Sparkles' },
-      { styleId: 'watercolor', name: 'Watercolor', description: 'Soft flowing art', categoryId: 'artistic', iconName: 'Sparkles' },
-      { styleId: 'digital-art', name: 'Digital Art', description: 'Modern digital style', categoryId: 'artistic', iconName: 'Sparkles' }
+      { styleId: 'anime-protagonist', name: 'Anime Protagonist', description: 'Main character energy', categoryId: 'characters', iconName: 'Sparkles' },
+      { styleId: 'video-game-warrior', name: 'Video Game Warrior', description: 'Gaming legend character', categoryId: 'characters', iconName: 'Sparkles' }
     ];
 
-    return { popular, characters, artistic };
+    return { popular, characters };
   }, []);
 
   const generateRandomStyle = async () => {
@@ -144,7 +140,21 @@ export function StyleSelector({
   };
 
   const selectRandomStyle = () => {
-    if (previewRandomStyle) {
+    if (previewRandomStyle && selectedStyle) {
+      // Combine the selected base style with the artistic enhancement
+      const combinedStyle: CosplayStyle = {
+        styleId: `${selectedStyle.styleId}-enhanced-${previewRandomStyle.styleId}`,
+        name: `${selectedStyle.name} + ${previewRandomStyle.name}`,
+        description: `${selectedStyle.description} enhanced with ${previewRandomStyle.description?.toLowerCase()}`,
+        prompt: `${selectedStyle.prompt || selectedStyle.description} enhanced with ${previewRandomStyle.prompt}`,
+        categoryId: selectedStyle.categoryId,
+        iconName: selectedStyle.iconName,
+        popular: selectedStyle.popular,
+        premium: selectedStyle.premium || previewRandomStyle.premium
+      };
+      onStyleSelect(combinedStyle);
+    } else if (previewRandomStyle && !selectedStyle) {
+      // If no base style selected, just use the enhancement as the main style
       onStyleSelect(previewRandomStyle);
     }
   };
@@ -158,8 +168,7 @@ export function StyleSelector({
 
   const tabs = [
     { id: 'popular' as TabType, label: 'Popular', icon: Sparkles },
-    { id: 'characters' as TabType, label: 'Characters', icon: Wand2 },
-    { id: 'artistic' as TabType, label: 'Artistic', icon: Palette }
+    { id: 'characters' as TabType, label: 'Characters', icon: Wand2 }
   ];
 
   return (
@@ -248,35 +257,47 @@ export function StyleSelector({
         })}
       </div>
 
-      {/* Randomizer Section - "I'm Feeling Lucky" Style */}
+      {/* Artistic Enhancement Section */}
       <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-2">
-            <Shuffle className="w-5 h-5 text-purple-600" />
-            <h3 className="font-semibold text-lg">I'm Feeling Lucky</h3>
+            <Palette className="w-5 h-5 text-purple-600" />
+            <h3 className="font-semibold text-lg">Artistic Enhancement</h3>
           </div>
           
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Generate unique artistic style combinations
+            {selectedStyle 
+              ? `Enhance "${selectedStyle.name}" with sophisticated artistic styles`
+              : "Select a style above, then add artistic enhancement"
+            }
           </p>
 
           {previewRandomStyle && (
             <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                  {previewRandomStyle.name}
+                  {selectedStyle?.name && `${selectedStyle.name} + `}{previewRandomStyle.name}
                 </p>
                 <Button
                   onClick={selectRandomStyle}
                   size="sm"
                   className="bg-purple-600 hover:bg-purple-700 text-white"
+                  disabled={!selectedStyle}
                 >
-                  Use This Style
+                  {selectedStyle ? 'Combine Styles' : 'Select Base Style First'}
                 </Button>
               </div>
               <p className="text-xs text-purple-600 dark:text-purple-300">
-                {previewRandomStyle.description}
+                {selectedStyle 
+                  ? `${selectedStyle.description} enhanced with ${previewRandomStyle.description?.toLowerCase()}`
+                  : previewRandomStyle.description
+                }
               </p>
+              {previewRandomStyle.premium && (
+                <Badge variant="secondary" className="text-xs mt-2 bg-purple-100 text-purple-800">
+                  Premium Enhancement
+                </Badge>
+              )}
             </div>
           )}
 
@@ -287,7 +308,7 @@ export function StyleSelector({
               className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 border-0"
             >
               <Shuffle className="w-4 h-4 mr-2" />
-              {previewRandomStyle ? 'Try Another' : 'I\'m Feeling Lucky'}
+              {previewRandomStyle ? 'Try Different Enhancement' : 'Generate Artistic Enhancement'}
             </Button>
           </div>
         </div>
