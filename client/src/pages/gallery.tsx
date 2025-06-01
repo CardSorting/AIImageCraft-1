@@ -28,7 +28,7 @@ export default function Gallery() {
 
   const { data: images = [], isLoading } = useQuery<GeneratedImage[]>({
     queryKey: ["/api/images/my"],
-    enabled: authStatus?.isAuthenticated === true, // Only fetch user images if authenticated
+    enabled: authStatus?.isAuthenticated || false, // Only fetch user images if authenticated
     refetchInterval: 45000, // Refresh every 45 seconds instead of default
     staleTime: 20000, // Consider data fresh for 20 seconds
   });
@@ -82,34 +82,6 @@ export default function Gallery() {
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
     return `${Math.floor(diffInMinutes / 1440)} days ago`;
   };
-
-  // Show login prompt if not authenticated
-  if (authStatus && !authStatus.isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background">
-        <NavigationHeader activeItem="gallery" />
-        <div className="container-responsive py-6">
-          <div className="max-w-md mx-auto text-center">
-            <div className="card-ios p-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Grid3X3 className="text-primary-foreground w-8 h-8" />
-              </div>
-              <h2 className="text-xl font-semibold text-foreground mb-2">Sign In Required</h2>
-              <p className="text-muted-foreground mb-6">
-                Please sign in to view your personal image gallery and creations.
-              </p>
-              <Button 
-                onClick={() => window.location.href = '/login'}
-                className="w-full"
-              >
-                Sign In to View Gallery
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">

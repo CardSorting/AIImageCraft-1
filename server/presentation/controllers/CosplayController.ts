@@ -55,14 +55,10 @@ export class CosplayController {
       const imageDataUri = `data:${imageFile.mimetype};base64,${imageBase64}`;
 
       try {
-        // Format the prompt to be content-filter safe and character-consistent
-        const safePrompt = this.formatSafePrompt(instruction);
-        console.log(`[CosplayController] Formatted prompt: ${safePrompt.substring(0, 150)}...`);
-        
         // Transform the image using FAL AI
         const transformedImages = await this.falAIService.transformImage({
           imageUrl: imageDataUri,
-          prompt: safePrompt,
+          prompt: instruction,
           aspectRatio: "1:1",
           numImages: 1,
           guidanceScale: 3.5
@@ -82,7 +78,7 @@ export class CosplayController {
         const generatedImage = await storage.createImage({
           userId: userId,
           modelId: "fal-ai/flux-pro/kontext",
-          prompt: safePrompt,
+          prompt: instruction,
           imageUrl: transformedImages[0].url,
           aspectRatio: "1:1",
           seed: null
@@ -125,95 +121,6 @@ export class CosplayController {
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
     }
-  }
-
-  /**
-   * Format prompts to be content-filter safe and character-consistent
-   * Removes problematic character names and gendered language
-   */
-  private formatSafePrompt(instruction: string): string {
-    // Check if prompt is already formatted
-    if (instruction.startsWith("Professional costume styling and makeup transformation:")) {
-      // Extract just the core styling instruction, removing verbose suffix
-      const corePrompt = instruction
-        .replace("Professional costume styling and makeup transformation: ", "")
-        .replace(/, maintaining the person's natural facial features.*$/, "");
-      
-      // Apply character name replacements to existing prompts
-      const neutralPrompt = this.neutralizeCharacterNames(corePrompt);
-      return `Wearing ${neutralPrompt}`;
-    }
-    
-    // Clean the instruction to remove potentially problematic words
-    let cleanInstruction = instruction
-      .replace(/transform this person into/gi, "wearing")
-      .replace(/transform into/gi, "wearing")
-      .replace(/turn into/gi, "wearing")
-      .replace(/become/gi, "wearing")
-      .replace(/change into/gi, "wearing")
-      .replace(/makeup transformation/gi, "costume")
-      .replace(/transformation/gi, "costume");
-    
-    // Apply character name neutralization
-    const neutralInstruction = this.neutralizeCharacterNames(cleanInstruction);
-    
-    // Return with simple, clear formatting
-    return `Wearing ${neutralInstruction}`;
-  }
-
-  /**
-   * Replace specific character names with neutral descriptions
-   * to avoid content filter triggers
-   */
-  private neutralizeCharacterNames(prompt: string): string {
-    const characterReplacements: { [key: string]: string } = {
-      // Disney Characters
-      'Elsa': 'ice queen character with blue dress',
-      'Anna': 'adventurous princess with braided hair',
-      'Ariel': 'mermaid character with red hair',
-      'Belle': 'bookish princess in yellow gown',
-      'Cinderella': 'fairy tale princess in blue gown',
-      'Snow White': 'classic princess with red bow',
-      'Rapunzel': 'long-haired princess',
-      'Moana': 'island princess with flower crown',
-      'Mulan': 'warrior princess in armor',
-      'Tiana': 'green dress princess',
-      
-      // Marvel/DC Characters  
-      'Thor': 'Norse god with hammer and cape',
-      'Loki': 'trickster character with horned helmet',
-      'Batman': 'dark knight vigilante',
-      'Superman': 'blue and red superhero',
-      'Wonder Woman': 'amazonian warrior princess',
-      'Spider-Man': 'web-slinging hero in red suit',
-      'Iron Man': 'armored superhero',
-      'Captain America': 'patriotic shield-bearing hero',
-      
-      // Anime Characters
-      'Goku': 'martial artist in orange gi',
-      'Naruto': 'ninja in orange jumpsuit',
-      'Sailor Moon': 'magical girl in sailor outfit',
-      'Nezuko': 'demon character with bamboo',
-      'Gojo': 'white-haired sorcerer with blindfold',
-      
-      // Other Popular Characters
-      'Hermione': 'student wizard with curly hair',
-      'Harry Potter': 'young wizard with glasses',
-      'Link': 'green-clad hero with sword',
-      'Mario': 'red-capped plumber',
-      'Luigi': 'green-capped plumber',
-      'Pikachu': 'yellow electric creature',
-    };
-    
-    let neutralizedPrompt = prompt;
-    
-    // Apply replacements (case insensitive)
-    Object.entries(characterReplacements).forEach(([name, replacement]) => {
-      const regex = new RegExp(`\\b${name}\\b`, 'gi');
-      neutralizedPrompt = neutralizedPrompt.replace(regex, replacement);
-    });
-    
-    return neutralizedPrompt;
   }
 
   private async getOrCreateUserFromAuth0(oidcUser: any): Promise<number> {

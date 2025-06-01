@@ -17,7 +17,7 @@ export const SearchDominationSEO: React.FC<SearchDominationSEOProps> = ({
   enableMaximumVisibility = true 
 }) => {
   const [location] = useLocation();
-  const { data: modelsData } = useQuery({ queryKey: ['/api/v1/models/catalog'] });
+  const { data: modelsData } = useQuery({ queryKey: ['/api/ai-models'] });
   const { data: imagesData } = useQuery({ queryKey: ['/api/images'] });
 
   useEffect(() => {

@@ -16,7 +16,7 @@ export const SEOSitemap: React.FC<SEOSitemapProps> = ({
   enableRichSnippets = true 
 }) => {
   const { data: modelsData } = useQuery({
-    queryKey: ['/api/v1/models/catalog'],
+    queryKey: ['/api/ai-models'],
     enabled: enableDynamicSitemap
   });
 

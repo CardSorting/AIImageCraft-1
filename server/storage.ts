@@ -1,6 +1,6 @@
-import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, styleCategories, cosplayStyles, randomizerStyles, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike, type StyleCategory, type InsertStyleCategory, type CosplayStyle, type InsertCosplayStyle, type RandomizerStyle, type InsertRandomizerStyle } from "@shared/schema";
+import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, asc, like, and, sql, count } from "drizzle-orm";
+import { eq, desc, like, and, sql, count } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -38,23 +38,6 @@ export interface IStorage {
   createUserLike(like: InsertUserLike): Promise<UserLike>;
   removeUserLike(userId: number, modelId: number): Promise<boolean>;
   isModelLiked(userId: number, modelId: number): Promise<boolean>;
-  
-  // Style management methods
-  getStyleCategories(mainCategory?: string): Promise<StyleCategory[]>;
-  getStyleCategoryById(categoryId: string): Promise<StyleCategory | undefined>;
-  createStyleCategory(category: InsertStyleCategory): Promise<StyleCategory>;
-  getCosplayStyles(categoryId?: string): Promise<CosplayStyle[]>;
-  getCosplayStyleById(styleId: string): Promise<CosplayStyle | undefined>;
-  createCosplayStyle(style: InsertCosplayStyle): Promise<CosplayStyle>;
-  getPopularStyles(limit?: number): Promise<CosplayStyle[]>;
-  searchStyles(query: string, limit?: number): Promise<CosplayStyle[]>;
-  incrementStyleUsage(styleId: string): Promise<void>;
-  
-  // Randomizer style methods
-  getRandomizerStyles(category?: string, rarity?: string): Promise<RandomizerStyle[]>;
-  getRandomizerStyleById(styleId: string): Promise<RandomizerStyle | undefined>;
-  getRandomStyleCombination(): Promise<RandomizerStyle | undefined>;
-  incrementRandomizerUsage(styleId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -406,174 +389,6 @@ export class DatabaseStorage implements IStorage {
       ))
       .limit(1);
     return !!like;
-  }
-
-  // Style management implementation
-  async getStyleCategories(mainCategory?: string): Promise<StyleCategory[]> {
-    let query = db.select().from(styleCategories);
-    
-    if (mainCategory) {
-      query = query.where(eq(styleCategories.mainCategory, mainCategory));
-    }
-    
-    const categories = await query.orderBy(desc(styleCategories.featured), styleCategories.name);
-    
-    return categories;
-  }
-
-  async getStyleCategoryById(categoryId: string): Promise<StyleCategory | undefined> {
-    const [category] = await db.select()
-      .from(styleCategories)
-      .where(eq(styleCategories.categoryId, categoryId))
-      .limit(1);
-    return category || undefined;
-  }
-
-  async createStyleCategory(insertCategory: InsertStyleCategory): Promise<StyleCategory> {
-    const [category] = await db
-      .insert(styleCategories)
-      .values(insertCategory)
-      .returning();
-    return category;
-  }
-
-  async getCosplayStyles(categoryId?: string): Promise<CosplayStyle[]> {
-    let query = db.select().from(cosplayStyles);
-    
-    if (categoryId) {
-      query = query.where(eq(cosplayStyles.categoryId, categoryId));
-    }
-    
-    return query.orderBy(cosplayStyles.name);
-  }
-
-  async getCosplayStyleById(styleId: string): Promise<CosplayStyle | undefined> {
-    const [style] = await db.select()
-      .from(cosplayStyles)
-      .where(eq(cosplayStyles.styleId, styleId))
-      .limit(1);
-    return style || undefined;
-  }
-
-  async createCosplayStyle(insertStyle: InsertCosplayStyle): Promise<CosplayStyle> {
-    const [style] = await db
-      .insert(cosplayStyles)
-      .values(insertStyle)
-      .returning();
-    return style;
-  }
-
-  async getPopularStyles(limit: number = 10): Promise<CosplayStyle[]> {
-    return db.select()
-      .from(cosplayStyles)
-      .where(eq(cosplayStyles.popular, 1))
-      .orderBy(desc(cosplayStyles.popularity), desc(cosplayStyles.usageCount))
-      .limit(limit);
-  }
-
-  async searchStyles(query: string, limit: number = 20): Promise<CosplayStyle[]> {
-    const searchTerm = `%${query.toLowerCase()}%`;
-    return db.select()
-      .from(cosplayStyles)
-      .where(
-        sql`LOWER(${cosplayStyles.name}) LIKE ${searchTerm} OR LOWER(${cosplayStyles.description}) LIKE ${searchTerm}`
-      )
-      .orderBy(cosplayStyles.name)
-      .limit(limit);
-  }
-
-  async incrementStyleUsage(styleId: string): Promise<void> {
-    await db
-      .update(cosplayStyles)
-      .set({ 
-        usageCount: sql`${cosplayStyles.usageCount} + 1`,
-        updatedAt: new Date()
-      })
-      .where(eq(cosplayStyles.styleId, styleId));
-  }
-
-  // Randomizer style implementations
-  async getRandomizerStyles(category?: string, rarity?: string): Promise<RandomizerStyle[]> {
-    try {
-      let query = db.select().from(randomizerStyles).where(eq(randomizerStyles.active, 1));
-      
-      if (category) {
-        query = query.where(eq(randomizerStyles.category, category));
-      }
-      
-      if (rarity) {
-        query = query.where(eq(randomizerStyles.rarity, rarity));
-      }
-      
-      return await query.orderBy(desc(randomizerStyles.rating));
-    } catch (error) {
-      console.error('Error fetching randomizer styles:', error);
-      return [];
-    }
-  }
-
-  async getRandomizerStyleById(styleId: string): Promise<RandomizerStyle | undefined> {
-    try {
-      const results = await db
-        .select()
-        .from(randomizerStyles)
-        .where(eq(randomizerStyles.styleId, styleId))
-        .limit(1);
-      
-      return results[0];
-    } catch (error) {
-      console.error(`Error fetching randomizer style ${styleId}:`, error);
-      return undefined;
-    }
-  }
-
-  async getRandomStyleCombination(): Promise<RandomizerStyle | undefined> {
-    try {
-      // Get a weighted random style based on rarity
-      const allStyles = await db
-        .select()
-        .from(randomizerStyles)
-        .where(eq(randomizerStyles.active, 1));
-      
-      if (allStyles.length === 0) return undefined;
-      
-      // Weight styles by rarity (legendary = 1, epic = 2, rare = 5, uncommon = 10, common = 20)
-      const weights: { [key: string]: number } = {
-        'legendary': 1,
-        'epic': 2, 
-        'rare': 5,
-        'uncommon': 10,
-        'common': 20
-      };
-      
-      const weightedStyles: RandomizerStyle[] = [];
-      allStyles.forEach(style => {
-        const weight = weights[style.rarity] || 10;
-        for (let i = 0; i < weight; i++) {
-          weightedStyles.push(style);
-        }
-      });
-      
-      const randomIndex = Math.floor(Math.random() * weightedStyles.length);
-      return weightedStyles[randomIndex];
-    } catch (error) {
-      console.error('Error getting random style combination:', error);
-      return undefined;
-    }
-  }
-
-  async incrementRandomizerUsage(styleId: string): Promise<void> {
-    try {
-      await db
-        .update(randomizerStyles)
-        .set({ 
-          usageCount: sql`${randomizerStyles.usageCount} + 1`,
-          updatedAt: new Date()
-        })
-        .where(eq(randomizerStyles.styleId, styleId));
-    } catch (error) {
-      console.error(`Error incrementing usage for randomizer style ${styleId}:`, error);
-    }
   }
 }
 

@@ -1,70 +1,70 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation } from "wouter";
 import { SEOHead } from "@/components/SEOHead";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { StyleSelector } from "@/components/cosplay/StyleSelector";
-import { StyleRecommendations } from "@/components/cosplay/StyleRecommendations";
-import { Upload, Image as ImageIcon, Sparkles, Star, Library, ArrowRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Upload, Image as ImageIcon, Sparkles, Star, Crown, Wand2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { COSPLAY_STYLE_LIBRARY, getCategoryById, getStyleById } from "@shared/cosplayStyles";
 
+interface StyleCard {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  icon: any;
+  popular?: boolean;
+}
 
+const STYLE_CATEGORIES = [
+  {
+    name: "Movie Characters",
+    styles: [
+      { id: "marvel-hero", name: "Marvel Superhero", description: "Classic comic book superhero style", icon: Crown, popular: true },
+      { id: "jedi-knight", name: "Jedi Knight", description: "Star Wars Jedi warrior", icon: Wand2, popular: true },
+      { id: "pirate-captain", name: "Pirate Captain", description: "Swashbuckling pirate adventure", icon: Star },
+      { id: "wizard", name: "Fantasy Wizard", description: "Magical wizard with robes and staff", icon: Sparkles },
+    ]
+  },
+  {
+    name: "TV Shows",
+    styles: [
+      { id: "detective", name: "TV Detective", description: "Classic detective show character", icon: Star },
+      { id: "sci-fi-officer", name: "Sci-Fi Officer", description: "Space exploration uniform", icon: Crown },
+      { id: "medieval-knight", name: "Medieval Knight", description: "Game of Thrones style armor", icon: Wand2 },
+      { id: "western-cowboy", name: "Western Cowboy", description: "Wild west gunslinger", icon: Star },
+    ]
+  },
+  {
+    name: "Anime Characters",
+    styles: [
+      { id: "anime-hero", name: "Anime Hero", description: "Classic shounen protagonist style", icon: Sparkles, popular: true },
+      { id: "magical-girl", name: "Magical Girl", description: "Sailor Moon inspired transformation", icon: Star, popular: true },
+      { id: "ninja-warrior", name: "Ninja Warrior", description: "Naruto-style ninja outfit", icon: Wand2 },
+      { id: "mech-pilot", name: "Mech Pilot", description: "Gundam pilot suit", icon: Crown },
+    ]
+  },
+  {
+    name: "Artwork Styles",
+    styles: [
+      { id: "renaissance", name: "Renaissance Portrait", description: "Classical European painting style", icon: Crown },
+      { id: "pop-art", name: "Pop Art", description: "Andy Warhol inspired style", icon: Star },
+      { id: "cyberpunk", name: "Cyberpunk", description: "Futuristic neon aesthetic", icon: Sparkles, popular: true },
+      { id: "steampunk", name: "Steampunk", description: "Victorian era mechanical style", icon: Wand2 },
+    ]
+  }
+];
 
 export default function AICosplayPage() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [selectedStyle, setSelectedStyle] = useState<any | null>(null);
-  const [recentStyles, setRecentStyles] = useState<string[]>([]);
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState("Movie Characters");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [location] = useLocation();
-
-  // Check for selected style in localStorage and URL parameter
-  useEffect(() => {
-    // First check localStorage for selected style data
-    const savedStyle = localStorage.getItem('selectedCosplayStyle');
-    if (savedStyle) {
-      try {
-        const styleData = JSON.parse(savedStyle);
-        console.log('Loaded style from localStorage:', styleData);
-        setSelectedStyle(styleData);
-        setRecentStyles(prev => [styleData.styleId, ...prev.filter(id => id !== styleData.styleId)].slice(0, 10));
-        return; // Exit early if we found saved style
-      } catch (error) {
-        console.error('Failed to parse saved style:', error);
-        localStorage.removeItem('selectedCosplayStyle'); // Clean up invalid data
-      }
-    }
-
-    // Also check URL parameter as fallback
-    const urlParams = new URLSearchParams(window.location.search);
-    const styleParam = urlParams.get('selectedStyle');
-    if (styleParam && !selectedStyle) {
-      console.log('Style from URL parameter:', styleParam);
-      // If we have URL param but no localStorage, create minimal style object
-      setSelectedStyle({ 
-        styleId: styleParam,
-        name: 'Selected Style',
-        description: 'Style loaded from URL'
-      });
-      setRecentStyles(prev => [styleParam, ...prev.filter(id => id !== styleParam)].slice(0, 10));
-    }
-  }, [location]);
-
-  // Clear selected style function
-  const clearSelectedStyle = () => {
-    setSelectedStyle(null);
-    localStorage.removeItem('selectedCosplayStyle');
-    toast({
-      title: "Style cleared",
-      description: "You can now select a new style"
-    });
-  };
 
   // Get user profile for authentication
   const { data: profile } = useQuery({
@@ -93,17 +93,11 @@ export default function AICosplayPage() {
   };
 
   const generateCosplay = useMutation({
-    mutationFn: async ({ image, style, styleInstruction }: { image: File; style: string; styleInstruction?: string }) => {
+    mutationFn: async ({ image, style }: { image: File; style: string }) => {
       const formData = new FormData();
       formData.append('image', image);
       formData.append('modelId', 'bfl:4@1');
-      
-      // Use provided styleInstruction or fallback to constructing it
-      const instruction = styleInstruction 
-        ? `Transform this person into ${styleInstruction}`
-        : `Transform this person into ${getStyleInstruction(style)}`;
-      
-      formData.append('instruction', instruction);
+      formData.append('instruction', `Transform this person into ${getStyleInstruction(style)}`);
       
       const response = await fetch('/api/generate-cosplay', {
         method: 'POST',
@@ -142,22 +136,33 @@ export default function AICosplayPage() {
     },
   });
 
-  const getStyleInstruction = (styleData: any): string => {
-    if (styleData && typeof styleData === 'object') {
-      return styleData.prompt || "a character";
-    }
-    // Fallback for old string-based styleId
-    const style = getStyleById(styleData);
-    return style?.prompt || "a character";
+  const getStyleInstruction = (styleId: string): string => {
+    const styleMap: Record<string, string> = {
+      "marvel-hero": "a Marvel superhero with cape and costume",
+      "jedi-knight": "a Jedi Knight with lightsaber and robes",
+      "pirate-captain": "a pirate captain with hat and sword",
+      "wizard": "a fantasy wizard with magical robes and staff",
+      "detective": "a classic TV detective with coat and hat",
+      "sci-fi-officer": "a sci-fi space officer in uniform",
+      "medieval-knight": "a medieval knight in shining armor",
+      "western-cowboy": "a western cowboy with hat and boots",
+      "anime-hero": "an anime hero with spiky hair and determined expression",
+      "magical-girl": "a magical girl with colorful outfit and accessories",
+      "ninja-warrior": "a ninja warrior with mask and traditional outfit",
+      "mech-pilot": "a mech pilot in futuristic suit",
+      "renaissance": "a Renaissance-era noble in classical portrait style",
+      "pop-art": "a pop art character with bold colors and comic style",
+      "cyberpunk": "a cyberpunk character with neon and futuristic elements",
+      "steampunk": "a steampunk character with Victorian and mechanical elements",
+    };
+    return styleMap[styleId] || "a character";
   };
 
-  const getStyleName = (styleData: any): string => {
-    if (!styleData) return "Unknown Style";
-    if (typeof styleData === 'object' && styleData.name) {
-      return styleData.name;
-    }
-    // Fallback for old string-based styleId
-    const style = getStyleById(styleData);
+  const getStyleName = (styleId: string | null): string => {
+    if (!styleId) return "Unknown Style";
+    
+    const allStyles = STYLE_CATEGORIES.flatMap(cat => cat.styles);
+    const style = allStyles.find(s => s.id === styleId);
     return style?.name || "Unknown Style";
   };
 
@@ -180,25 +185,10 @@ export default function AICosplayPage() {
       return;
     }
 
-    // Use the actual style instruction from the selected style data
-    const styleInstruction = getStyleInstruction(selectedStyle);
-    console.log('Using style instruction:', styleInstruction);
-    
-    // Extract style ID for tracking
-    const styleId = selectedStyle.styleId || selectedStyle;
-    generateCosplay.mutate({ image: selectedImage, style: styleId, styleInstruction });
+    generateCosplay.mutate({ image: selectedImage, style: selectedStyle });
   };
 
-  const handleStyleSelect = (style: any) => {
-    setSelectedStyle(style);
-    
-    // Track recently selected styles for recommendations
-    const styleId = style.styleId || style.id || style;
-    setRecentStyles(prev => {
-      const updated = [styleId, ...prev.filter(id => id !== styleId)];
-      return updated.slice(0, 10); // Keep last 10 selections
-    });
-  };
+  const currentStyles = STYLE_CATEGORIES.find(cat => cat.name === activeCategory)?.styles || [];
 
   return (
     <>
@@ -310,94 +300,79 @@ export default function AICosplayPage() {
             <div className="space-y-4 md:space-y-6 order-1 lg:order-2">
               <Card className="overflow-hidden border-0 shadow-lg rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
                 <CardContent className="p-4 md:p-6">
-                  <div className="flex items-center justify-between mb-3 md:mb-4">
-                    <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2">
-                      <Star className="w-4 h-4 md:w-5 md:h-5" />
-                      Choose Your Style
-                    </h3>
-                    <Link href="/style-library">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="text-sm rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                      >
-                        <Library className="w-4 h-4 mr-2" />
-                        Browse All
-                        <ArrowRight className="w-3 h-3 ml-1" />
-                      </Button>
-                    </Link>
+                  <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 flex items-center gap-2">
+                    <Star className="w-4 h-4 md:w-5 md:h-5" />
+                    Choose Your Style
+                  </h3>
+
+                  {/* Modern Mobile Tabs */}
+                  <div className="mb-4 md:mb-6">
+                    <div className="grid grid-cols-2 gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-xl">
+                      {STYLE_CATEGORIES.map((category) => (
+                        <button
+                          key={category.name}
+                          onClick={() => setActiveCategory(category.name)}
+                          className={`px-2 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium rounded-lg transition-all duration-200 ${
+                            activeCategory === category.name
+                              ? 'bg-white dark:bg-gray-800 text-purple-600 shadow-sm'
+                              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                          }`}
+                        >
+                          {category.name.split(' ')[0]}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Selected Style Display */}
-                  {selectedStyle && (
-                    <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-xl border border-green-200 dark:border-green-800">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Sparkles className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-semibold text-green-900 dark:text-green-100">
-                              {selectedStyle.name || 'Selected Style'}
-                            </p>
-                            <span className="px-2 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 text-xs rounded-full font-medium">
-                              Active
-                            </span>
-                          </div>
-                          <p className="text-sm text-green-700 dark:text-green-300 mb-2">
-                            {selectedStyle.description || 'Ready to transform your photo'}
-                          </p>
-                          <p className="text-xs text-green-600 dark:text-green-400">
-                            Style is locked in for generation. Clear to choose a different one.
-                          </p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={clearSelectedStyle}
-                          className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 border-green-300 hover:bg-green-100 dark:hover:bg-green-900/30"
+                  {/* Modern Style Cards */}
+                  <div className="grid grid-cols-2 gap-2 md:gap-3">
+                    {currentStyles.map((style) => {
+                      const isSelected = selectedStyle === style.id;
+                      return (
+                        <div
+                          key={style.id}
+                          onClick={() => {
+                            setSelectedStyle(style.id);
+                            // Add haptic feedback for mobile
+                            if (navigator.vibrate) navigator.vibrate(30);
+                          }}
+                          className={`relative p-3 md:p-4 rounded-xl md:rounded-2xl border-2 cursor-pointer transition-all duration-200 active:scale-95 ${
+                            isSelected
+                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg'
+                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-purple-300 hover:shadow-md'
+                          }`}
                         >
-                          Clear Style
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Simplified Style Selector */}
-                  {!selectedStyle && (
-                    <StyleSelector
-                      selectedStyle={selectedStyle}
-                      onStyleSelect={handleStyleSelect}
-                    />
-                  )}
-
-                  {/* Style Selection Disabled Message */}
-                  {selectedStyle && (
-                    <div className="text-center py-8 px-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-                      <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Sparkles className="w-8 h-8 text-green-600 dark:text-green-400" />
-                      </div>
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Style Ready!</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        Your selected style is locked in and ready for generation. Upload an image above to begin.
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">
-                        Clear the current style to browse and select a different one.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Smart Recommendations - Only show when no style is selected */}
-                  {!selectedStyle && recentStyles.length > 0 && (
-                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                      <StyleRecommendations
-                        selectedStyle={selectedStyle}
-                        recentStyles={recentStyles}
-                        onStyleSelect={handleStyleSelect}
-                        maxRecommendations={6}
-                      />
-                    </div>
-                  )}
+                          {/* Selection indicator */}
+                          {isSelected && (
+                            <div className="absolute -top-1 -right-1 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white rounded-full" />
+                            </div>
+                          )}
+                          
+                          {/* Popular badge */}
+                          {style.popular && (
+                            <div className="absolute top-2 left-2">
+                              <Badge variant="secondary" className="text-xs px-2 py-0 rounded-full bg-yellow-100 text-yellow-800">
+                                ⭐
+                              </Badge>
+                            </div>
+                          )}
+                          
+                          <div className="text-center space-y-2">
+                            <div className={`flex items-center justify-center ${style.popular ? 'mt-4' : ''}`}>
+                              <style.icon className={`w-6 h-6 md:w-8 md:h-8 ${isSelected ? 'text-purple-600' : 'text-gray-600 dark:text-gray-400'}`} />
+                            </div>
+                            <h4 className={`font-semibold text-xs md:text-sm leading-tight ${isSelected ? 'text-purple-700 dark:text-purple-300' : 'text-gray-900 dark:text-gray-100'}`}>
+                              {style.name}
+                            </h4>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight line-clamp-2">
+                              {style.description}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </CardContent>
               </Card>
             </div>
