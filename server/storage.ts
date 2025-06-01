@@ -38,6 +38,17 @@ export interface IStorage {
   createUserLike(like: InsertUserLike): Promise<UserLike>;
   removeUserLike(userId: number, modelId: number): Promise<boolean>;
   isModelLiked(userId: number, modelId: number): Promise<boolean>;
+  
+  // Style management methods
+  getStyleCategories(): Promise<StyleCategory[]>;
+  getStyleCategoryById(categoryId: string): Promise<StyleCategory | undefined>;
+  createStyleCategory(category: InsertStyleCategory): Promise<StyleCategory>;
+  getCosplayStyles(categoryId?: string): Promise<CosplayStyle[]>;
+  getCosplayStyleById(styleId: string): Promise<CosplayStyle | undefined>;
+  createCosplayStyle(style: InsertCosplayStyle): Promise<CosplayStyle>;
+  getPopularStyles(limit?: number): Promise<CosplayStyle[]>;
+  searchStyles(query: string, limit?: number): Promise<CosplayStyle[]>;
+  incrementStyleUsage(styleId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -389,6 +400,82 @@ export class DatabaseStorage implements IStorage {
       ))
       .limit(1);
     return !!like;
+  }
+
+  // Style management implementation
+  async getStyleCategories(): Promise<StyleCategory[]> {
+    return db.select().from(styleCategories).orderBy(styleCategories.name);
+  }
+
+  async getStyleCategoryById(categoryId: string): Promise<StyleCategory | undefined> {
+    const [category] = await db.select()
+      .from(styleCategories)
+      .where(eq(styleCategories.categoryId, categoryId))
+      .limit(1);
+    return category || undefined;
+  }
+
+  async createStyleCategory(insertCategory: InsertStyleCategory): Promise<StyleCategory> {
+    const [category] = await db
+      .insert(styleCategories)
+      .values(insertCategory)
+      .returning();
+    return category;
+  }
+
+  async getCosplayStyles(categoryId?: string): Promise<CosplayStyle[]> {
+    let query = db.select().from(cosplayStyles);
+    
+    if (categoryId) {
+      query = query.where(eq(cosplayStyles.categoryId, categoryId));
+    }
+    
+    return query.orderBy(cosplayStyles.name);
+  }
+
+  async getCosplayStyleById(styleId: string): Promise<CosplayStyle | undefined> {
+    const [style] = await db.select()
+      .from(cosplayStyles)
+      .where(eq(cosplayStyles.styleId, styleId))
+      .limit(1);
+    return style || undefined;
+  }
+
+  async createCosplayStyle(insertStyle: InsertCosplayStyle): Promise<CosplayStyle> {
+    const [style] = await db
+      .insert(cosplayStyles)
+      .values(insertStyle)
+      .returning();
+    return style;
+  }
+
+  async getPopularStyles(limit: number = 10): Promise<CosplayStyle[]> {
+    return db.select()
+      .from(cosplayStyles)
+      .where(eq(cosplayStyles.popular, 1))
+      .orderBy(desc(cosplayStyles.popularity), desc(cosplayStyles.usageCount))
+      .limit(limit);
+  }
+
+  async searchStyles(query: string, limit: number = 20): Promise<CosplayStyle[]> {
+    const searchTerm = `%${query.toLowerCase()}%`;
+    return db.select()
+      .from(cosplayStyles)
+      .where(
+        sql`LOWER(${cosplayStyles.name}) LIKE ${searchTerm} OR LOWER(${cosplayStyles.description}) LIKE ${searchTerm}`
+      )
+      .orderBy(cosplayStyles.name)
+      .limit(limit);
+  }
+
+  async incrementStyleUsage(styleId: string): Promise<void> {
+    await db
+      .update(cosplayStyles)
+      .set({ 
+        usageCount: sql`${cosplayStyles.usageCount} + 1`,
+        updatedAt: new Date()
+      })
+      .where(eq(cosplayStyles.styleId, styleId));
   }
 }
 

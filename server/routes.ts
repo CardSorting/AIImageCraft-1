@@ -798,6 +798,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await cosplayController.generateCosplay(req, res);
   });
 
+  // Style Management API Routes
+  app.get("/api/style-categories", async (req, res) => {
+    try {
+      const categories = await storage.getStyleCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching style categories:", error);
+      res.status(500).json({ error: "Failed to fetch style categories" });
+    }
+  });
+
+  app.get("/api/style-categories/:categoryId", async (req, res) => {
+    try {
+      const { categoryId } = req.params;
+      const category = await storage.getStyleCategoryById(categoryId);
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      res.json(category);
+    } catch (error) {
+      console.error("Error fetching style category:", error);
+      res.status(500).json({ error: "Failed to fetch style category" });
+    }
+  });
+
+  app.get("/api/cosplay-styles", async (req, res) => {
+    try {
+      const { categoryId, popular, search, limit } = req.query;
+      
+      if (search) {
+        const styles = await storage.searchStyles(search as string, Number(limit) || 20);
+        return res.json(styles);
+      }
+      
+      if (popular === 'true') {
+        const styles = await storage.getPopularStyles(Number(limit) || 10);
+        return res.json(styles);
+      }
+      
+      const styles = await storage.getCosplayStyles(categoryId as string);
+      res.json(styles);
+    } catch (error) {
+      console.error("Error fetching cosplay styles:", error);
+      res.status(500).json({ error: "Failed to fetch cosplay styles" });
+    }
+  });
+
+  app.get("/api/cosplay-styles/:styleId", async (req, res) => {
+    try {
+      const { styleId } = req.params;
+      const style = await storage.getCosplayStyleById(styleId);
+      if (!style) {
+        return res.status(404).json({ error: "Style not found" });
+      }
+      
+      // Increment usage count when style is accessed
+      await storage.incrementStyleUsage(styleId);
+      
+      res.json(style);
+    } catch (error) {
+      console.error("Error fetching cosplay style:", error);
+      res.status(500).json({ error: "Failed to fetch cosplay style" });
+    }
+  });
+
   // User interaction tracking endpoints for behavioral learning
   app.post("/api/interactions/track", async (req, res) => {
     try {
