@@ -21,6 +21,21 @@ interface CosplayStyle {
   prompt?: string;
 }
 
+interface RandomizerStyle {
+  id: number;
+  styleId: string;
+  name: string;
+  description: string;
+  prompt: string;
+  category: string;
+  subCategory: string;
+  tags: string[];
+  complexity: string;
+  rarity: string;
+  rating: string;
+  usageCount: number;
+}
+
 interface StyleSelectorProps {
   selectedStyle: CosplayStyle | null;
   onStyleSelect: (style: CosplayStyle) => void;
@@ -57,6 +72,12 @@ export function StyleSelector({
     enabled: true
   });
 
+  // Fetch random style from the sophisticated randomizer styles database
+  const { data: randomStyleData, refetch: fetchNewRandomStyle } = useQuery<RandomizerStyle>({
+    queryKey: ['/api/randomizer-styles/random'],
+    enabled: false // Only fetch when explicitly called
+  });
+
   const allStyles: CosplayStyle[] = (stylesResponse as any)?.styles || [];
 
   // Create fixed style cards for demonstration - 3 per tab
@@ -82,26 +103,44 @@ export function StyleSelector({
     return { popular, characters, artistic };
   }, []);
 
-  const generateRandomStyle = () => {
-    const artistic = ARTISTIC_STYLES[Math.floor(Math.random() * ARTISTIC_STYLES.length)];
-    const modifier = STYLE_MODIFIERS[Math.floor(Math.random() * STYLE_MODIFIERS.length)];
-    const blend = `${artistic} with ${modifier}`;
-    
-    setRandomizedStyle(blend);
-    
-    // Create a preview random style object (not auto-selected)
-    const randomStyle = {
-      styleId: 'random-' + Date.now(),
-      name: 'I\'m Feeling Lucky',
-      description: blend,
-      prompt: blend,
-      categoryId: 'random',
-      iconName: 'Shuffle',
-      popular: false,
-      premium: false
-    };
-    
-    setPreviewRandomStyle(randomStyle);
+  const generateRandomStyle = async () => {
+    try {
+      // Fetch a sophisticated randomizer style from the database
+      const result = await fetchNewRandomStyle();
+      
+      if (result.data) {
+        const randomizerStyle = result.data;
+        
+        // Convert RandomizerStyle to CosplayStyle format for compatibility
+        const randomStyle: CosplayStyle = {
+          styleId: randomizerStyle.styleId,
+          name: randomizerStyle.name,
+          description: randomizerStyle.description,
+          prompt: randomizerStyle.prompt,
+          categoryId: 'randomizer',
+          iconName: 'Shuffle',
+          popular: false,
+          premium: randomizerStyle.rarity === 'legendary' || randomizerStyle.rarity === 'epic'
+        };
+        
+        setRandomizedStyle(randomizerStyle.prompt);
+        setPreviewRandomStyle(randomStyle);
+      }
+    } catch (error) {
+      console.error('Error fetching random style:', error);
+      // Fallback to basic random generation if API fails
+      const fallbackStyle = {
+        styleId: 'random-' + Date.now(),
+        name: 'Random Style',
+        description: 'A unique artistic combination',
+        prompt: 'artistic style with creative elements',
+        categoryId: 'random',
+        iconName: 'Shuffle',
+        popular: false,
+        premium: false
+      };
+      setPreviewRandomStyle(fallbackStyle);
+    }
   };
 
   const selectRandomStyle = () => {
