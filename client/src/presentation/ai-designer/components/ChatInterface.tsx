@@ -272,65 +272,36 @@ export function ChatInterface({ className = "", sessionId = crypto.randomUUID() 
       {/* Input area with Apple-inspired design */}
       <div className="border-t bg-background/95 backdrop-blur-xl px-4 py-4 safe-area-bottom">
         
-        {/* Quick actions when no image selected */}
-        {!selectedImage && (
+        {/* Quick actions when image is selected - mobile optimized */}
+        {selectedImage && (
           <div className="mb-4">
-            <div className="flex flex-wrap gap-2 mb-2">
+            <div className="grid grid-cols-3 gap-2 mb-2">
               <Button
-                onClick={() => fileInputRef.current?.click()}
                 variant="outline"
                 size="sm"
-                className="h-9 px-4 rounded-full border-orange-200 text-orange-600 hover:bg-orange-50 transition-colors"
+                className="h-10 text-xs rounded-lg border-purple-200 text-purple-600 hover:bg-purple-50 transition-colors flex-1"
+                disabled
               >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Image
+                <Palette className="h-3 w-3 mr-1" />
+                Style
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-4 rounded-full border-purple-200 text-purple-600 hover:bg-purple-50 transition-colors"
+                className="h-10 text-xs rounded-lg border-green-200 text-green-600 hover:bg-green-50 transition-colors flex-1"
                 disabled
               >
-                <Palette className="h-4 w-4 mr-2" />
-                Style Transfer
+                <Eye className="h-3 w-3 mr-1" />
+                Enhance
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-4 rounded-full border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors"
+                className="h-10 text-xs rounded-lg border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors flex-1"
                 disabled
               >
-                <Sparkles className="h-4 w-4 mr-2" />
-                AI Generate
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-4 rounded-full border-green-200 text-green-600 hover:bg-green-50 transition-colors"
-                disabled
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                Enhance Quality
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-4 rounded-full border-pink-200 text-pink-600 hover:bg-pink-50 transition-colors"
-                disabled
-              >
-                <User className="h-4 w-4 mr-2" />
-                Face Swap
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-4 rounded-full border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors"
-                disabled
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Remove Background
+                <Sparkles className="h-3 w-3 mr-1" />
+                Remove BG
               </Button>
             </div>
           </div>
