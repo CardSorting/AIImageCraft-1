@@ -682,13 +682,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/images/my", async (req, res) => {
     try {
       if (!req.oidc.isAuthenticated()) {
+        console.log("[GALLERY DEBUG] User not authenticated");
         return res.status(401).json({ error: "Authentication required" });
       }
       
       const userId = await getOrCreateUserFromAuth0(req.oidc.user);
       const { limit = 50 } = req.query;
       
+      console.log(`[GALLERY DEBUG] Fetching images for user ID: ${userId}, limit: ${limit}`);
       const images = await storage.getImagesByUserId(userId, Number(limit));
+      console.log(`[GALLERY DEBUG] Found ${images.length} images for user ${userId}`);
+      
       res.json(images);
     } catch (error) {
       console.error("Error fetching user images:", error);
