@@ -1,6 +1,6 @@
 // Simplified Chat Interface for AI Designer with Flux Integration
 import { useState, useRef, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User, Download, Upload, Sparkles } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 const messageSchema = z.object({
   prompt: z.string().min(1, "Please describe your edit").max(500, "Keep instructions under 500 characters"),
@@ -26,14 +27,18 @@ interface SimpleMessage {
 
 interface SimpleChatInterfaceProps {
   className?: string;
+  sessionId?: string | null;
+  onSessionCreated?: (sessionId: string) => void;
 }
 
-export function SimpleChatInterface({ className = "" }: SimpleChatInterfaceProps) {
+export function SimpleChatInterface({ className = "", sessionId, onSessionCreated }: SimpleChatInterfaceProps) {
   const [messages, setMessages] = useState<SimpleMessage[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(sessionId || null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const form = useForm<MessageInput>({
@@ -77,7 +82,7 @@ export function SimpleChatInterface({ className = "" }: SimpleChatInterfaceProps
       
       return apiResponse.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data.success && data.image?.url) {
         // Add assistant message with generated image
         const assistantMessage: SimpleMessage = {
@@ -89,6 +94,26 @@ export function SimpleChatInterface({ className = "" }: SimpleChatInterfaceProps
         };
         
         setMessages(prev => [...prev, assistantMessage]);
+
+        // Save assistant message to database
+        if (currentSessionId && currentSessionId !== 'temp') {
+          try {
+            await apiRequest('/api/chat/messages', {
+              method: 'POST',
+              body: JSON.stringify({
+                sessionId: currentSessionId,
+                role: 'assistant',
+                content: 'Here\'s your edited image:',
+                imageUrl: data.image.url
+              })
+            });
+            
+            // Refresh sessions to update message count
+            queryClient.invalidateQueries({ queryKey: ['/api/chat/sessions'] });
+          } catch (error) {
+            console.error('Failed to save assistant message:', error);
+          }
+        }
         
         toast({
           title: "Image edited successfully",
@@ -116,6 +141,33 @@ export function SimpleChatInterface({ className = "" }: SimpleChatInterfaceProps
   const onSubmit = async (data: MessageInput) => {
     if (!selectedImage || isProcessing) return;
 
+    // Create session if it doesn't exist
+    let sessionId = currentSessionId;
+    if (!sessionId) {
+      try {
+        // Create new session with first message as title
+        const sessionData = await apiRequest('/api/chat/sessions', {
+          method: 'POST',
+          body: JSON.stringify({
+            title: data.prompt.slice(0, 50) + (data.prompt.length > 50 ? '...' : ''),
+            previewImage: selectedImage
+          })
+        });
+        
+        sessionId = sessionData.id;
+        setCurrentSessionId(sessionId);
+        onSessionCreated?.(sessionId);
+        
+        // Refresh sessions in sidebar
+        queryClient.invalidateQueries({ queryKey: ['/api/chat/sessions'] });
+      } catch (error) {
+        console.error('Failed to create session:', error);
+        // Continue without session tracking
+        sessionId = crypto.randomUUID();
+        setCurrentSessionId(sessionId);
+      }
+    }
+
     const userMessage: SimpleMessage = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -127,6 +179,23 @@ export function SimpleChatInterface({ className = "" }: SimpleChatInterfaceProps
     setMessages(prev => [...prev, userMessage]);
     setIsProcessing(true);
     form.reset();
+
+    // Save user message to database
+    if (sessionId && sessionId !== 'temp') {
+      try {
+        await apiRequest('/api/chat/messages', {
+          method: 'POST',
+          body: JSON.stringify({
+            sessionId,
+            role: 'user',
+            content: data.prompt,
+            imageUrl: selectedImage
+          })
+        });
+      } catch (error) {
+        console.error('Failed to save user message:', error);
+      }
+    }
 
     await generateImageMutation.mutateAsync({
       image: selectedImage,
@@ -187,8 +256,8 @@ export function SimpleChatInterface({ className = "" }: SimpleChatInterfaceProps
   return (
     <div className={`flex flex-col h-full bg-background ${className}`}>
       {/* Chat Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 px-0">
-        <div className="pb-4">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 px-0" style={{ height: 'calc(100vh - 200px)' }}>
+        <div className="pb-4 min-h-full">
           {messages.length === 0 ? (
             /* Welcome state */
             <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
@@ -287,8 +356,8 @@ export function SimpleChatInterface({ className = "" }: SimpleChatInterfaceProps
         </div>
       </ScrollArea>
 
-      {/* Input Form */}
-      <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Input Form - Fixed at bottom */}
+      <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
         <div className="px-4 py-4">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             
