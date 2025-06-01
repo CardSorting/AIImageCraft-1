@@ -22,7 +22,7 @@ export const UltraAdvancedSEO: React.FC<UltraAdvancedSEOProps> = ({
   const [seoMetrics, setSeoMetrics] = useState<any>({});
 
   // Get real-time data for dynamic SEO optimization
-  const { data: modelsData } = useQuery({ queryKey: ['/api/ai-models'] });
+  const { data: modelsData } = useQuery({ queryKey: ['/api/v1/models/catalog'] });
   const { data: imagesData } = useQuery({ queryKey: ['/api/images'] });
 
   useEffect(() => {
@@ -377,7 +377,7 @@ export const UltraAdvancedSEO: React.FC<UltraAdvancedSEOProps> = ({
     const resourceHints = [
       { rel: 'dns-prefetch', href: '//cdnjs.cloudflare.com' },
       { rel: 'dns-prefetch', href: '//unpkg.com' },
-      { rel: 'prefetch', href: '/api/ai-models' },
+      { rel: 'prefetch', href: '/api/v1/models/catalog' },
       { rel: 'prefetch', href: '/api/images' }
     ];
 
