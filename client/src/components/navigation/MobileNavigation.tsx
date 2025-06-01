@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, Users, Gavel, User, Coins, Sparkles, Menu, X, Plus, Wand2 } from "lucide-react";
+import { Heart, Users, Gavel, User, Coins, Sparkles, Menu, X, Plus, Wand2, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useLocation } from "wouter";
@@ -22,6 +22,7 @@ const navigationItems: NavigationItem[] = [
   { id: "models", label: "Models", icon: Sparkles },
   { id: "following", label: "Following", icon: Users },
   { id: "ai-cosplay", label: "AI Maker", icon: Wand2 },
+  { id: "ai-designer", label: "AI Designer", icon: Palette },
 ];
 
 export function MobileNavigation({ 

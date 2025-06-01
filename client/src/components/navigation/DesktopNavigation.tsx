@@ -1,4 +1,4 @@
-import { Heart, Users, Gavel, User, Coins, Sparkles, Plus, Search, Bell, Settings, ChevronDown, LogOut, Wand2 } from "lucide-react";
+import { Heart, Users, Gavel, User, Coins, Sparkles, Plus, Search, Bell, Settings, ChevronDown, LogOut, Wand2, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ interface DesktopNavigationProps {
 const navigationItems: NavigationItem[] = [
   { id: "create", label: "Create", icon: Plus },
   { id: "ai-cosplay", label: "AI Maker", icon: Wand2 },
+  { id: "ai-designer", label: "AI Designer", icon: Palette },
   { id: "gallery", label: "Gallery", icon: Users },
   { id: "models", label: "Models", icon: Sparkles },
 ];
@@ -79,8 +80,8 @@ export function DesktopNavigation({
                   <button
                     key={item.id}
                     onClick={() => {
-                      // Check authentication for AI Maker route
-                      if (item.id === 'ai-cosplay' && !authStatus?.isAuthenticated) {
+                      // Check authentication for AI Maker and AI Designer routes
+                      if ((item.id === 'ai-cosplay' || item.id === 'ai-designer') && !authStatus?.isAuthenticated) {
                         window.location.href = '/login';
                         return;
                       }
