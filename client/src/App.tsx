@@ -15,6 +15,7 @@ import ModelDetailPage from "@/pages/model-detail";
 import DreamCreditsPage from "@/pages/dreamcredits";
 import CheckoutPage from "@/pages/checkout";
 import AICosplayPage from "@/pages/ai-cosplay";
+import StyleLibraryPage from "@/pages/style-library-refactored";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -52,6 +53,9 @@ function Router() {
       <Route path="/dreamcredits" component={DreamCreditsPage} />
       <Route path="/checkout" component={CheckoutPage} />
       <Route path="/ai-cosplay" component={AICosplayPage} />
+      <Route path="/style-library" component={StyleLibraryPage} />
+      <Route path="/style-library/:categoryId" component={StyleLibraryPage} />
+      <Route path="/style-library/:categoryId/:styleId" component={StyleLibraryPage} />
       <Route component={NotFound} />
     </Switch>
   );

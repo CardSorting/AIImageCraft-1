@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link, useLocation } from "wouter";
 import { SEOHead } from "@/components/SEOHead";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StyleDiscovery } from "@/components/cosplay/StyleDiscovery";
 import { StyleRecommendations } from "@/components/cosplay/StyleRecommendations";
-import { Upload, Image as ImageIcon, Sparkles, Star } from "lucide-react";
+import { Upload, Image as ImageIcon, Sparkles, Star, Library, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { COSPLAY_STYLE_LIBRARY, getCategoryById, getStyleById } from "@shared/cosplayStyles";
 
@@ -21,6 +22,18 @@ export default function AICosplayPage() {
   const [showResults, setShowResults] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [location] = useLocation();
+
+  // Check for style parameter in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const styleParam = urlParams.get('style');
+    if (styleParam && !selectedStyle) {
+      setSelectedStyle(styleParam);
+      // Add to recent styles
+      setRecentStyles(prev => [styleParam, ...prev.filter(id => id !== styleParam)].slice(0, 10));
+    }
+  }, [location, selectedStyle]);
 
   // Get user profile for authentication
   const { data: profile } = useQuery({
@@ -245,10 +258,50 @@ export default function AICosplayPage() {
             <div className="space-y-4 md:space-y-6 order-1 lg:order-2">
               <Card className="overflow-hidden border-0 shadow-lg rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
                 <CardContent className="p-4 md:p-6">
-                  <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 flex items-center gap-2">
-                    <Star className="w-4 h-4 md:w-5 md:h-5" />
-                    Choose Your Style
-                  </h3>
+                  <div className="flex items-center justify-between mb-3 md:mb-4">
+                    <h3 className="text-lg md:text-xl font-semibold flex items-center gap-2">
+                      <Star className="w-4 h-4 md:w-5 md:h-5" />
+                      Choose Your Style
+                    </h3>
+                    <Link href="/style-library">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-sm rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      >
+                        <Library className="w-4 h-4 mr-2" />
+                        Browse All
+                        <ArrowRight className="w-3 h-3 ml-1" />
+                      </Button>
+                    </Link>
+                  </div>
+
+                  {/* Selected Style Display */}
+                  {selectedStyle && (
+                    <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-sm text-blue-900 dark:text-blue-100">
+                            {getStyleById(selectedStyle)?.name || 'Selected Style'}
+                          </p>
+                          <p className="text-xs text-blue-700 dark:text-blue-300">
+                            {getStyleById(selectedStyle)?.description || 'Ready to transform'}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedStyle(null)}
+                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 p-1"
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Advanced Style Discovery Interface */}
                   <StyleDiscovery
