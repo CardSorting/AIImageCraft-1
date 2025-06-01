@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link, useParams, useLocation } from "wouter";
 import { 
   Search, ArrowLeft, Star, Crown, 
-  Zap, Shield, WandSparkles, Heart, Rocket, Sword, Camera, Palette
+  Zap, Shield, WandSparkles, Heart, Rocket, Sword, Camera, Palette, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,6 +61,8 @@ export default function CategoryDetailPage() {
     premium: null,
     popular: null,
   });
+  const [selectedBaseStyle, setSelectedBaseStyle] = useState<CosplayStyle | null>(null);
+  const [previewRandomStyle, setPreviewRandomStyle] = useState<any | null>(null);
   const limit = 12;
 
   // Track style usage mutation
@@ -74,7 +76,19 @@ export default function CategoryDetailPage() {
     }
   });
 
-  // Handle style selection
+  // Fetch randomizer styles for enhancement
+  const { data: randomizerStyles = [] } = useQuery<any[]>({
+    queryKey: ['/api/randomizer-styles'],
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+
+  // Handle base style selection (visual selection only)
+  const handleBaseStyleSelect = (style: CosplayStyle) => {
+    setSelectedBaseStyle(style);
+    setPreviewRandomStyle(null); // Reset enhancement when selecting new base
+  };
+
+  // Handle final style selection and navigation
   const handleStyleSelect = (style: CosplayStyle) => {
     // Store selection in localStorage for the AI cosplay page
     localStorage.setItem('selectedCosplayStyle', JSON.stringify({
@@ -99,6 +113,34 @@ export default function CategoryDetailPage() {
     setTimeout(() => {
       setLocation(`/ai-cosplay?selectedStyle=${style.styleId}`);
     }, 1500);
+  };
+
+  // Generate random artistic enhancement
+  const generateRandomStyle = () => {
+    if (randomizerStyles.length > 0) {
+      const randomIndex = Math.floor(Math.random() * randomizerStyles.length);
+      const randomStyle = randomizerStyles[randomIndex];
+      setPreviewRandomStyle(randomStyle);
+    }
+  };
+
+  // Combine base style with enhancement
+  const selectRandomStyle = () => {
+    if (previewRandomStyle && selectedBaseStyle) {
+      // Combine the selected base style with the artistic enhancement
+      const combinedStyle: CosplayStyle = {
+        ...selectedBaseStyle,
+        styleId: `${selectedBaseStyle.styleId}-enhanced-${previewRandomStyle.styleId}`,
+        name: `${selectedBaseStyle.name} + ${previewRandomStyle.name}`,
+        description: `${selectedBaseStyle.description} enhanced with ${previewRandomStyle.description?.toLowerCase()}`,
+        prompt: `${selectedBaseStyle.prompt || selectedBaseStyle.description} enhanced with ${previewRandomStyle.prompt}`,
+        premium: selectedBaseStyle.premium || previewRandomStyle.premium || false
+      };
+      handleStyleSelect(combinedStyle);
+    } else if (previewRandomStyle && !selectedBaseStyle) {
+      // If no base style selected, just use the enhancement as the main style
+      handleStyleSelect(previewRandomStyle);
+    }
   };
 
   // Build query string for styles
@@ -414,8 +456,15 @@ export default function CategoryDetailPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                   {styles.map((style) => {
                     const StyleIcon = getIcon(style.iconName);
+                    const isSelected = selectedBaseStyle?.styleId === style.styleId;
                     return (
-                      <Card key={style.id} className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white dark:bg-slate-800 border-0 shadow-lg">
+                      <Card 
+                        key={style.id} 
+                        className={`group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white dark:bg-slate-800 border-0 shadow-lg ${
+                          isSelected ? 'ring-2 ring-purple-500 shadow-purple-200 dark:shadow-purple-800' : ''
+                        }`}
+                        onClick={() => handleBaseStyleSelect(style)}
+                      >
                         <CardContent className="p-6">
                           <div className="flex items-start gap-4 mb-4">
                             <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -460,14 +509,21 @@ export default function CategoryDetailPage() {
                                 </span>
                               )}
                             </div>
-                            <Button 
-                              size="sm" 
-                              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                              onClick={() => handleStyleSelect(style)}
-                              disabled={trackUsage.isPending}
-                            >
-                              {trackUsage.isPending ? "Selecting..." : "Use Style"}
-                            </Button>
+                            
+                            {/* Use Style Button */}
+                            {isSelected && (
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStyleSelect(style);
+                                }}
+                                size="sm"
+                                className="bg-purple-600 hover:bg-purple-700 text-white"
+                                disabled={trackUsage.isPending}
+                              >
+                                {trackUsage.isPending ? "Selecting..." : "Use This Style"}
+                              </Button>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -495,6 +551,59 @@ export default function CategoryDetailPage() {
                     >
                       Next
                     </Button>
+                  </div>
+                )}
+
+                {/* Artistic Enhancement Section */}
+                {selectedBaseStyle && (
+                  <div className="mt-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                    <div className="text-center space-y-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <Palette className="w-6 h-6 text-purple-600" />
+                        <h3 className="font-semibold text-xl">Artistic Enhancement</h3>
+                      </div>
+                      
+                      <p className="text-gray-600 dark:text-gray-400">
+                        Enhance "{selectedBaseStyle.name}" with sophisticated artistic styles
+                      </p>
+
+                      {previewRandomStyle && (
+                        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="font-medium text-purple-800 dark:text-purple-200">
+                              {selectedBaseStyle.name} + {previewRandomStyle.name}
+                            </p>
+                            <Button
+                              onClick={selectRandomStyle}
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700 text-white"
+                              disabled={trackUsage.isPending}
+                            >
+                              {trackUsage.isPending ? "Combining..." : "Combine Styles"}
+                            </Button>
+                          </div>
+                          <p className="text-sm text-purple-600 dark:text-purple-300">
+                            {selectedBaseStyle.description} enhanced with {previewRandomStyle.description?.toLowerCase()}
+                          </p>
+                          {previewRandomStyle.premium && (
+                            <Badge variant="secondary" className="text-xs mt-2 bg-purple-100 text-purple-800">
+                              Premium Enhancement
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex gap-3">
+                        <Button
+                          onClick={generateRandomStyle}
+                          variant="outline"
+                          className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 border-0"
+                        >
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          {previewRandomStyle ? 'Try Different Enhancement' : 'Generate Artistic Enhancement'}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </>
