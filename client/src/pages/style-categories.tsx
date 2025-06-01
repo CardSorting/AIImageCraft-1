@@ -119,38 +119,53 @@ export default function StyleCategoriesPage() {
         {/* Featured Categories */}
         {featuredCategories.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6">
-              Featured Categories
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-1 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+                Featured Categories
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredCategories.map((category) => {
                 const IconComponent = getIcon(category.iconName);
                 return (
                   <Link key={category.id} href={`/style-library/${category.categoryId}`}>
-                    <Card className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl bg-white dark:bg-slate-800 border-0 shadow-lg">
-                      <CardContent className="p-0">
-                        <div className={`h-32 bg-gradient-to-br ${getColorClasses(category.color)} rounded-t-xl flex items-center justify-center transition-all duration-300`}>
-                          <IconComponent className="w-12 h-12 text-white" />
-                        </div>
-                        <div className="p-6">
-                          <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                              {category.name}
-                            </h3>
-                            <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                    <Card className="group cursor-pointer transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/20 bg-white dark:bg-slate-800 border-0 shadow-lg overflow-hidden backdrop-blur-sm">
+                      <CardContent className="p-0 relative">
+                        <div className={`h-40 bg-gradient-to-br ${getColorClasses(category.color)} flex items-center justify-center relative overflow-hidden`}>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                          <IconComponent className="w-16 h-16 text-white drop-shadow-lg transform group-hover:scale-110 transition-transform duration-500" />
+                          <div className="absolute top-4 right-4">
+                            <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm font-semibold">
                               Featured
                             </Badge>
                           </div>
-                          <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                        </div>
+                        <div className="p-6">
+                          <div className="mb-3">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300 mb-1">
+                              {category.name}
+                            </h3>
+                            <span className="text-xs text-slate-500 dark:text-slate-500 uppercase tracking-wider font-medium">
+                              {category.shortName}
+                            </span>
+                          </div>
+                          <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
                             {category.description}
                           </p>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-slate-500 dark:text-slate-500 uppercase tracking-wide">
-                              {category.shortName}
-                            </span>
-                            <span className="text-purple-600 dark:text-purple-400 text-sm font-medium group-hover:translate-x-1 transition-transform">
-                              Explore →
-                            </span>
+                            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-500">
+                              <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+                              <span>Premium Collection</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-medium group-hover:translate-x-1 transition-transform duration-300">
+                              <span className="text-sm">Explore</span>
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
+                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </CardContent>
@@ -165,37 +180,40 @@ export default function StyleCategoriesPage() {
         {/* Other Categories */}
         {regularCategories.length > 0 && (
           <div>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6">
-              More Categories
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-1 h-6 bg-gradient-to-b from-slate-400 to-slate-600 rounded-full"></div>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                Browse by Category
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {regularCategories.map((category) => {
-              const IconComponent = getIcon(category.iconName);
-              return (
-                <Link key={category.id} href={`/style-library/${category.categoryId}`}>
-                  <Card className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className={`w-10 h-10 bg-gradient-to-br ${getColorClasses(category.color)} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                          <IconComponent className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors truncate">
-                            {category.name}
-                          </h3>
-                          <p className="text-xs text-slate-500 dark:text-slate-500 uppercase tracking-wide">
-                            {category.shortName}
+                const IconComponent = getIcon(category.iconName);
+                return (
+                  <Link key={category.id} href={`/style-library/${category.categoryId}`}>
+                    <Card className="group cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-800/50 bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm">
+                      <CardContent className="p-4">
+                        <div className="text-center space-y-3">
+                          <div className={`w-12 h-12 mx-auto bg-gradient-to-br ${getColorClasses(category.color)} rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-all duration-300`}>
+                            <IconComponent className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors text-sm line-clamp-1 mb-1">
+                              {category.name}
+                            </h3>
+                            <span className="text-xs text-slate-500 dark:text-slate-500 uppercase tracking-wider font-medium">
+                              {category.shortName}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                            {category.description}
                           </p>
                         </div>
-                      </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
-                        {category.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
           </div>
         </div>
         )}

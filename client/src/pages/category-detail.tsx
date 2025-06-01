@@ -150,7 +150,7 @@ export default function CategoryDetailPage() {
     }));
   };
 
-  if (!category) {
+  if (!category && !stylesLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
         <NavigationHeader />
@@ -160,6 +160,62 @@ export default function CategoryDetailPage() {
             <Link href="/style-library">
               <Button className="mt-4">Browse Categories</Button>
             </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state with skeleton
+  if (!category || stylesLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
+        <NavigationHeader />
+        <div className="container mx-auto px-4 py-8">
+          {/* Header skeleton */}
+          <div className="mb-8">
+            <div className="w-32 h-4 bg-gray-300 dark:bg-gray-600 rounded mb-4 animate-pulse"></div>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-xl animate-pulse"></div>
+              <div>
+                <div className="w-48 h-8 bg-gray-300 dark:bg-gray-600 rounded mb-2 animate-pulse"></div>
+                <div className="w-64 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Sidebar skeleton */}
+            <div className="lg:w-64 flex-shrink-0">
+              <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg">
+                <div className="w-20 h-6 bg-gray-300 dark:bg-gray-600 rounded mb-4 animate-pulse"></div>
+                <div className="space-y-4">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <div className="w-24 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                      <div className="w-16 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Main content skeleton */}
+            <div className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(12)].map((_, i) => (
+                  <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg animate-pulse">
+                    <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-lg mb-4"></div>
+                    <div className="w-32 h-6 bg-gray-300 dark:bg-gray-600 rounded mb-2"></div>
+                    <div className="w-24 h-4 bg-gray-300 dark:bg-gray-600 rounded mb-4"></div>
+                    <div className="flex gap-2">
+                      <div className="w-16 h-6 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                      <div className="w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
