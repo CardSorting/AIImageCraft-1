@@ -167,26 +167,41 @@ export const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
     updateMetaTag('search-intent', searchIntents[pageType as keyof typeof searchIntents] || 'informational');
   };
 
+  const getDynamicOGImage = (pageType: string, modelId?: string) => {
+    const baseUrl = 'https://dreambeesart.com';
+    
+    // Use dynamic endpoint that serves authentic AI artwork from database
+    if (modelId) {
+      return `${baseUrl}/og/model/${modelId}`;
+    }
+    
+    return `${baseUrl}/og/${pageType}`;
+  };
+
   const optimizeHTMLStructure = () => {
     const baseUrl = 'https://dreambeesart.com';
     
-    // Enhanced Open Graph optimization
+    // Dynamic Open Graph image using authentic AI artwork from database
+    const ogImageUrl = getDynamicOGImage(pageType, modelId);
+    
+    // Enhanced Open Graph optimization with real AI artwork
     updateMetaTag('og:title', document.title, 'property');
     updateMetaTag('og:description', document.querySelector('meta[name="description"]')?.getAttribute('content') || '', 'property');
     updateMetaTag('og:url', `${baseUrl}${location}`, 'property');
     updateMetaTag('og:type', 'website', 'property');
     updateMetaTag('og:site_name', 'Dream Bees Art', 'property');
-    updateMetaTag('og:image', `${baseUrl}/og-${pageType}.jpg`, 'property');
+    updateMetaTag('og:image', ogImageUrl, 'property');
     updateMetaTag('og:image:width', '1200', 'property');
     updateMetaTag('og:image:height', '630', 'property');
-    updateMetaTag('og:image:alt', `${document.title} - Professional AI Art Platform`, 'property');
+    updateMetaTag('og:image:alt', `${document.title} - Real AI-Generated Artwork`, 'property');
     
-    // Twitter Card optimization with CTR enhancement
+    // Twitter Card optimization with authentic AI artwork
     updateMetaTag('twitter:card', 'summary_large_image');
     updateMetaTag('twitter:site', '@dreambeesart');
     updateMetaTag('twitter:title', document.title);
     updateMetaTag('twitter:description', document.querySelector('meta[name="description"]')?.getAttribute('content') || '');
-    updateMetaTag('twitter:image', `${baseUrl}/twitter-${pageType}.jpg`);
+    updateMetaTag('twitter:image', ogImageUrl);
+    updateMetaTag('twitter:image:alt', `Real AI artwork from Dream Bees Art`);
     
     // Canonical URL optimization
     updateCanonicalURL(`${baseUrl}${location}`);
@@ -372,6 +387,17 @@ export const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
         "item": `https://dreambeesart.com${crumb.url}`
       }))
     };
+  };
+
+  const getDynamicOGImage = (pageType: string, modelId?: string) => {
+    const baseUrl = 'https://dreambeesart.com';
+    
+    // Use dynamic endpoint that serves authentic AI artwork from database
+    if (modelId) {
+      return `${baseUrl}/og/model/${modelId}`;
+    }
+    
+    return `${baseUrl}/og/${pageType}`;
   };
 
   return null;

@@ -771,6 +771,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dynamic Open Graph image endpoint using authentic AI artwork
+  app.get("/og/:type/:id?", async (req, res) => {
+    try {
+      const { type, id } = req.params;
+      
+      // Get authentic images from database for social sharing
+      const recentImages = await storage.getImages(5);
+      
+      if (recentImages.length === 0) {
+        return res.status(404).json({ error: "No images available" });
+      }
+
+      let selectedImage = recentImages[0]; // Default to most recent
+
+      switch (type) {
+        case 'home':
+          selectedImage = recentImages[0];
+          break;
+        case 'gallery':
+          selectedImage = recentImages[1] || recentImages[0];
+          break;
+        case 'generate':
+          const promptImage = recentImages.find(img => img.prompt && img.prompt.length > 0);
+          selectedImage = promptImage || recentImages[0];
+          break;
+        case 'model':
+          if (id) {
+            const modelImages = await storage.getImagesByModelId(id, 1);
+            selectedImage = modelImages[0] || recentImages[0];
+          }
+          break;
+      }
+
+      // Redirect to the actual AI-generated image for social sharing
+      res.redirect(selectedImage.imageUrl);
+      
+    } catch (error) {
+      console.error("Error generating OG image:", error);
+      res.status(500).json({ error: "Failed to get image" });
+    }
+  });
+
   // Intelligent "For You" personalized recommendations endpoint
   app.get("/api/models/for-you", async (req, res) => {
     try {
