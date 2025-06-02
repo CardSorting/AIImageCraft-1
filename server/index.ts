@@ -78,8 +78,18 @@ app.use('/api/webhook', express.raw({type: 'application/json'}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Add sitemap route before other middleware to avoid Vite interference
-app.get("/sitemap.xml", async (req, res) => {
+// Add robots.txt route
+app.get("/robots.txt", (req, res) => {
+  res.set('Content-Type', 'text/plain');
+  const baseUrl = process.env.AUTH0_BASE_URL || 'https://dreambeesart.com';
+  res.send(`User-agent: *
+Allow: /
+
+Sitemap: ${baseUrl}/api/sitemap.xml`);
+});
+
+// Add sitemap route with API prefix to avoid Vite interference
+app.get("/api/sitemap.xml", async (req, res) => {
   try {
     res.set('Content-Type', 'application/xml');
     
