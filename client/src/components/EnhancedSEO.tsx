@@ -240,7 +240,7 @@ export const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
       gallery: [
         {
           question: "How many artworks are in the gallery?",
-          answer: `Our gallery features ${imagesData ? imagesData.length : 'thousands of'} AI-generated artworks created by our community of artists.`
+          answer: `Our gallery features ${Array.isArray(imagesData) ? imagesData.length : 'thousands of'} AI-generated artworks created by our community of artists.`
         }
       ]
     };

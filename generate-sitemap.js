@@ -52,13 +52,31 @@ ${allPages.map(page => `  <url>
     
     fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemap);
     
-    // Also generate robots.txt
+    // Enhanced robots.txt with crawl optimization
     const robotsTxt = `User-agent: *
 Allow: /
 
-Sitemap: ${baseUrl}/sitemap.xml`;
+# Sitemap location
+Sitemap: ${baseUrl}/sitemap.xml
+
+# Crawl-delay for better performance
+Crawl-delay: 1
+
+# Priority paths for crawlers
+Allow: /generate
+Allow: /gallery
+Allow: /models
+Allow: /model/`;
     
     fs.writeFileSync(path.join(publicDir, 'robots.txt'), robotsTxt);
+    
+    // Copy to client public for development
+    const clientPublicDir = path.join(process.cwd(), 'client', 'public');
+    if (!fs.existsSync(clientPublicDir)) {
+      fs.mkdirSync(clientPublicDir, { recursive: true });
+    }
+    fs.writeFileSync(path.join(clientPublicDir, 'sitemap.xml'), sitemap);
+    fs.writeFileSync(path.join(clientPublicDir, 'robots.txt'), robotsTxt);
     
     console.log('Sitemap generated successfully!');
     console.log(`Generated ${allPages.length} pages in sitemap.xml`);
