@@ -1,0 +1,60 @@
+Internal SEO Deep Dive Prompt:
+"Conduct a comprehensive internal SEO audit of my webpage focusing on these granular on-page elements:
+Content Architecture & Structure:
+
+Analyze my content's topical authority and semantic keyword coverage
+Review paragraph structure, sentence length, and content flow
+Evaluate use of transition words and readability signals
+Check for content duplication or thin content issues
+Assess content-to-code ratio and HTML bloat
+
+Advanced Keyword Optimization:
+
+Primary keyword placement in first 100 words
+LSI (Latent Semantic Indexing) keyword integration
+Long-tail keyword opportunities within existing content
+Keyword cannibalization between pages
+Search intent matching (informational, navigational, transactional, commercial)
+
+HTML & Code Optimization:
+
+Title tag keyword positioning and emotional triggers
+Meta description CTR optimization and character limits
+Header tag keyword distribution and logical hierarchy
+Image alt text optimization for both accessibility and SEO
+File naming conventions for images and documents
+Internal anchor text diversity and keyword relevance
+
+User Experience Signals:
+
+Above-the-fold content optimization
+Content formatting (bullet points, numbered lists, tables)
+White space usage and visual content breaks
+Font choices, sizes, and contrast ratios
+Breadcrumb navigation implementation
+Related content suggestions and internal cross-linking
+
+Technical Content Elements:
+
+FAQ schema markup opportunities
+Table of contents implementation for long-form content
+Jump links and page section organization
+Social proof integration (testimonials, reviews, case studies)
+Authority signals (author bios, credentials, citations)
+Content freshness indicators and last-updated dates
+
+Internal Link Architecture:
+
+Link depth from homepage analysis
+Orphaned pages identification
+Link equity distribution across important pages
+Contextual linking opportunities within content
+Navigation menu optimization for SEO value
+
+Conversion-Focused SEO:
+
+CTA placement and SEO impact
+Lead magnet integration within content
+Contact information and local SEO elements
+Trust signals and credibility markers
+Page goal alignment with search intent

@@ -15,6 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Download, Sparkles, ChevronDown, ChevronRight, Sliders, Coins, Square, Monitor, Smartphone, Image as ImageIcon, MoreHorizontal } from "lucide-react";
 import { useImageCache } from "@/hooks/useImageCache";
+import EnhancedSEO from "@/components/EnhancedSEO";
 
 interface ImageGenerationResponse {
   success: boolean;
