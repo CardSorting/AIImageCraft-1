@@ -78,6 +78,56 @@ app.use('/api/webhook', express.raw({type: 'application/json'}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Add sitemap route before other middleware to avoid Vite interference
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    res.set('Content-Type', 'application/xml');
+    
+    // Import storage here to avoid circular dependencies
+    const { storage } = await import('./storage');
+    
+    // Base URL for your site
+    const baseUrl = process.env.AUTH0_BASE_URL || 'https://dreambeesart.com';
+    
+    // Static pages
+    const staticPages: Array<{ url: string; priority: string; changefreq: string; lastmod?: string }> = [
+      { url: '/', priority: '1.0', changefreq: 'weekly' },
+      { url: '/generate', priority: '0.9', changefreq: 'daily' },
+      { url: '/gallery', priority: '0.8', changefreq: 'daily' },
+      { url: '/models', priority: '0.8', changefreq: 'weekly' },
+      { url: '/credits', priority: '0.6', changefreq: 'monthly' }
+    ];
+    
+    // Get dynamic pages from database
+    const models = await storage.getAIModels(100); // Get top 100 models
+    const modelPages = models.map(model => ({
+      url: `/model/${model.id}`,
+      priority: '0.7',
+      changefreq: 'weekly',
+      lastmod: new Date().toISOString()
+    }));
+    
+    // Combine all pages
+    const allPages = [...staticPages, ...modelPages];
+    
+    // Generate XML sitemap
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${allPages.map(page => `  <url>
+    <loc>${baseUrl}${page.url}</loc>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+    ${page.lastmod ? `<lastmod>${page.lastmod}</lastmod>` : ''}
+  </url>`).join('\n')}
+</urlset>`;
+    
+    res.send(sitemap);
+  } catch (error) {
+    console.error("Error generating sitemap:", error);
+    res.status(500).send('<?xml version="1.0" encoding="UTF-8"?><error>Sitemap generation failed</error>');
+  }
+});
+
 // Add Stripe payment endpoint before other middleware
 import Stripe from "stripe";
 

@@ -39,6 +39,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const imageController = new ImageController();
   const statisticsController = new StatisticsController();
 
+
   // Auth0 test endpoint (moved to API route)
   app.get("/api/auth/status", (req, res) => {
     res.json({ 
