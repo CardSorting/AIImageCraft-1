@@ -389,17 +389,6 @@ export const EnhancedSEO: React.FC<EnhancedSEOProps> = ({
     };
   };
 
-  const getDynamicOGImage = (pageType: string, modelId?: string) => {
-    const baseUrl = 'https://dreambeesart.com';
-    
-    // Use dynamic endpoint that serves authentic AI artwork from database
-    if (modelId) {
-      return `${baseUrl}/og/model/${modelId}`;
-    }
-    
-    return `${baseUrl}/og/${pageType}`;
-  };
-
   return null;
 };
 
