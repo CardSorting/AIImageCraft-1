@@ -16,6 +16,8 @@ import DreamCreditsPage from "@/pages/dreamcredits";
 import CheckoutPage from "@/pages/checkout";
 import AICosplayPage from "@/pages/ai-cosplay";
 import AIDesignerPage from "@/pages/ai-designer";
+import PrivacyPolicy from "@/pages/privacy-policy";
+import Terms from "@/pages/terms";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -54,6 +56,10 @@ function Router() {
       <Route path="/checkout" component={CheckoutPage} />
       <Route path="/ai-cosplay" component={AICosplayPage} />
       <Route path="/ai-designer" component={AIDesignerPage} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/terms-of-service" component={Terms} />
       <Route component={NotFound} />
     </Switch>
   );

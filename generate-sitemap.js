@@ -18,7 +18,11 @@ async function generateSitemap() {
       { url: '/generate', priority: '0.9', changefreq: 'daily' },
       { url: '/gallery', priority: '0.8', changefreq: 'daily' },
       { url: '/models', priority: '0.8', changefreq: 'weekly' },
-      { url: '/credits', priority: '0.6', changefreq: 'monthly' }
+      { url: '/credits', priority: '0.6', changefreq: 'monthly' },
+      { url: '/privacy-policy', priority: '0.4', changefreq: 'monthly' },
+      { url: '/terms', priority: '0.4', changefreq: 'monthly' },
+      { url: '/ai-cosplay', priority: '0.7', changefreq: 'weekly' },
+      { url: '/ai-designer', priority: '0.7', changefreq: 'weekly' }
     ];
     
     // Get dynamic pages from database
