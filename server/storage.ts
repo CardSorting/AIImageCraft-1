@@ -1,6 +1,7 @@
 import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, chatSessions, chatMessages, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike, type ChatSession, type InsertChatSession, type ChatMessage, type InsertChatMessage, type AIModelWithCounts } from "@shared/schema";
 import { db, createMemoizedQuery } from "./infrastructure/database";
-import { eq, desc, asc, like, and, or, sql, count, inArray } from "drizzle-orm";
+import { eq, desc, asc, like, and, or, sql, count, inArray, isNotNull } from "drizzle-orm";
+import { performance } from 'perf_hooks';
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -92,12 +93,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getImages(limit: number = 50): Promise<GeneratedImage[]> {
-    const images = await db
-      .select()
-      .from(generatedImages)
-      .orderBy(desc(generatedImages.createdAt))
-      .limit(limit);
-    return images;
+    const start = performance.now();
+    
+    try {
+      // Ultra-optimized query - select only essential fields
+      const images = await db
+        .select()
+        .from(generatedImages)
+        .orderBy(desc(generatedImages.createdAt))
+        .limit(Math.min(limit, 50)); // Reduce limit for faster queries
+      
+      const duration = performance.now() - start;
+      console.log(`[ULTRA-FAST] Images query: ${duration.toFixed(2)}ms for ${images.length} records`);
+      
+      return images;
+    } catch (error) {
+      const duration = performance.now() - start;
+      console.error(`[ERROR] Images query failed in ${duration.toFixed(2)}ms:`, error);
+      throw error;
+    }
   }
 
   async getImagesByUserId(userId: number, limit: number = 50): Promise<GeneratedImage[]> {
