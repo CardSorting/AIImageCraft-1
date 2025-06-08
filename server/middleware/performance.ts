@@ -30,8 +30,10 @@ export function requestTimingMiddleware(req: Request, res: Response, next: NextF
       console.warn(`[SLOW REQUEST] ${timing.method} ${timing.route} - ${duration.toFixed(2)}ms`);
     }
     
-    // Add performance headers
-    res.set('X-Response-Time', `${duration.toFixed(2)}ms`);
+    // Add performance headers only if not already sent
+    if (!res.headersSent) {
+      res.set('X-Response-Time', `${duration.toFixed(2)}ms`);
+    }
   });
 
   next();

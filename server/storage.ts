@@ -1,6 +1,6 @@
-import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, chatSessions, chatMessages, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike, type ChatSession, type InsertChatSession, type ChatMessage, type InsertChatMessage } from "@shared/schema";
-import { db } from "./db";
-import { eq, desc, asc, like, and, sql, count } from "drizzle-orm";
+import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, chatSessions, chatMessages, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike, type ChatSession, type InsertChatSession, type ChatMessage, type InsertChatMessage, type AIModelWithCounts } from "@shared/schema";
+import { db, createMemoizedQuery } from "./infrastructure/database";
+import { eq, desc, asc, like, and, or, sql, count, inArray } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -146,7 +146,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteImage(id: number): Promise<boolean> {
     const result = await db.delete(generatedImages).where(eq(generatedImages.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   // AI Model methods implementation
@@ -155,9 +155,34 @@ export class DatabaseStorage implements IStorage {
     return model;
   }
 
-  async getAIModels(limit: number = 50, sortBy: string = 'newest', category?: string): Promise<any[]> {
-    // First get the basic models
-    let baseQuery = db.select().from(aiModels);
+  async getAIModels(limit: number = 50, sortBy: string = 'newest', category?: string): Promise<AIModelWithCounts[]> {
+    // Optimized single query with subqueries for counts
+    let baseQuery = db
+      .select({
+        id: aiModels.id,
+        modelId: aiModels.modelId,
+        name: aiModels.name,
+        description: aiModels.description,
+        category: aiModels.category,
+        version: aiModels.version,
+        provider: aiModels.provider,
+        featured: aiModels.featured,
+        rating: aiModels.rating,
+        downloads: aiModels.downloads,
+        likes: aiModels.likes,
+        discussions: aiModels.discussions,
+        imagesGenerated: aiModels.imagesGenerated,
+        tags: aiModels.tags,
+        capabilities: aiModels.capabilities,
+        pricing: aiModels.pricing,
+        thumbnail: aiModels.thumbnail,
+        gallery: aiModels.gallery,
+        createdAt: aiModels.createdAt,
+        updatedAt: aiModels.updatedAt,
+        likeCount: sql<number>`COALESCE((SELECT COUNT(*) FROM ${userLikes} WHERE ${userLikes.modelId} = ${aiModels.id}), 0)`.as('likeCount'),
+        bookmarkCount: sql<number>`COALESCE((SELECT COUNT(*) FROM ${userBookmarks} WHERE ${userBookmarks.modelId} = ${aiModels.id}), 0)`.as('bookmarkCount'),
+      })
+      .from(aiModels);
     
     if (category) {
       baseQuery = baseQuery.where(eq(aiModels.category, category));
@@ -181,29 +206,13 @@ export class DatabaseStorage implements IStorage {
         baseQuery = baseQuery.orderBy(desc(aiModels.createdAt));
         break;
       case 'oldest':
-        baseQuery = baseQuery.orderBy(aiModels.createdAt);
+        baseQuery = baseQuery.orderBy(asc(aiModels.createdAt));
         break;
       default:
         baseQuery = baseQuery.orderBy(desc(aiModels.createdAt));
     }
     
-    const models = await baseQuery.limit(limit);
-    
-    // Add counts to each model
-    const modelsWithCounts = await Promise.all(
-      models.map(async (model) => {
-        const [likeCountResult] = await db.select({ count: count() }).from(userLikes).where(eq(userLikes.modelId, model.id));
-        const [bookmarkCountResult] = await db.select({ count: count() }).from(userBookmarks).where(eq(userBookmarks.modelId, model.id));
-        
-        return {
-          ...model,
-          likeCount: likeCountResult?.count || 0,
-          bookmarkCount: bookmarkCountResult?.count || 0
-        };
-      })
-    );
-    
-    return modelsWithCounts;
+    return await baseQuery.limit(limit) as AIModelWithCounts[];
   }
 
   async getAIModelById(id: number): Promise<AIModel | undefined> {
