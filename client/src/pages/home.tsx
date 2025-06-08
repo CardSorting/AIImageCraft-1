@@ -54,18 +54,12 @@ export default function Home() {
   const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
   const currentCost = Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
 
-  // Check authentication status first
-  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
-    queryKey: ['/api/auth/profile'],
-    refetchInterval: false, // Disable automatic polling completely
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-  });
+  // Use centralized auth from hook instead of separate query
+  const { isAuthenticated } = useAuth();
 
   const { data: images = [], isLoading: imagesLoading } = useQuery<GeneratedImage[]>({
     queryKey: ["/api/images"],
-    refetchInterval: authStatus?.isAuthenticated ? 30000 : 120000, // Slower refresh for non-auth users
+    refetchInterval: isAuthenticated ? 30000 : 120000, // Slower refresh for non-auth users
     staleTime: 15000, // Consider data fresh for 15 seconds
   });
 

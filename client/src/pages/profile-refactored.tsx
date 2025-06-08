@@ -326,7 +326,10 @@ export default function ProfilePageRefactored() {
   // Get authenticated user data including user ID
   const { data: authData } = useQuery<{ isAuthenticated: boolean; user?: any; userId?: number }>({
     queryKey: ['/api/auth/profile'],
-    refetchInterval: 30000,
+    refetchInterval: false,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   // Use the actual authenticated user ID, fallback only for development

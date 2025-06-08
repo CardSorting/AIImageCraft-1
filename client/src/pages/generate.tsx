@@ -115,24 +115,18 @@ export default function Generate() {
     }
   }, [location, form, toast]);
 
-  // Check authentication status first
-  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
-    queryKey: ['/api/auth/profile'],
-    refetchInterval: false, // Disable automatic polling completely
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-  });
+  // Use centralized auth from hook
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (authStatus && !authStatus.isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       window.location.href = '/login';
     }
-  }, [authStatus]);
+  }, [isAuthenticated, authLoading]);
 
   // Show loading while checking authentication
-  if (!authStatus) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -147,7 +141,7 @@ export default function Generate() {
   const { data: allImages = [], refetch } = useQuery({
     queryKey: ["/api/images/my"],
     queryFn: () => fetch("/api/images/my").then(res => res.json()),
-    enabled: authStatus?.isAuthenticated || false, // Only fetch if authenticated
+    enabled: isAuthenticated || false, // Only fetch if authenticated
     refetchInterval: 60000, // Refresh every minute instead of default
     staleTime: 30000, // Consider data fresh for 30 seconds
   });
