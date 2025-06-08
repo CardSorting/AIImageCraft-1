@@ -629,53 +629,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Prompt Enhancement endpoint
-  app.post("/api/enhance-prompt", async (req, res) => {
-    try {
-      console.log("[Prompt Enhancement] Enhancement endpoint called");
-      const { prompt, promptMaxLength = 64, promptVersions = 1 } = req.body;
-      
-      if (!prompt || prompt.trim().length === 0) {
-        return res.status(400).json({
-          error: "Prompt is required for enhancement"
-        });
-      }
 
-      console.log("[Prompt Enhancement] Request:", { 
-        prompt: prompt.substring(0, 50) + "...", 
-        maxLength: promptMaxLength, 
-        versions: promptVersions 
-      });
-
-      // Import and use the Runware Prompt Enhancement Service
-      const { RunwarePromptEnhancementService } = await import("./infrastructure/services/RunwarePromptEnhancementService");
-      const enhancementService = new RunwarePromptEnhancementService();
-      
-      const result = await enhancementService.enhancePrompt({
-        prompt,
-        promptMaxLength,
-        promptVersions
-      });
-      
-      console.log("[Prompt Enhancement] Enhancement successful:", { 
-        versionsGenerated: result.length,
-        totalCost: result.reduce((sum, r) => sum + (r.cost || 0), 0)
-      });
-      
-      res.json({
-        success: true,
-        enhancedPrompts: result,
-        originalPrompt: prompt
-      });
-      
-    } catch (error: any) {
-      console.error("Prompt enhancement error:", error);
-      res.status(500).json({ 
-        error: "Enhancement failed", 
-        message: error.message || "An unexpected error occurred"
-      });
-    }
-  });
 
   // Public endpoint for all images (home page)
   app.get("/api/images", async (req, res) => {

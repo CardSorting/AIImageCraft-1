@@ -68,9 +68,6 @@ export default function Generate() {
       steps: 30,
       cfgScale: 7,
       scheduler: "DPMSolverMultistepScheduler",
-      enhancePrompt: false,
-      promptMaxLength: 64,
-      promptVersions: 1,
     },
   });
 
@@ -270,93 +267,7 @@ export default function Generate() {
           )}
         />
 
-        {/* Prompt Enhancement - AI-Powered Prompt Improvement */}
-        <div className="space-y-4 p-4 border rounded-lg bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20">
-          <FormField
-            control={form.control}
-            name="enhancePrompt"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between space-y-0">
-                <div className="space-y-1">
-                  <FormLabel className="flex items-center space-x-2 text-base font-medium">
-                    <Sparkles className="h-4 w-4 text-purple-500" />
-                    <span>AI Prompt Enhancement</span>
-                    <Badge variant="secondary" className="text-xs">NEW</Badge>
-                  </FormLabel>
-                  <p className="text-sm text-muted-foreground">
-                    Let AI improve your prompt for better results
-                  </p>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
 
-          {form.watch("enhancePrompt") && (
-            <div className="space-y-3 pt-2 border-t border-dashed">
-              <div className="grid grid-cols-2 gap-3">
-                <FormField
-                  control={form.control}
-                  name="promptMaxLength"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm">Enhancement Length</FormLabel>
-                      <FormControl>
-                        <Select value={field.value?.toString()} onValueChange={(value) => field.onChange(parseInt(value))}>
-                          <SelectTrigger className="h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="32">Short (32 tokens)</SelectItem>
-                            <SelectItem value="64">Medium (64 tokens)</SelectItem>
-                            <SelectItem value="128">Long (128 tokens)</SelectItem>
-                            <SelectItem value="256">Very Long (256 tokens)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="promptVersions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm">Variations</FormLabel>
-                      <FormControl>
-                        <Select value={field.value?.toString()} onValueChange={(value) => field.onChange(parseInt(value))}>
-                          <SelectTrigger className="h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="1">1 version</SelectItem>
-                            <SelectItem value="2">2 versions</SelectItem>
-                            <SelectItem value="3">3 versions</SelectItem>
-                            <SelectItem value="4">4 versions</SelectItem>
-                            <SelectItem value="5">5 versions</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="text-xs text-muted-foreground bg-white/50 dark:bg-gray-800/50 p-2 rounded">
-                <Brain className="h-3 w-3 inline mr-1" />
-                Enhancement will generate {form.watch("promptVersions")} improved version{form.watch("promptVersions") > 1 ? 's' : ''} of your prompt
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Essential Settings - Mobile */}
         <div className="space-y-4">
@@ -1264,93 +1175,7 @@ export default function Generate() {
                         )}
                       />
 
-                      {/* Prompt Enhancement - AI-Powered Prompt Improvement - Desktop */}
-                      <div className="space-y-4 p-4 border rounded-lg bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20">
-                        <FormField
-                          control={form.control}
-                          name="enhancePrompt"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between space-y-0">
-                              <div className="space-y-1">
-                                <FormLabel className="flex items-center space-x-2 text-sm font-medium">
-                                  <Sparkles className="h-4 w-4 text-purple-500" />
-                                  <span>AI Prompt Enhancement</span>
-                                  <Badge variant="secondary" className="text-xs">NEW</Badge>
-                                </FormLabel>
-                                <p className="text-xs text-muted-foreground">
-                                  Let AI improve your prompt for better results
-                                </p>
-                              </div>
-                              <FormControl>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
 
-                        {form.watch("enhancePrompt") && (
-                          <div className="space-y-3 pt-2 border-t border-dashed">
-                            <div className="grid grid-cols-2 gap-3">
-                              <FormField
-                                control={form.control}
-                                name="promptMaxLength"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-xs">Enhancement Length</FormLabel>
-                                    <FormControl>
-                                      <Select value={field.value?.toString()} onValueChange={(value) => field.onChange(parseInt(value))}>
-                                        <SelectTrigger className="h-8 text-xs">
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="32">Short (32 tokens)</SelectItem>
-                                          <SelectItem value="64">Medium (64 tokens)</SelectItem>
-                                          <SelectItem value="128">Long (128 tokens)</SelectItem>
-                                          <SelectItem value="256">Very Long (256 tokens)</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-
-                              <FormField
-                                control={form.control}
-                                name="promptVersions"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel className="text-xs">Variations</FormLabel>
-                                    <FormControl>
-                                      <Select value={field.value?.toString()} onValueChange={(value) => field.onChange(parseInt(value))}>
-                                        <SelectTrigger className="h-8 text-xs">
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="1">1 version</SelectItem>
-                                          <SelectItem value="2">2 versions</SelectItem>
-                                          <SelectItem value="3">3 versions</SelectItem>
-                                          <SelectItem value="4">4 versions</SelectItem>
-                                          <SelectItem value="5">5 versions</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            
-                            <div className="text-xs text-muted-foreground bg-white/50 dark:bg-gray-800/50 p-2 rounded">
-                              <Brain className="h-3 w-3 inline mr-1" />
-                              Enhancement will generate {form.watch("promptVersions")} improved version{form.watch("promptVersions") > 1 ? 's' : ''} of your prompt
-                            </div>
-                          </div>
-                        )}
-                      </div>
 
                       {/* Aspect Ratio - Desktop with Mobile Styling */}
                       <FormField
