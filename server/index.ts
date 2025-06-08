@@ -15,14 +15,9 @@ import { checkDatabaseHealth } from "./db";
 
 const app = express();
 
-// Apply enterprise-grade performance middleware
-app.use(requestTimingMiddleware);
+// Apply core performance optimizations
 app.use(smartCompressionMiddleware());
 app.use(securityHeadersMiddleware);
-app.use(requestSizeLimiter(50 * 1024 * 1024)); // 50MB limit
-app.use(rateLimitMiddleware(60000, 1000)); // 1000 requests per minute
-app.use(requestDeduplicationMiddleware);
-app.use(responseCacheMiddleware(300000)); // 5 minute cache
 
 // Auth0 configuration
 const issuerBaseURL = process.env.AUTH0_ISSUER_BASE_URL?.startsWith('http') 

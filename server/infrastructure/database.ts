@@ -21,8 +21,6 @@ const connectionConfig = {
   connectionTimeoutMillis: 5000, // Connection timeout 5s
   // Statement timeout for long-running queries
   statement_timeout: 10000, // 10 seconds
-  // Connection parameters for performance
-  options: '-c default_transaction_isolation=read_committed',
 };
 
 export const pool = new Pool(connectionConfig);
