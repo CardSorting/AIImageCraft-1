@@ -47,16 +47,21 @@ const navItems: NavItem[] = [
 export function BottomNavigation() {
   const [location, navigate] = useLocation();
 
-  // Fetch user authentication status and credit balance
+  // Use centralized auth - no polling needed
   const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
     queryKey: ['/api/auth/profile'],
-    refetchInterval: 30000,
+    refetchInterval: false,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const { data: creditBalance } = useQuery<{ balance: number }>({
     queryKey: ['/api/credit-balance/1'],
-    enabled: authStatus?.isAuthenticated || false, // Only fetch if authenticated
-    refetchInterval: 30000,
+    enabled: authStatus?.isAuthenticated || false,
+    refetchInterval: false,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const handleNavigation = (href: string, requiresAuth: boolean = false) => {

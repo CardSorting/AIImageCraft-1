@@ -33,10 +33,13 @@ export function MobileNavigation({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location, setLocation] = useLocation();
 
-  // Fetch user authentication status
+  // Use centralized auth - no polling needed
   const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
     queryKey: ['/api/auth/profile'],
-    refetchInterval: 30000,
+    refetchInterval: false,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const handleNavigationClick = (itemId: string) => {

@@ -30,6 +30,7 @@ import { generateImageRequestSchema, type GenerateImageRequest } from "@shared/s
 import { apiRequest, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ImageGenerationResponse {
   success: boolean;
