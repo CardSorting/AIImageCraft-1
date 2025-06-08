@@ -22,6 +22,11 @@ export function useAuth() {
   const { data, isLoading, error } = useQuery<AuthData>({
     queryKey: ['/api/auth/profile'],
     retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes - keep auth data fresh for longer
+    gcTime: 10 * 60 * 1000, // 10 minutes cache
+    refetchOnWindowFocus: false, // Don't refetch on window focus
+    refetchOnMount: false, // Don't refetch on component mount if data exists
+    refetchInterval: false, // Disable automatic polling completely
   });
 
   const login = () => {
