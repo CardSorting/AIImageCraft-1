@@ -19,7 +19,9 @@ export default function Profile() {
   const { data: creditBalance } = useQuery<{ balance: number }>({
     queryKey: ['/api/credit-balance/1'],
     enabled: isAuthenticated,
-    refetchInterval: 30000,
+    refetchInterval: false,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   if (!isAuthenticated) {

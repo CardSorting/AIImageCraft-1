@@ -59,8 +59,9 @@ export default function Home() {
 
   const { data: images = [], isLoading: imagesLoading } = useQuery<GeneratedImage[]>({
     queryKey: ["/api/images"],
-    refetchInterval: isAuthenticated ? 30000 : 120000, // Slower refresh for non-auth users
-    staleTime: 15000, // Consider data fresh for 15 seconds
+    refetchInterval: false,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({

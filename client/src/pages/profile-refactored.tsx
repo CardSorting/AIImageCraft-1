@@ -148,7 +148,9 @@ function CreditBalance({ userId }: { userId: number }) {
   
   const { data: creditBalance } = useQuery<{ balance: number }>({
     queryKey: [`/api/credits/balance/${userId}`],
-    refetchInterval: 30000,
+    refetchInterval: false,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const balance = creditBalance?.balance || 0;

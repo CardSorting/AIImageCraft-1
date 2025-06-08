@@ -24,7 +24,9 @@ export default function AIDesigner() {
   // Check authentication
   const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
     queryKey: ['/api/auth/profile'],
-    refetchInterval: 30000,
+    refetchInterval: false,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   // Fetch chat sessions from database
