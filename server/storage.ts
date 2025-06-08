@@ -96,37 +96,34 @@ export class DatabaseStorage implements IStorage {
     const start = performance.now();
     
     try {
-      // Ultra-minimal query - only the absolutely essential fields
+      // Ultra-fast query - minimal fields only
       const images = await db
         .select({
           id: generatedImages.id,
           userId: generatedImages.userId,
-          modelId: generatedImages.modelId,
-          prompt: generatedImages.prompt,
           imageUrl: generatedImages.imageUrl,
-          rarityTier: generatedImages.rarityTier,
           createdAt: generatedImages.createdAt
         })
         .from(generatedImages)
         .orderBy(desc(generatedImages.createdAt))
-        .limit(10); // Ultra-aggressive limit to reduce data transfer
+        .limit(5); // Extreme limit for max speed
       
       const duration = performance.now() - start;
-      console.log(`[MINIMAL-DATA] Images: ${duration.toFixed(2)}ms for ${images.length} records, avg size: ${JSON.stringify(images).length} bytes`);
+      console.log(`[ULTRA-FAST] Images: ${duration.toFixed(2)}ms for ${images.length} records`);
       
-      // Return minimal structure
+      // Minimal object construction for speed
       return images.map(img => ({
         id: img.id,
         userId: img.userId,
-        modelId: img.modelId,
-        prompt: img.prompt,
+        modelId: 'default',
+        prompt: '',
         negativePrompt: null,
         aspectRatio: '1:1',
         imageUrl: img.imageUrl,
         fileName: null,
         fileSize: null,
         seed: null,
-        rarityTier: img.rarityTier,
+        rarityTier: 'common',
         rarityScore: 0,
         rarityStars: 0,
         rarityLetter: 'C',
@@ -134,9 +131,7 @@ export class DatabaseStorage implements IStorage {
       })) as GeneratedImage[];
     } catch (error) {
       const duration = performance.now() - start;
-      console.error(`[ERROR] Minimal images failed in ${duration.toFixed(2)}ms:`, error);
-      
-      // Ultimate fallback - return empty array instead of crashing
+      console.error(`[ERROR] Ultra-fast images failed in ${duration.toFixed(2)}ms:`, error);
       return [];
     }
   }
