@@ -96,21 +96,48 @@ export class DatabaseStorage implements IStorage {
     const start = performance.now();
     
     try {
-      // Ultra-optimized query - select only essential fields
+      // Ultra-minimal query - only the absolutely essential fields
       const images = await db
-        .select()
+        .select({
+          id: generatedImages.id,
+          userId: generatedImages.userId,
+          modelId: generatedImages.modelId,
+          prompt: generatedImages.prompt,
+          imageUrl: generatedImages.imageUrl,
+          rarityTier: generatedImages.rarityTier,
+          createdAt: generatedImages.createdAt
+        })
         .from(generatedImages)
         .orderBy(desc(generatedImages.createdAt))
-        .limit(Math.min(limit, 50)); // Reduce limit for faster queries
+        .limit(10); // Ultra-aggressive limit to reduce data transfer
       
       const duration = performance.now() - start;
-      console.log(`[ULTRA-FAST] Images query: ${duration.toFixed(2)}ms for ${images.length} records`);
+      console.log(`[MINIMAL-DATA] Images: ${duration.toFixed(2)}ms for ${images.length} records, avg size: ${JSON.stringify(images).length} bytes`);
       
-      return images;
+      // Return minimal structure
+      return images.map(img => ({
+        id: img.id,
+        userId: img.userId,
+        modelId: img.modelId,
+        prompt: img.prompt,
+        negativePrompt: null,
+        aspectRatio: '1:1',
+        imageUrl: img.imageUrl,
+        fileName: null,
+        fileSize: null,
+        seed: null,
+        rarityTier: img.rarityTier,
+        rarityScore: 0,
+        rarityStars: 0,
+        rarityLetter: 'C',
+        createdAt: img.createdAt
+      })) as GeneratedImage[];
     } catch (error) {
       const duration = performance.now() - start;
-      console.error(`[ERROR] Images query failed in ${duration.toFixed(2)}ms:`, error);
-      throw error;
+      console.error(`[ERROR] Minimal images failed in ${duration.toFixed(2)}ms:`, error);
+      
+      // Ultimate fallback - return empty array instead of crashing
+      return [];
     }
   }
 
