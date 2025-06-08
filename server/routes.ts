@@ -68,24 +68,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (req.oidc.isAuthenticated()) {
       try {
         const userId = await getOrCreateUserFromAuth0(req.oidc.user);
+        
+        // Get user's current credit balance
+        const balanceResult = await pool.query(
+          'SELECT amount FROM credit_balances WHERE user_id = $1',
+          [userId]
+        );
+        const creditBalance = balanceResult.rows[0]?.amount || 0;
+        
         res.json({
           isAuthenticated: true,
           user: req.oidc.user,
-          userId: userId
+          userId: userId,
+          creditBalance: parseFloat(creditBalance)
         });
       } catch (error) {
         console.error("Error getting user ID:", error);
         res.json({
           isAuthenticated: true,
           user: req.oidc.user,
-          userId: 3 // fallback to default authenticated user
+          userId: 3, // fallback to default authenticated user
+          creditBalance: 0
         });
       }
     } else {
       res.json({
         isAuthenticated: false,
         user: null,
-        userId: null
+        userId: null,
+        creditBalance: 0
       });
     }
   });

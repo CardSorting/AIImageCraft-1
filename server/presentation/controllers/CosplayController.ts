@@ -36,7 +36,10 @@ export class CosplayController {
       
       // Get current balance
       const currentBalance = await this.getCreditBalance(userId);
+      console.log(`[CosplayController] User ${userId} current balance: ${currentBalance} credits`);
+      
       if (currentBalance < COSPLAY_COST) {
+        console.log(`[CosplayController] Insufficient credits - need ${COSPLAY_COST}, have ${currentBalance}`);
         res.status(402).json({
           success: false,
           error: "Insufficient credits",
@@ -48,7 +51,11 @@ export class CosplayController {
       }
 
       // Deduct credits before generation
+      console.log(`[CosplayController] Deducting ${COSPLAY_COST} credits from user ${userId}`);
       await this.deductCredits(userId, COSPLAY_COST, "AI Cosplay transformation");
+      
+      const newBalance = await this.getCreditBalance(userId);
+      console.log(`[CosplayController] Credits deducted successfully. New balance: ${newBalance}`);
 
       // Convert image buffer to base64 for FAL AI
       const imageBase64 = imageFile.buffer.toString('base64');
