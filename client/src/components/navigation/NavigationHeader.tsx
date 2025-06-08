@@ -25,18 +25,17 @@ export function NavigationHeader({
   });
   
   const isAuthenticated = authStatus?.isAuthenticated || false;
-  const currentUserId = authStatus?.userId || (authStatus?.isAuthenticated ? 3 : 1);
+  const currentUserId = authStatus?.userId || 1; // Default to user ID 1 for demo/testing
   
-  // Only fetch credit balance if user is authenticated using new credit system
+  // Fetch credit balance for current user (always enabled since we have a default user)
   const { data: creditBalance } = useQuery<{ balance: number }>({
     queryKey: [`/api/credits/balance/${currentUserId}`], // Using dynamic user ID
-    enabled: isAuthenticated, // Only fetch if authenticated
     refetchInterval: 5000, // Refresh more frequently to show real-time updates
     staleTime: 0, // Always fetch fresh data
   });
   
-  // Use fetched balance or fallback to props, show 0 if not authenticated
-  const displayCredits = isAuthenticated ? (creditBalance?.balance ?? credits ?? 0) : 0;
+  // Use fetched balance or fallback to props
+  const displayCredits = creditBalance?.balance ?? credits ?? 0;
   
   // Determine active item based on current route if not provided
   const getCurrentActiveItem = () => {
