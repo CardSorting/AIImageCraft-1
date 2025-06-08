@@ -43,6 +43,9 @@ export async function getOrCreateUserFromAuth0(oidcUser: any): Promise<number> {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Apply ultra-performance middleware globally
+  app.use(createPerformanceMiddleware());
+  
   const imageController = new ImageController();
   const statisticsController = new StatisticsController();
 
@@ -846,6 +849,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/generate-cosplay", upload.single('image'), async (req: MulterRequest, res: Response) => {
     const cosplayController = new (await import('./presentation/controllers/CosplayController')).CosplayController();
     await cosplayController.generateCosplay(req, res);
+  });
+
+  // Performance monitoring endpoint for ultra-optimization tracking
+  app.get("/api/performance/stats", (req, res) => {
+    try {
+      const stats = getPerformanceStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error getting performance stats:", error);
+      res.status(500).json({ error: "Failed to get performance stats" });
+    }
   });
 
   // User interaction tracking endpoints for behavioral learning
