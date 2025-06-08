@@ -1,10 +1,11 @@
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { useEffect } from "react";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Landing from "@/pages/landing";
 import Gallery from "@/pages/gallery";
 import Generate from "@/pages/generate";
@@ -22,23 +23,20 @@ import NotFound from "@/pages/not-found";
 
 function Router() {
   const [location, setLocation] = useLocation();
-  const { data: user } = useQuery<{ isAuthenticated: boolean; user?: any }>({
-    queryKey: ['/api/auth/profile'],
-    refetchInterval: 5000
-  });
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     // Check if user just logged in and is on root page
-    if (user?.isAuthenticated && location === '/' && !sessionStorage.getItem('loginRedirectHandled')) {
+    if (isAuthenticated && location === '/' && !sessionStorage.getItem('loginRedirectHandled')) {
       sessionStorage.setItem('loginRedirectHandled', 'true');
       setLocation('/ai-cosplay');
     }
     
     // Clear the flag when user logs out
-    if (!user?.isAuthenticated) {
+    if (!isAuthenticated) {
       sessionStorage.removeItem('loginRedirectHandled');
     }
-  }, [user?.isAuthenticated, location, setLocation]);
+  }, [isAuthenticated, location, setLocation]);
 
   return (
     <Switch>
@@ -68,12 +66,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <MobileLayout>
-          <Router />
-          <Toaster />
-        </MobileLayout>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <MobileLayout>
+            <Router />
+            <Toaster />
+          </MobileLayout>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

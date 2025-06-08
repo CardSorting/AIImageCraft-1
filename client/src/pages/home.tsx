@@ -57,8 +57,10 @@ export default function Home() {
   // Check authentication status first
   const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
     queryKey: ['/api/auth/profile'],
-    refetchInterval: 60000, // Check auth less frequently
-    staleTime: 30000, // Consider data fresh for 30 seconds
+    refetchInterval: false, // Disable automatic polling completely
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const { data: images = [], isLoading: imagesLoading } = useQuery<GeneratedImage[]>({
