@@ -9,6 +9,13 @@ import { pool } from "./infrastructure/db";
 import Stripe from "stripe";
 import { nanoid } from "nanoid";
 import multer from "multer";
+import { 
+  createPerformanceMiddleware, 
+  createUltraFastQuery, 
+  queryCache, 
+  getPerformanceStats,
+  performanceMonitor
+} from "./infrastructure/ultra-performance-engine";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');

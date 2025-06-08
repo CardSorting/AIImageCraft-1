@@ -1,11 +1,13 @@
 /**
  * Ultra-aggressive auth polling elimination
- * Completely disables all automatic query refetching
+ * Network-level interception to block all auth requests
  */
 
 import { queryClient } from './queryClient';
 
 let isInitialized = false;
+let authRequestCount = 0;
+const MAX_AUTH_REQUESTS = 2; // Allow only initial auth check
 
 export function killAuthPolling() {
   if (isInitialized) return;
@@ -13,10 +15,34 @@ export function killAuthPolling() {
   // Clear all existing queries immediately
   queryClient.clear();
   
-  // Override the query client to prevent any auth polling
+  // Network-level fetch interception
+  const originalFetch = window.fetch;
+  window.fetch = function(input: RequestInfo | URL, init?: RequestInit) {
+    const url = typeof input === 'string' ? input : input.toString();
+    
+    // Block auth polling after initial requests
+    if (url.includes('/api/auth/profile')) {
+      authRequestCount++;
+      if (authRequestCount > MAX_AUTH_REQUESTS) {
+        console.log(`[AUTH-KILLER] Blocked auth request #${authRequestCount} to ${url}`);
+        // Return a cached response instead of making network request
+        return Promise.resolve(new Response(
+          JSON.stringify({ isAuthenticated: false, user: null }),
+          { 
+            status: 200, 
+            headers: { 'Content-Type': 'application/json' },
+            statusText: 'OK'
+          }
+        ));
+      }
+    }
+    
+    return originalFetch.call(this, input, init);
+  };
+  
+  // Override query client methods
   const originalInvalidateQueries = queryClient.invalidateQueries;
   queryClient.invalidateQueries = function(filters?: any) {
-    // Block invalidation of auth-related queries
     if (filters?.queryKey && filters.queryKey[0]?.includes?.('/api/auth/')) {
       console.log('[AUTH-KILLER] Blocked auth query invalidation');
       return Promise.resolve();
@@ -24,7 +50,6 @@ export function killAuthPolling() {
     return originalInvalidateQueries.call(this, filters);
   };
   
-  // Override refetch methods to prevent auth polling
   const originalRefetchQueries = queryClient.refetchQueries;
   queryClient.refetchQueries = function(filters?: any) {
     if (filters?.queryKey && filters.queryKey[0]?.includes?.('/api/auth/')) {
@@ -35,7 +60,7 @@ export function killAuthPolling() {
   };
   
   isInitialized = true;
-  console.log('[AUTH-KILLER] Auth polling elimination activated');
+  console.log('[AUTH-KILLER] Network-level auth polling elimination activated');
 }
 
 // Kill auth polling immediately on module load
