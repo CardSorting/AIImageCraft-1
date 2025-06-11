@@ -144,7 +144,7 @@ export const creditBalances = pgTable("credit_balances", {
 
 export const creditTransactions = pgTable("credit_transactions", {
   id: text("id").primaryKey(), // nanoid
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   type: text("type").notNull(), // PURCHASE, SPEND, REFUND, BONUS
   amount: text("amount").notNull(), // Store as text for precision
   description: text("description").notNull(),
@@ -168,7 +168,7 @@ export const creditPackages = pgTable("credit_packages", {
 
 export const chatSessions = pgTable("chat_sessions", {
   id: text("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   title: text("title").notNull(),
   previewImage: text("preview_image"),
   messageCount: integer("message_count").notNull().default(0),
@@ -186,9 +186,9 @@ export const chatMessages = pgTable("chat_messages", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const upsertUserSchema = createInsertSchema(users).omit({
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const insertImageSchema = createInsertSchema(generatedImages).omit({
@@ -261,7 +261,7 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
   createdAt: true,
 });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
 export type InsertImage = z.infer<typeof insertImageSchema>;
