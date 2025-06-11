@@ -136,7 +136,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getImagesByUserId(userId: number, limit: number = 50): Promise<GeneratedImage[]> {
+  async getImagesByUserId(userId: string, limit: number = 50): Promise<GeneratedImage[]> {
     const images = await db
       .select()
       .from(generatedImages)
@@ -299,7 +299,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Advanced "For You" algorithm based on user interactions
-  async getForYouModels(userId: number, limit: number = 20): Promise<AIModel[]> {
+  async getForYouModels(userId: string, limit: number = 20): Promise<AIModel[]> {
     // Get user's interaction history to understand preferences
     const userInteractions = await db.select()
       .from(userModelInteractions)
@@ -336,7 +336,7 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
-  async getBookmarkedModels(userId: number, limit: number = 50): Promise<AIModel[]> {
+  async getBookmarkedModels(userId: string, limit: number = 50): Promise<AIModel[]> {
     return db.select({
       id: aiModels.id,
       modelId: aiModels.modelId,
