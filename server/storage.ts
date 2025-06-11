@@ -1,18 +1,18 @@
-import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, chatSessions, chatMessages, type User, type UpsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike, type ChatSession, type InsertChatSession, type ChatMessage, type InsertChatMessage, type AIModelWithCounts } from "@shared/schema";
+import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, chatSessions, chatMessages, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike, type ChatSession, type InsertChatSession, type ChatMessage, type InsertChatMessage, type AIModelWithCounts } from "@shared/schema";
 import { db, createMemoizedQuery } from "./infrastructure/database";
 import { eq, desc, asc, like, and, or, sql, count, inArray, isNotNull } from "drizzle-orm";
 import { performance } from 'perf_hooks';
 
 export interface IStorage {
-  // User operations
-  // (IMPORTANT) these user operations are mandatory for Replit Auth.
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByAuth0Id(auth0Id: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
   
   // Image storage methods
   createImage(image: InsertImage): Promise<GeneratedImage>;
   getImages(limit?: number): Promise<GeneratedImage[]>;
-  getImagesByUserId(userId: string, limit?: number): Promise<GeneratedImage[]>;
+  getImagesByUserId(userId: number, limit?: number): Promise<GeneratedImage[]>;
   getImageById(id: number): Promise<GeneratedImage | undefined>;
   getImagesByModelId(modelId: string, limit?: number): Promise<(GeneratedImage & { username: string })[]>;
   deleteImage(id: number): Promise<boolean>;
@@ -26,23 +26,23 @@ export interface IStorage {
   deleteAIModel(id: number): Promise<boolean>;
   searchAIModels(query: string, limit?: number): Promise<AIModel[]>;
   getFeaturedAIModels(limit?: number): Promise<AIModel[]>;
-  getForYouModels(userId: string, limit?: number): Promise<AIModel[]>;
-  getBookmarkedModels(userId: string, limit?: number): Promise<AIModel[]>;
+  getForYouModels(userId: number, limit?: number): Promise<AIModel[]>;
+  getBookmarkedModels(userId: number, limit?: number): Promise<AIModel[]>;
   
   // User interaction methods
   createUserInteraction(interaction: InsertUserModelInteraction): Promise<UserModelInteraction>;
   createUserBookmark(bookmark: InsertUserBookmark): Promise<UserBookmark>;
-  removeUserBookmark(userId: string, modelId: number): Promise<boolean>;
-  isModelBookmarked(userId: string, modelId: number): Promise<boolean>;
+  removeUserBookmark(userId: number, modelId: number): Promise<boolean>;
+  isModelBookmarked(userId: number, modelId: number): Promise<boolean>;
   
   // User like methods
   createUserLike(like: InsertUserLike): Promise<UserLike>;
-  removeUserLike(userId: string, modelId: number): Promise<boolean>;
-  isModelLiked(userId: string, modelId: number): Promise<boolean>;
+  removeUserLike(userId: number, modelId: number): Promise<boolean>;
+  isModelLiked(userId: number, modelId: number): Promise<boolean>;
   
   // Chat session methods
   createChatSession(session: InsertChatSession): Promise<ChatSession>;
-  getChatSessions(userId: string, limit?: number): Promise<ChatSession[]>;
+  getChatSessions(userId: number, limit?: number): Promise<ChatSession[]>;
   getChatSessionById(sessionId: string): Promise<ChatSession | undefined>;
   updateChatSession(sessionId: string, updates: Partial<InsertChatSession>): Promise<ChatSession | undefined>;
   deleteChatSession(sessionId: string): Promise<boolean>;
@@ -54,25 +54,25 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations
-  // (IMPORTANT) these user operations are mandatory for Replit Auth.
-
-  async getUser(id: string): Promise<User | undefined> {
+  async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    return user || undefined;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async getUserByAuth0Id(auth0Id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, auth0Id));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
+      .values(insertUser)
       .returning();
     return user;
   }
@@ -136,7 +136,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getImagesByUserId(userId: string, limit: number = 50): Promise<GeneratedImage[]> {
+  async getImagesByUserId(userId: number, limit: number = 50): Promise<GeneratedImage[]> {
     const images = await db
       .select()
       .from(generatedImages)
@@ -299,7 +299,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Advanced "For You" algorithm based on user interactions
-  async getForYouModels(userId: string, limit: number = 20): Promise<AIModel[]> {
+  async getForYouModels(userId: number, limit: number = 20): Promise<AIModel[]> {
     // Get user's interaction history to understand preferences
     const userInteractions = await db.select()
       .from(userModelInteractions)
@@ -336,7 +336,7 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
-  async getBookmarkedModels(userId: string, limit: number = 50): Promise<AIModel[]> {
+  async getBookmarkedModels(userId: number, limit: number = 50): Promise<AIModel[]> {
     return db.select({
       id: aiModels.id,
       modelId: aiModels.modelId,
@@ -381,7 +381,7 @@ export class DatabaseStorage implements IStorage {
     return newBookmark;
   }
 
-  async removeUserBookmark(userId: string, modelId: number): Promise<boolean> {
+  async removeUserBookmark(userId: number, modelId: number): Promise<boolean> {
     try {
       const result = await db.delete(userBookmarks)
         .where(and(
@@ -395,7 +395,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async isModelBookmarked(userId: string, modelId: number): Promise<boolean> {
+  async isModelBookmarked(userId: number, modelId: number): Promise<boolean> {
     const [bookmark] = await db.select()
       .from(userBookmarks)
       .where(and(

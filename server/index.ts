@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import { auth } from "express-openid-connect";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { 
@@ -18,9 +19,70 @@ const app = express();
 app.use(smartCompressionMiddleware());
 app.use(securityHeadersMiddleware);
 
-// Replit Auth is configured in routes.ts through setupAuth()
+// Auth0 configuration
+const issuerBaseURL = process.env.AUTH0_ISSUER_BASE_URL?.startsWith('http') 
+  ? process.env.AUTH0_ISSUER_BASE_URL 
+  : `https://${process.env.AUTH0_ISSUER_BASE_URL}`;
 
-// Basic middleware setup for request handling
+const config = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env.AUTH0_SECRET,
+  baseURL: process.env.AUTH0_BASE_URL,
+  clientID: process.env.AUTH0_CLIENT_ID,
+  issuerBaseURL: issuerBaseURL,
+  session: {
+    rollingDuration: 24 * 60 * 60, // 24 hours
+    absoluteDuration: 7 * 24 * 60 * 60 // 7 days
+  },
+  routes: {
+    login: '/login',
+    logout: '/logout',
+    callback: '/callback'
+  }
+};
+
+// Debug Auth0 configuration
+console.log('Auth0 Environment Variables:');
+console.log('AUTH0_SECRET:', process.env.AUTH0_SECRET ? '[PRESENT]' : '[MISSING]');
+console.log('AUTH0_BASE_URL:', process.env.AUTH0_BASE_URL);
+console.log('AUTH0_CLIENT_ID:', process.env.AUTH0_CLIENT_ID);
+console.log('AUTH0_ISSUER_BASE_URL:', process.env.AUTH0_ISSUER_BASE_URL);
+
+// Validate Auth0 configuration
+if (!config.secret || !config.baseURL || !config.clientID || !config.issuerBaseURL) {
+  console.error('Missing required Auth0 environment variables:');
+  console.error('AUTH0_SECRET:', !!process.env.AUTH0_SECRET);
+  console.error('AUTH0_BASE_URL:', !!process.env.AUTH0_BASE_URL);
+  console.error('AUTH0_CLIENT_ID:', !!process.env.AUTH0_CLIENT_ID);
+  console.error('AUTH0_ISSUER_BASE_URL:', !!process.env.AUTH0_ISSUER_BASE_URL);
+  throw new Error('Auth0 configuration incomplete');
+}
+
+// Validate URL formats
+try {
+  new URL(config.issuerBaseURL);
+  new URL(config.baseURL);
+} catch (error) {
+  console.error('Invalid URL format in Auth0 configuration:');
+  console.error('issuerBaseURL:', config.issuerBaseURL);
+  console.error('baseURL:', config.baseURL);
+  throw new Error('Auth0 URLs must be valid URIs');
+}
+
+// auth router attaches /login, /logout, and /callback routes to the baseURL
+app.use(auth(config));
+
+// Add debugging middleware to see what's happening with auth
+app.use((req, res, next) => {
+  if (req.path === '/callback' || req.path === '/login') {
+    console.log('Auth Route:', req.path);
+    console.log('Headers:', req.headers);
+    console.log('Query:', req.query);
+    console.log('Is Authenticated:', req.oidc?.isAuthenticated());
+  }
+  next();
+});
 
 // For Stripe webhooks, we need raw body
 app.use('/webhook/stripe', express.raw({type: 'application/json'}));

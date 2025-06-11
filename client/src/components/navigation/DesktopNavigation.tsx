@@ -35,7 +35,7 @@ export function DesktopNavigation({
 
   // Use centralized auth - no polling needed
   const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
-    queryKey: ['/api/auth/user'],
+    queryKey: ['/api/auth/profile'],
     refetchInterval: false,
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -85,7 +85,7 @@ export function DesktopNavigation({
                     onClick={() => {
                       // Check authentication for AI Maker and AI Designer routes
                       if ((item.id === 'ai-cosplay' || item.id === 'ai-designer') && !authStatus?.isAuthenticated) {
-                        window.location.href = '/api/login';
+                        window.location.href = '/login';
                         return;
                       }
                       
@@ -157,7 +157,7 @@ export function DesktopNavigation({
                   
                   {/* Logout Button */}
                   <Button 
-                    onClick={() => window.location.href = '/api/logout'}
+                    onClick={() => window.location.href = '/logout'}
                     variant="ghost"
                     size="sm"
                     className="h-10 w-10 rounded-xl hover:bg-background/80 transition-colors duration-200"
@@ -167,7 +167,7 @@ export function DesktopNavigation({
                 </div>
               ) : (
                 <Button 
-                  onClick={() => window.location.href = '/api/login'}
+                  onClick={() => window.location.href = '/login'}
                   className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
                 >
                   <User className="h-4 w-4 mr-2" />

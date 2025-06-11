@@ -34,22 +34,19 @@ export function MobileNavigation({
   const [location, setLocation] = useLocation();
 
   // Use centralized auth - no polling needed
-  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any; creditBalance?: number }>({
-    queryKey: ['/api/auth/user'],
+  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
+    queryKey: ['/api/auth/profile'],
     refetchInterval: false,
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
 
-  // Get actual credit balance from auth response
-  const displayCredits = authStatus?.isAuthenticated ? (authStatus?.creditBalance ?? 0) : 0;
-
   const handleNavigationClick = (itemId: string) => {
     if (itemId === 'ai-cosplay') {
       // Check authentication for AI Maker route
       if (!authStatus?.isAuthenticated) {
-        window.location.href = '/api/login';
+        window.location.href = '/login';
         setIsMenuOpen(false);
         return;
       }
@@ -57,7 +54,7 @@ export function MobileNavigation({
     } else if (itemId === 'ai-designer') {
       // Check authentication for AI Designer route
       if (!authStatus?.isAuthenticated) {
-        window.location.href = '/api/login';
+        window.location.href = '/login';
         setIsMenuOpen(false);
         return;
       }
@@ -94,7 +91,7 @@ export function MobileNavigation({
               <div className="w-4 h-4 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
                 <Coins className="h-2 w-2 text-yellow-900" />
               </div>
-              <span className="text-xs font-bold text-foreground">{displayCredits > 999 ? `${(displayCredits/1000).toFixed(1)}K` : displayCredits}</span>
+              <span className="text-xs font-bold text-foreground">{credits > 999 ? `${(credits/1000).toFixed(1)}K` : credits}</span>
             </div>
 
             {/* Mobile Menu Trigger */}
@@ -136,7 +133,7 @@ export function MobileNavigation({
                         <Coins className="h-4 w-4 text-yellow-900" />
                       </div>
                       <div>
-                        <p className="text-lg font-bold text-foreground">{displayCredits.toLocaleString()}</p>
+                        <p className="text-lg font-bold text-foreground">{credits.toLocaleString()}</p>
                         <p className="text-sm text-muted-foreground">Available Credits</p>
                       </div>
                     </div>

@@ -36,8 +36,6 @@ interface ImageGenerationResponse {
   success: boolean;
   images: any[];
   requestId: string;
-  creditsUsed?: number;
-  newBalance?: number;
 }
 
 export default function Generate() {
@@ -169,7 +167,7 @@ export default function Generate() {
   const selectedModel = availableModels.find((model: any) => model.modelId === form.watch('model'));
   const currentModelName = selectedModel?.name || 'Juggernaut Pro Flux';
 
-  const generateImagesMutation = useMutation({
+  const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
     mutationFn: async (data) => {
       const response = await apiRequest("POST", "/api/generate-images", data);
       return response.json();
@@ -180,8 +178,8 @@ export default function Generate() {
         description: `Your masterpiece is ready! ${data.creditsUsed ? `Used ${data.creditsUsed} credits` : ''}`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/images/my"] });
-      // Refresh auth profile to show updated credit balance
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/profile"] });
+      // Refresh credit balance to show updated amount
+      queryClient.invalidateQueries({ queryKey: ["/api/credits/balance/1"] });
       
       // Clear any existing highlights first
       setNewlyCreatedImageIds([]);

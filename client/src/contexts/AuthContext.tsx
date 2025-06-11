@@ -1,4 +1,5 @@
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 interface User {
   sid: string;
@@ -29,62 +30,35 @@ interface AuthContextValue extends AuthData {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [authData, setAuthData] = useState<AuthData>({
-    isAuthenticated: false,
-    user: null,
-    userId: undefined
+  const { data, isLoading, error } = useQuery<AuthData>({
+    queryKey: ['/api/auth/profile'],
+    staleTime: 10 * 60 * 1000, // 10 minutes - very long cache
+    gcTime: 15 * 60 * 1000, // 15 minutes garbage collection
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchAuthData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/auth/user');
-        if (response.ok) {
-          const user = await response.json();
-          setAuthData({
-            isAuthenticated: true,
-            user: user,
-            userId: user.id
-          });
-        } else {
-          setAuthData({ isAuthenticated: false, user: null });
-        }
-      } catch (err) {
-        console.error('Auth fetch error:', err);
-        setError(err);
-        setAuthData({ isAuthenticated: false, user: null });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAuthData();
-  }, []);
 
   const login = () => {
-    window.location.href = '/api/login';
+    window.location.href = '/login';
   };
 
   const logout = () => {
-    window.location.href = '/api/logout';
+    window.location.href = '/logout';
   };
 
   const value: AuthContextValue = {
-    ...authData,
+    user: data?.user || null,
+    isAuthenticated: data?.isAuthenticated || false,
+    userId: data?.userId,
     isLoading,
     error,
     login,
     logout,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
