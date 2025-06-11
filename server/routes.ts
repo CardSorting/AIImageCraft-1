@@ -1,7 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import pkg from "express-openid-connect";
-const { requiresAuth } = pkg;
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { ImageController } from "./presentation/controllers/ImageController";
 import { StatisticsController } from "./presentation/controllers/StatisticsController";
 import { storage } from "./storage";
@@ -22,27 +21,18 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Helper function to get or create user from Auth0
-export async function getOrCreateUserFromAuth0(oidcUser: any): Promise<number> {
-  if (!oidcUser) {
+// Helper function to get user ID from Replit Auth
+export function getUserIdFromReplit(req: any): string {
+  if (!req.user?.claims?.sub) {
     throw new Error('User not authenticated');
   }
-  
-  // Try to find existing user by Auth0 ID
-  let user = await storage.getUserByAuth0Id(oidcUser.sub);
-  
-  if (!user) {
-    // Create new user if doesn't exist
-    user = await storage.createUser({
-      username: oidcUser.sub, // Using Auth0 sub as unique identifier
-      password: 'auth0-user', // Placeholder since Auth0 handles authentication
-    });
-  }
-  
-  return user.id;
+  return req.user.claims.sub;
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+
   // Apply ultra-performance middleware globally
   app.use(createPerformanceMiddleware());
   
@@ -50,52 +40,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const statisticsController = new StatisticsController();
 
 
-  // Auth0 test endpoint (moved to API route)
-  app.get("/api/auth/status", (req, res) => {
-    res.json({ 
-      message: req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out',
-      isAuthenticated: req.oidc.isAuthenticated()
-    });
-  });
-
-  // Protected profile route - requires authentication (moved to API route)
-  app.get('/api/profile', requiresAuth(), (req, res) => {
-    res.json(req.oidc.user);
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
   });
 
   // Get user profile endpoint (API version)
-  app.get("/api/auth/profile", async (req, res) => {
-    if (req.oidc.isAuthenticated()) {
-      try {
-        const userId = await getOrCreateUserFromAuth0(req.oidc.user);
-        
-        // Get user's current credit balance
-        const balanceResult = await pool.query(
-          'SELECT amount FROM credit_balances WHERE user_id = $1',
-          [userId]
-        );
-        const creditBalance = balanceResult.rows[0]?.amount || 0;
-        
-        res.json({
-          isAuthenticated: true,
-          user: req.oidc.user,
-          userId: userId,
-          creditBalance: parseFloat(creditBalance)
-        });
-      } catch (error) {
-        console.error("Error getting user ID:", error);
-        res.json({
-          isAuthenticated: true,
-          user: req.oidc.user,
-          userId: 3, // fallback to default authenticated user
-          creditBalance: 0
-        });
-      }
-    } else {
+  app.get("/api/auth/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getUserIdFromReplit(req);
+      
+      // Get user's current credit balance
+      const balanceResult = await pool.query(
+        'SELECT amount FROM credit_balances WHERE user_id = $1',
+        [userId]
+      );
+      const creditBalance = balanceResult.rows[0]?.amount || 0;
+      
       res.json({
-        isAuthenticated: false,
-        user: null,
-        userId: null,
+        isAuthenticated: true,
+        user: req.user.claims,
+        userId: userId,
+        creditBalance: parseFloat(creditBalance)
+      });
+    } catch (error) {
+      console.error("Error getting user profile:", error);
+      res.status(500).json({ 
+        message: "Failed to get user profile",
         creditBalance: 0
       });
     }
