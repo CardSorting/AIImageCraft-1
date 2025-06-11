@@ -120,7 +120,7 @@ export class CreditAccount {
   ) {}
 
   // Factory Methods
-  static create(userId: number, initialBalance: number = 50): CreditAccount {
+  static create(userId: number, initialBalance: number = 20): CreditAccount {
     const balance = CreditBalance.create(initialBalance);
     return new CreditAccount(userId, balance);
   }
@@ -261,8 +261,8 @@ export class TransactionResult {
 // Domain Service for Credit Calculations
 export class CreditDomainService {
   calculateImageGenerationCost(aspectRatio: string, numImages: number): number {
-    const baseCreditsPerImage = 0.5; // Reduced from 1 to 0.5 credits per image
-    const aspectRatioMultiplier = 1.0; // Removed aspect ratio penalty - all ratios cost the same
+    const baseCreditsPerImage = 1;
+    const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
     return Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
   }
 

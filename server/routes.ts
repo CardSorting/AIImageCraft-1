@@ -218,11 +218,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create initial balance for new user
         await pool.query(
           'INSERT INTO credit_balances (user_id, amount, version, last_updated) VALUES ($1, $2, $3, NOW())',
-          [userId, '50.0', 1]
+          [userId, '20.0', 1]
         );
-        balance = 50;
+        balance = 20;
         accountInfo = {
-          balance: 50,
+          balance: 20,
           version: 1,
           lastUpdated: new Date()
         };
@@ -596,16 +596,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let operationCost = 0;
         switch (operation.type) {
           case 'upscale':
-            operationCost = 0.5; // Reduced from 2 to 0.5 credits per upscale
+            operationCost = 2; // 2 credits per upscale
             break;
           case 'variation':
-            operationCost = 0.25; // Reduced from 1 to 0.25 credits per variation
+            operationCost = 1; // 1 credit per variation
             break;
           case 'inpaint':
-            operationCost = 0.5; // Reduced from 1.5 to 0.5 credits per inpainting
+            operationCost = 1.5; // 1.5 credits per inpainting
             break;
           default:
-            operationCost = 0.25;
+            operationCost = 1;
         }
         
         totalOperationCost += operationCost;
@@ -804,7 +804,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Cosplay generation endpoint with image upload
   const upload = multer({ 
     storage: multer.memoryStorage(),
-    limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
   });
 
   interface MulterRequest extends Request {
@@ -1199,9 +1199,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create initial balance for new user
         await pool.query(
           'INSERT INTO credit_balances (user_id, amount) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING',
-          [userId, '50']
+          [userId, '20']
         );
-        balance = 50;
+        balance = 20;
       }
       
       res.json({ balance });
