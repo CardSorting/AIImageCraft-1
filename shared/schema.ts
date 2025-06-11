@@ -26,7 +26,7 @@ export const users = pgTable("users", {
 
 export const generatedImages = pgTable("generated_images", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   modelId: text("model_id").notNull(),
   prompt: text("prompt").notNull(),
   negativePrompt: text("negative_prompt").default(""),
@@ -68,7 +68,7 @@ export const aiModels = pgTable("ai_models", {
 
 export const userModelInteractions = pgTable("user_model_interactions", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: varchar("user_id").notNull(),
   modelId: integer("model_id").notNull().references(() => aiModels.id),
   interactionType: text("interaction_type").notNull(), // 'view', 'like', 'bookmark', 'generate', 'share', 'download'
   engagementLevel: integer("engagement_level").default(5), // 1-10 scale based on time spent, actions taken
@@ -80,7 +80,7 @@ export const userModelInteractions = pgTable("user_model_interactions", {
 
 export const userBehaviorProfiles = pgTable("user_behavior_profiles", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   preferredCategories: text("preferred_categories").array().default([]),
   preferredProviders: text("preferred_providers").array().default([]),
   preferredStyles: text("preferred_styles").array().default([]),
@@ -98,7 +98,7 @@ export const userBehaviorProfiles = pgTable("user_behavior_profiles", {
 
 export const userCategoryAffinities = pgTable("user_category_affinities", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   category: text("category").notNull(),
   affinityScore: integer("affinity_score").notNull(), // 0-100
   interactionCount: integer("interaction_count").default(0),
@@ -109,7 +109,7 @@ export const userCategoryAffinities = pgTable("user_category_affinities", {
 
 export const userProviderAffinities = pgTable("user_provider_affinities", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   provider: text("provider").notNull(),
   affinityScore: integer("affinity_score").notNull(), // 0-100
   interactionCount: integer("interaction_count").default(0),
@@ -121,21 +121,21 @@ export const userProviderAffinities = pgTable("user_provider_affinities", {
 
 export const userBookmarks = pgTable("user_bookmarks", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: varchar("user_id").notNull(),
   modelId: integer("model_id").notNull().references(() => aiModels.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const userLikes = pgTable("user_likes", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: varchar("user_id").notNull(),
   modelId: integer("model_id").notNull().references(() => aiModels.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Credit System Tables - Clean Architecture Implementation  
 export const creditBalances = pgTable("credit_balances", {
-  userId: integer("user_id").primaryKey().references(() => users.id),
+  userId: varchar("user_id").primaryKey().references(() => users.id),
   amount: text("amount").notNull().default("0"), // Store as text for precision
   createdAt: timestamp("created_at").defaultNow().notNull(),
   lastUpdated: timestamp("last_updated").defaultNow().notNull(),
