@@ -35,7 +35,7 @@ export function DesktopNavigation({
 
   // Use centralized auth - no polling needed
   const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any }>({
-    queryKey: ['/api/auth/profile'],
+    queryKey: ['/api/auth/user'],
     refetchInterval: false,
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,

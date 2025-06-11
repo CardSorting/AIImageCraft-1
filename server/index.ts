@@ -20,16 +20,7 @@ app.use(securityHeadersMiddleware);
 
 // Replit Auth is configured in routes.ts through setupAuth()
 
-// Add debugging middleware to see what's happening with auth
-app.use((req, res, next) => {
-  if (req.path === '/callback' || req.path === '/login') {
-    console.log('Auth Route:', req.path);
-    console.log('Headers:', req.headers);
-    console.log('Query:', req.query);
-    console.log('Is Authenticated:', req.oidc?.isAuthenticated());
-  }
-  next();
-});
+// Basic middleware setup for request handling
 
 // For Stripe webhooks, we need raw body
 app.use('/webhook/stripe', express.raw({type: 'application/json'}));
