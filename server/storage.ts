@@ -381,7 +381,7 @@ export class DatabaseStorage implements IStorage {
     return newBookmark;
   }
 
-  async removeUserBookmark(userId: number, modelId: number): Promise<boolean> {
+  async removeUserBookmark(userId: string, modelId: number): Promise<boolean> {
     try {
       const result = await db.delete(userBookmarks)
         .where(and(
@@ -395,7 +395,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async isModelBookmarked(userId: number, modelId: number): Promise<boolean> {
+  async isModelBookmarked(userId: string, modelId: number): Promise<boolean> {
     const [bookmark] = await db.select()
       .from(userBookmarks)
       .where(and(
