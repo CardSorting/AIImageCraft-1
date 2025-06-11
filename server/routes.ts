@@ -593,20 +593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const operationBreakdown = [];
       
       for (const operation of operations) {
-        let operationCost = 0;
-        switch (operation.type) {
-          case 'upscale':
-            operationCost = 0.5; // Reduced from 2 to 0.5 credits per upscale
-            break;
-          case 'variation':
-            operationCost = 0.25; // Reduced from 1 to 0.25 credits per variation
-            break;
-          case 'inpaint':
-            operationCost = 0.5; // Reduced from 1.5 to 0.5 credits per inpainting
-            break;
-          default:
-            operationCost = 0.25;
-        }
+        const operationCost = domainService.calculateOperationCost(operation.type);
         
         totalOperationCost += operationCost;
         operationBreakdown.push({

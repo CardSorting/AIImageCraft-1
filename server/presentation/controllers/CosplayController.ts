@@ -3,6 +3,7 @@ import { FalAICosplayService } from '../../infrastructure/services/FalAICosplayS
 import { storage } from '../../storage';
 import { db, pool } from '../../db';
 import { CreditTransactionService } from '../../application/services/CreditTransactionService';
+import { CreditDomainService } from '../../domain/CreditAggregate';
 
 /**
  * Cosplay Controller
@@ -11,6 +12,7 @@ import { CreditTransactionService } from '../../application/services/CreditTrans
 export class CosplayController {
   private falAIService = new FalAICosplayService();
   private creditService = new CreditTransactionService();
+  private domainService = new CreditDomainService();
 
   async generateCosplay(req: Request, res: Response): Promise<void> {
     try {
@@ -31,8 +33,8 @@ export class CosplayController {
       console.log(`[CosplayController] Processing cosplay transformation for user ${userId}`);
       console.log(`[CosplayController] Instruction: ${instruction.substring(0, 100)}...`);
 
-      // Check and deduct credits first (10 credits for cosplay transformation)
-      const COSPLAY_COST = 10;
+      // Use domain service for consistent pricing
+      const COSPLAY_COST = this.domainService.calculateCosplayTransformationCost();
       
       // Get current balance
       const currentBalance = await this.getCreditBalance(userId);

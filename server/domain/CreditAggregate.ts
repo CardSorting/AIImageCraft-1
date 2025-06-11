@@ -266,6 +266,31 @@ export class CreditDomainService {
     return Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
   }
 
+  calculateCosplayTransformationCost(): number {
+    return 1; // Reduced from 10 to 1 credit for cosplay transformations
+  }
+
+  calculateDesignGenerationCost(): number {
+    return 1; // 1 credit for AI design generation (same as cosplay)
+  }
+
+  calculateOperationCost(operationType: string): number {
+    switch (operationType) {
+      case 'upscale':
+        return 0.5;
+      case 'variation':
+        return 0.25;
+      case 'inpaint':
+        return 0.5;
+      case 'cosplay':
+        return 1;
+      case 'design':
+        return 1;
+      default:
+        return 0.25;
+    }
+  }
+
   validateImageGenerationRequest(prompt: string, aspectRatio: string, numImages: number): void {
     if (!prompt || prompt.trim().length === 0) {
       throw new Error("Prompt cannot be empty");
