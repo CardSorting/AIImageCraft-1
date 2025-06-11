@@ -41,10 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const fetchAuthData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/auth/profile');
+        const response = await fetch('/api/auth/user');
         if (response.ok) {
-          const data = await response.json();
-          setAuthData(data);
+          const user = await response.json();
+          setAuthData({
+            isAuthenticated: true,
+            user: user,
+            userId: user.id
+          });
         } else {
           setAuthData({ isAuthenticated: false, user: null });
         }
@@ -61,11 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = () => {
-    window.location.href = '/login';
+    window.location.href = '/api/login';
   };
 
   const logout = () => {
-    window.location.href = '/logout';
+    window.location.href = '/api/logout';
   };
 
   const value: AuthContextValue = {
