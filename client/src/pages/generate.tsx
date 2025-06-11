@@ -178,8 +178,8 @@ export default function Generate() {
         description: `Your masterpiece is ready! ${data.creditsUsed ? `Used ${data.creditsUsed} credits` : ''}`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/images/my"] });
-      // Refresh credit balance to show updated amount
-      queryClient.invalidateQueries({ queryKey: ["/api/credits/balance/1"] });
+      // Refresh auth profile to show updated credit balance
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/profile"] });
       
       // Clear any existing highlights first
       setNewlyCreatedImageIds([]);
