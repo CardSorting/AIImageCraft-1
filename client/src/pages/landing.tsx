@@ -230,7 +230,7 @@ export default function Landing() {
           <div className="flex items-center space-x-4">
             <Button 
               variant="ghost" 
-              onClick={() => window.location.href = '/login'}
+              onClick={() => window.location.href = '/api/login'}
               className="text-gray-300 hover:text-white"
             >
               Sign In

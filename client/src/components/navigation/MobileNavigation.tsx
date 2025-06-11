@@ -49,7 +49,7 @@ export function MobileNavigation({
     if (itemId === 'ai-cosplay') {
       // Check authentication for AI Maker route
       if (!authStatus?.isAuthenticated) {
-        window.location.href = '/login';
+        window.location.href = '/api/login';
         setIsMenuOpen(false);
         return;
       }
@@ -57,7 +57,7 @@ export function MobileNavigation({
     } else if (itemId === 'ai-designer') {
       // Check authentication for AI Designer route
       if (!authStatus?.isAuthenticated) {
-        window.location.href = '/login';
+        window.location.href = '/api/login';
         setIsMenuOpen(false);
         return;
       }

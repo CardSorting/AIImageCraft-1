@@ -1,7 +1,4 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { auth } from "express-openid-connect";
-import session from "express-session";
-import connectPg from "connect-pg-simple";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { 
@@ -21,84 +18,7 @@ const app = express();
 app.use(smartCompressionMiddleware());
 app.use(securityHeadersMiddleware);
 
-// Setup PostgreSQL session store
-const PgSession = connectPg(session);
-app.use(session({
-  store: new PgSession({
-    conString: process.env.DATABASE_URL,
-    tableName: 'session',
-    createTableIfMissing: false
-  }),
-  secret: process.env.AUTH0_SECRET || 'fallback-secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    sameSite: 'lax'
-  }
-}));
-
-// Auth0 configuration with proper session management
-const issuerBaseURL = process.env.AUTH0_ISSUER_BASE_URL?.startsWith('http') 
-  ? process.env.AUTH0_ISSUER_BASE_URL 
-  : `https://${process.env.AUTH0_ISSUER_BASE_URL}`;
-
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.AUTH0_SECRET,
-  baseURL: process.env.AUTH0_BASE_URL,
-  clientID: process.env.AUTH0_CLIENT_ID,
-  issuerBaseURL: issuerBaseURL,
-  session: {
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'Lax'
-    },
-    rollingDuration: 24 * 60 * 60, // 24 hours in seconds  
-    absoluteDuration: 7 * 24 * 60 * 60, // 7 days in seconds
-    name: 'appSession'
-  },
-  routes: {
-    login: '/login',
-    logout: '/logout',
-    callback: '/callback'
-  }
-};
-
-// Debug Auth0 configuration
-console.log('Auth0 Environment Variables:');
-console.log('AUTH0_SECRET:', process.env.AUTH0_SECRET ? '[PRESENT]' : '[MISSING]');
-console.log('AUTH0_BASE_URL:', process.env.AUTH0_BASE_URL);
-console.log('AUTH0_CLIENT_ID:', process.env.AUTH0_CLIENT_ID);
-console.log('AUTH0_ISSUER_BASE_URL:', process.env.AUTH0_ISSUER_BASE_URL);
-
-// Validate Auth0 configuration
-if (!config.secret || !config.baseURL || !config.clientID || !config.issuerBaseURL) {
-  console.error('Missing required Auth0 environment variables:');
-  console.error('AUTH0_SECRET:', !!process.env.AUTH0_SECRET);
-  console.error('AUTH0_BASE_URL:', !!process.env.AUTH0_BASE_URL);
-  console.error('AUTH0_CLIENT_ID:', !!process.env.AUTH0_CLIENT_ID);
-  console.error('AUTH0_ISSUER_BASE_URL:', !!process.env.AUTH0_ISSUER_BASE_URL);
-  throw new Error('Auth0 configuration incomplete');
-}
-
-// Validate URL formats
-try {
-  new URL(config.issuerBaseURL);
-  new URL(config.baseURL);
-} catch (error) {
-  console.error('Invalid URL format in Auth0 configuration:');
-  console.error('issuerBaseURL:', config.issuerBaseURL);
-  console.error('baseURL:', config.baseURL);
-  throw new Error('Auth0 URLs must be valid URIs');
-}
-
-// auth router attaches /login, /logout, and /callback routes to the baseURL
-app.use(auth(config));
+// Replit Auth is configured in routes.ts through setupAuth()
 
 // Add debugging middleware to see what's happening with auth
 app.use((req, res, next) => {
