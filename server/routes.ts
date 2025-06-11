@@ -172,22 +172,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get images for authenticated user
+  // Get all images (public endpoint)
   app.get("/api/images", async (req: any, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 50;
-      
-      if (req.user?.claims?.sub) {
-        const userId = getUserIdFromReplit(req);
-        const images = await storage.getImagesByUserId(userId, limit);
-        res.json(images);
-      } else {
-        // For unauthenticated users, show recent public images
-        const images = await storage.getImages(limit);
-        res.json(images);
-      }
+      const images = await storage.getImages(limit);
+      res.json(images);
     } catch (error) {
       console.error("Error fetching images:", error);
+      res.status(500).json({ error: "Failed to fetch images" });
+    }
+  });
+
+  // Get images for authenticated user only
+  app.get("/api/images/my", async (req: any, res) => {
+    try {
+      if (!req.user?.claims?.sub) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      
+      const userId = getUserIdFromReplit(req);
+      const limit = parseInt(req.query.limit as string) || 50;
+      const images = await storage.getImagesByUserId(userId, limit);
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching user images:", error);
       res.status(500).json({ error: "Failed to fetch images" });
     }
   });
@@ -349,6 +358,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/images/:id", async (req, res) => {
     try {
       const imageId = parseInt(req.params.id);
+      
+      // Validate that imageId is a valid number
+      if (isNaN(imageId) || imageId <= 0) {
+        return res.status(400).json({ error: "Invalid image ID" });
+      }
+      
       const image = await storage.getImageById(imageId);
       
       if (!image) {
@@ -365,6 +380,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/images/:id", async (req: any, res) => {
     try {
       const imageId = parseInt(req.params.id);
+      
+      // Validate that imageId is a valid number
+      if (isNaN(imageId) || imageId <= 0) {
+        return res.status(400).json({ error: "Invalid image ID" });
+      }
       
       // Check if user owns the image or is admin
       if (req.user?.claims?.sub) {
