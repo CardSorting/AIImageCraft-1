@@ -56,8 +56,7 @@ const config = {
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'Lax',
-      domain: process.env.NODE_ENV === 'production' ? '.dreambeesart.com' : undefined
+      sameSite: 'Lax'
     },
     rollingDuration: 24 * 60 * 60, // 24 hours in seconds  
     absoluteDuration: 7 * 24 * 60 * 60, // 7 days in seconds
