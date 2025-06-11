@@ -126,6 +126,8 @@ export default function AICosplayPage() {
         });
       }
       queryClient.invalidateQueries({ queryKey: ['/api/images'] });
+      // Refresh auth profile to show updated credit balance
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/profile'] });
     },
     onError: (error) => {
       toast({

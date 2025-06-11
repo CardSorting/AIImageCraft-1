@@ -36,6 +36,8 @@ interface ImageGenerationResponse {
   success: boolean;
   images: any[];
   requestId: string;
+  creditsUsed?: number;
+  newBalance?: number;
 }
 
 export default function Generate() {
@@ -167,7 +169,7 @@ export default function Generate() {
   const selectedModel = availableModels.find((model: any) => model.modelId === form.watch('model'));
   const currentModelName = selectedModel?.name || 'Juggernaut Pro Flux';
 
-  const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
+  const generateImagesMutation = useMutation({
     mutationFn: async (data) => {
       const response = await apiRequest("POST", "/api/generate-images", data);
       return response.json();
