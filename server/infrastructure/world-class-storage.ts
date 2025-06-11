@@ -308,13 +308,13 @@ export class WorldClassStorage {
           // Create initial balance
           const insertQuery = `
             INSERT INTO credit_balances (user_id, amount, last_updated)
-            VALUES ($1, 20, NOW())
+            VALUES ($1, 50, NOW())
             ON CONFLICT (user_id) DO NOTHING
             RETURNING amount, version, last_updated
           `;
           
           const insertResults = await queryBatcher.batchQuery('credit_balance_create', insertQuery, [userId]);
-          return insertResults[0] || { amount: 20, version: 1, last_updated: new Date() };
+          return insertResults[0] || { amount: 50, version: 1, last_updated: new Date() };
         }
         
         return results[0];

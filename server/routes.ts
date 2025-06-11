@@ -218,11 +218,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create initial balance for new user
         await pool.query(
           'INSERT INTO credit_balances (user_id, amount, version, last_updated) VALUES ($1, $2, $3, NOW())',
-          [userId, '20.0', 1]
+          [userId, '50.0', 1]
         );
-        balance = 20;
+        balance = 50;
         accountInfo = {
-          balance: 20,
+          balance: 50,
           version: 1,
           lastUpdated: new Date()
         };
@@ -596,16 +596,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let operationCost = 0;
         switch (operation.type) {
           case 'upscale':
-            operationCost = 2; // 2 credits per upscale
+            operationCost = 0.5; // Reduced from 2 to 0.5 credits per upscale
             break;
           case 'variation':
-            operationCost = 1; // 1 credit per variation
+            operationCost = 0.25; // Reduced from 1 to 0.25 credits per variation
             break;
           case 'inpaint':
-            operationCost = 1.5; // 1.5 credits per inpainting
+            operationCost = 0.5; // Reduced from 1.5 to 0.5 credits per inpainting
             break;
           default:
-            operationCost = 1;
+            operationCost = 0.25;
         }
         
         totalOperationCost += operationCost;
@@ -1199,9 +1199,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create initial balance for new user
         await pool.query(
           'INSERT INTO credit_balances (user_id, amount) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING',
-          [userId, '20']
+          [userId, '50']
         );
-        balance = 20;
+        balance = 50;
       }
       
       res.json({ balance });
