@@ -1,5 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { auth } from "express-openid-connect";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { 
@@ -19,7 +21,26 @@ const app = express();
 app.use(smartCompressionMiddleware());
 app.use(securityHeadersMiddleware);
 
-// Auth0 configuration
+// Setup PostgreSQL session store
+const PgSession = connectPg(session);
+app.use(session({
+  store: new PgSession({
+    conString: process.env.DATABASE_URL,
+    tableName: 'session',
+    createTableIfMissing: false
+  }),
+  secret: process.env.AUTH0_SECRET || 'fallback-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    sameSite: 'lax'
+  }
+}));
+
+// Auth0 configuration with proper session management
 const issuerBaseURL = process.env.AUTH0_ISSUER_BASE_URL?.startsWith('http') 
   ? process.env.AUTH0_ISSUER_BASE_URL 
   : `https://${process.env.AUTH0_ISSUER_BASE_URL}`;
@@ -32,8 +53,15 @@ const config = {
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: issuerBaseURL,
   session: {
-    rollingDuration: 24 * 60 * 60, // 24 hours
-    absoluteDuration: 7 * 24 * 60 * 60 // 7 days
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'Lax',
+      domain: process.env.NODE_ENV === 'production' ? '.dreambeesart.com' : undefined
+    },
+    rollingDuration: 24 * 60 * 60, // 24 hours in seconds  
+    absoluteDuration: 7 * 24 * 60 * 60, // 7 days in seconds
+    name: 'appSession'
   },
   routes: {
     login: '/login',
