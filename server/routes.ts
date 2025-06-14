@@ -596,16 +596,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let operationCost = 0;
         switch (operation.type) {
           case 'upscale':
-            operationCost = 2; // 2 credits per upscale
+            operationCost = 0.4; // 0.4 credits per upscale (80% reduction)
             break;
           case 'variation':
-            operationCost = 1; // 1 credit per variation
+            operationCost = 0.2; // 0.2 credits per variation (80% reduction)
             break;
           case 'inpaint':
-            operationCost = 1.5; // 1.5 credits per inpainting
+            operationCost = 0.3; // 0.3 credits per inpainting (80% reduction)
             break;
           default:
-            operationCost = 1;
+            operationCost = 0.2;
         }
         
         totalOperationCost += operationCost;

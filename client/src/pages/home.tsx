@@ -49,13 +49,17 @@ export default function Home() {
   const aspectRatio = form.watch("aspectRatio") || "1:1";
   const numImages = form.watch("numImages") || 1;
   
-  // Calculate credit cost dynamically
-  const baseCreditsPerImage = 1; // Base cost per image
+  // Calculate credit cost dynamically (80% reduced pricing)
+  const baseCreditsPerImage = 0.2; // Reduced by 80% from 1 to 0.2
   const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
-  const currentCost = Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages);
+  const currentCost = Math.max(0.1, Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages * 10) / 10);
 
-  // Use centralized auth from hook instead of separate query
-  const { isAuthenticated } = useAuth();
+  // Check authentication status
+  const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any; userId?: number }>({
+    queryKey: ['/api/auth/profile'],
+    staleTime: 10 * 60 * 1000,
+  });
+  const isAuthenticated = authStatus?.isAuthenticated || false;
 
   const { data: images = [], isLoading: imagesLoading } = useQuery<GeneratedImage[]>({
     queryKey: ["/api/images"],
