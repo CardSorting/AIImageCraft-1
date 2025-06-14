@@ -31,8 +31,8 @@ export class CosplayController {
       console.log(`[CosplayController] Processing cosplay transformation for user ${userId}`);
       console.log(`[CosplayController] Instruction: ${instruction.substring(0, 100)}...`);
 
-      // Check and deduct credits first (2 credits for cosplay transformation - 80% discount)
-      const COSPLAY_COST = 2;
+      // Check and deduct credits first (0.5 credits for cosplay transformation)
+      const COSPLAY_COST = 0.5;
       
       // Get current balance
       const currentBalance = await this.getCreditBalance(userId);

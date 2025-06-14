@@ -49,10 +49,9 @@ export default function Home() {
   const aspectRatio = form.watch("aspectRatio") || "1:1";
   const numImages = form.watch("numImages") || 1;
   
-  // Calculate credit cost dynamically (80% reduced pricing)
-  const baseCreditsPerImage = 0.2; // Reduced by 80% from 1 to 0.2
-  const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
-  const currentCost = Math.max(0.1, Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages * 10) / 10);
+  // Calculate credit cost dynamically (flat 0.5 credits per image)
+  const baseCreditsPerImage = 0.5; // Standard 0.5 credits per image
+  const currentCost = baseCreditsPerImage * numImages;
 
   // Check authentication status
   const { data: authStatus } = useQuery<{ isAuthenticated: boolean; user?: any; userId?: number }>({

@@ -261,9 +261,9 @@ export class TransactionResult {
 // Domain Service for Credit Calculations
 export class CreditDomainService {
   calculateImageGenerationCost(aspectRatio: string, numImages: number): number {
-    const baseCreditsPerImage = 0.2; // Reduced by 80% from 1 to 0.2
-    const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.2 : 1.0;
-    return Math.max(0.1, Math.ceil(baseCreditsPerImage * aspectRatioMultiplier * numImages * 10) / 10); // Minimum 0.1 credits
+    const baseCreditsPerImage = 0.5; // Standard 0.5 credits per image
+    const aspectRatioMultiplier = aspectRatio === "16:9" || aspectRatio === "9:16" ? 1.0 : 1.0; // No multiplier, flat rate
+    return baseCreditsPerImage * numImages;
   }
 
   validateImageGenerationRequest(prompt: string, aspectRatio: string, numImages: number): void {
