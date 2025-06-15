@@ -410,7 +410,7 @@ export default function ProfilePageRefactored() {
             <div className="flex items-center gap-6 text-white">
               <div className="relative">
                 <Avatar className="w-24 h-24 border-4 border-white/20 shadow-xl">
-                  <AvatarImage src={user?.profileImageUrl} />
+                  <AvatarImage src={user?.profileImageUrl || undefined} />
                   <AvatarFallback className="bg-white/20 text-white text-2xl font-bold">
                     {user?.firstName?.charAt(0) || user?.email?.charAt(0) || 'U'}
                   </AvatarFallback>
