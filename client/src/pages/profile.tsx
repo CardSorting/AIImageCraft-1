@@ -15,9 +15,9 @@ export default function Profile() {
   const [, navigate] = useLocation();
   const isMobile = useIsMobile();
 
-  // Fetch credit balance
+  // Fetch credit balance using the correct endpoint
   const { data: creditBalance } = useQuery<{ balance: number }>({
-    queryKey: ['/api/credit-balance/1'],
+    queryKey: ['/api/user/credits'],
     enabled: isAuthenticated,
     refetchInterval: false,
     staleTime: 10 * 60 * 1000,
