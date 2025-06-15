@@ -110,6 +110,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Legacy /api/models endpoints for frontend compatibility
+  app.get("/api/models", async (req, res) => {
+    try {
+      const { sortBy = 'newest', category, limit = 50 } = req.query;
+      const models = await storage.getAIModels(Number(limit), sortBy as string, category as string);
+      res.json(models);
+    } catch (error) {
+      console.error("Error fetching models:", error);
+      res.status(500).json({ error: "Failed to fetch models" });
+    }
+  });
+
+  app.get("/api/models/bookmarked/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { limit = 50 } = req.query;
+      const models = await storage.getForYouModels(userId, Number(limit));
+      res.json(models);
+    } catch (error) {
+      console.error("Error fetching bookmarked models:", error);
+      res.status(500).json({ error: "Failed to fetch bookmarked models" });
+    }
+  });
+
+  app.get("/api/models/search/:query", async (req, res) => {
+    try {
+      const { query } = req.params;
+      const { limit = 20 } = req.query;
+      const models = await storage.searchAIModels(query, Number(limit));
+      res.json(models);
+    } catch (error) {
+      console.error("Error searching models:", error);
+      res.status(500).json({ error: "Failed to search models" });
+    }
+  });
+
+  app.get("/api/models/for-you/:userId", isAuthenticated, async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      const { limit = 20 } = req.query;
+      const models = await storage.getForYouModels(userId, Number(limit));
+      res.json(models);
+    } catch (error) {
+      console.error("Error fetching personalized models:", error);
+      res.status(500).json({ error: "Failed to fetch personalized models" });
+    }
+  });
+
+  // Versioned API endpoints for Clean Architecture compatibility
+  app.get("/api/v1/models/catalog", async (req, res) => {
+    try {
+      const { filter = 'all', sortBy = 'newest', limit = 20, userId = '1' } = req.query;
+      
+      if (filter === 'bookmarked') {
+        const models = await storage.getForYouModels(userId as string, Number(limit));
+        res.json({ data: models, meta: { filter, sortBy, limit: Number(limit), count: models.length } });
+      } else if (filter === 'for-you') {
+        const models = await storage.getForYouModels(userId as string, Number(limit));
+        res.json({ data: models, meta: { filter, sortBy, limit: Number(limit), count: models.length } });
+      } else {
+        const models = await storage.getAIModels(Number(limit), sortBy as string);
+        res.json({ data: models, meta: { filter, sortBy, limit: Number(limit), count: models.length } });
+      }
+    } catch (error) {
+      console.error("Error fetching models catalog:", error);
+      res.status(500).json({ error: "Failed to fetch models catalog", code: "CATALOG_FETCH_ERROR" });
+    }
+  });
+
+  app.get("/api/v1/models/bookmarks/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { limit = 50 } = req.query;
+      const models = await storage.getForYouModels(userId, Number(limit));
+      res.json(models);
+    } catch (error) {
+      console.error("Error fetching bookmarked models:", error);
+      res.status(500).json({ error: "Failed to fetch bookmarked models", code: "BOOKMARKS_FETCH_ERROR" });
+    }
+  });
+
+  app.get("/api/v1/models/recommendations/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { limit = 20 } = req.query;
+      const models = await storage.getForYouModels(userId, Number(limit));
+      res.json({
+        data: models,
+        meta: {
+          userId: parseInt(userId),
+          limit: Number(limit),
+          count: models.length,
+          type: 'personalized'
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching personalized models:", error);
+      res.status(500).json({ error: "Failed to fetch personalized recommendations", code: "PERSONALIZED_FETCH_ERROR" });
+    }
+  });
+
   // Images endpoint
   app.get("/api/images", async (req, res) => {
     try {
