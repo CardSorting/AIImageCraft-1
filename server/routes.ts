@@ -223,6 +223,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User-specific images endpoint
+  app.get("/api/images/my", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { limit = 50 } = req.query;
+      const images = await storage.getUserImages(userId, Number(limit));
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching user images:", error);
+      res.status(500).json({ error: "Failed to fetch user images" });
+    }
+  });
+
   // Credit system endpoints
   app.get("/api/user/credits", isAuthenticated, async (req: any, res) => {
     try {

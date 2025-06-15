@@ -29,6 +29,7 @@ export interface IStorage {
   
   // Images operations
   getImages(limit: number): Promise<GeneratedImage[]>;
+  getUserImages(userId: string, limit: number): Promise<GeneratedImage[]>;
 }
 
 export class DatabaseStorage implements IStorage {
