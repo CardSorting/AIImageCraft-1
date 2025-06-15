@@ -63,6 +63,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok" });
   });
 
+  // AI Models endpoints
+  app.get("/api/ai-models", async (req, res) => {
+    try {
+      const { sortBy = 'newest', category, limit = 50 } = req.query;
+      const models = await storage.getAIModels(Number(limit), sortBy as string, category as string);
+      res.json(models);
+    } catch (error) {
+      console.error("Error fetching AI models:", error);
+      res.status(500).json({ error: "Failed to fetch AI models" });
+    }
+  });
+
+  app.get("/api/ai-models/featured", async (req, res) => {
+    try {
+      const { limit = 10 } = req.query;
+      const models = await storage.getFeaturedAIModels(Number(limit));
+      res.json(models);
+    } catch (error) {
+      console.error("Error fetching featured models:", error);
+      res.status(500).json({ error: "Failed to fetch featured models" });
+    }
+  });
+
+  app.get("/api/ai-models/search/:query", async (req, res) => {
+    try {
+      const { query } = req.params;
+      const { limit = 20 } = req.query;
+      const models = await storage.searchAIModels(query, Number(limit));
+      res.json(models);
+    } catch (error) {
+      console.error("Error searching models:", error);
+      res.status(500).json({ error: "Failed to search models" });
+    }
+  });
+
+  app.get("/api/ai-models/for-you", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { limit = 20 } = req.query;
+      const models = await storage.getForYouModels(userId, Number(limit));
+      res.json(models);
+    } catch (error) {
+      console.error("Error fetching personalized models:", error);
+      res.status(500).json({ error: "Failed to fetch personalized models" });
+    }
+  });
+
+  // Images endpoint
+  app.get("/api/images", async (req, res) => {
+    try {
+      const { limit = 50 } = req.query;
+      const images = await storage.getImages(Number(limit));
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+      res.status(500).json({ error: "Failed to fetch images" });
+    }
+  });
+
   // Credit system endpoints
   app.get("/api/user/credits", isAuthenticated, async (req: any, res) => {
     try {

@@ -1,10 +1,15 @@
 import {
   users,
+  aiModels,
+  generatedImages,
   type User,
   type UpsertUser,
+  type AIModel,
+  type AIModelWithCounts,
+  type GeneratedImage,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc, or, sql, like } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -15,6 +20,15 @@ export interface IStorage {
   // Credit operations
   getCreditBalance(userId: string): Promise<number>;
   updateCredits(userId: string, amount: number, description: string): Promise<void>;
+  
+  // AI Models operations
+  getAIModels(limit: number, sortBy: string, category?: string): Promise<AIModelWithCounts[]>;
+  getFeaturedAIModels(limit: number): Promise<AIModel[]>;
+  searchAIModels(query: string, limit: number): Promise<AIModel[]>;
+  getForYouModels(userId: string, limit: number): Promise<AIModel[]>;
+  
+  // Images operations
+  getImages(limit: number): Promise<GeneratedImage[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -48,6 +62,90 @@ export class DatabaseStorage implements IStorage {
   async updateCredits(userId: string, amount: number, description: string): Promise<void> {
     // Placeholder - credits will be tracked in future iteration
     console.log(`Credits updated for ${userId}: ${amount} (${description})`);
+  }
+
+  // AI Models operations
+  async getAIModels(limit: number, sortBy: string, category?: string): Promise<AIModelWithCounts[]> {
+    let baseQuery = db
+      .select({
+        id: aiModels.id,
+        modelId: aiModels.modelId,
+        name: aiModels.name,
+        description: aiModels.description,
+        category: aiModels.category,
+        version: aiModels.version,
+        provider: aiModels.provider,
+        featured: aiModels.featured,
+        rating: aiModels.rating,
+        downloads: aiModels.downloads,
+        likes: aiModels.likes,
+        discussions: aiModels.discussions,
+        imagesGenerated: aiModels.imagesGenerated,
+        tags: aiModels.tags,
+        capabilities: aiModels.capabilities,
+        pricing: aiModels.pricing,
+        thumbnail: aiModels.thumbnail,
+        gallery: aiModels.gallery,
+        createdAt: aiModels.createdAt,
+        updatedAt: aiModels.updatedAt,
+        likeCount: sql<number>`0`,
+        bookmarkCount: sql<number>`0`,
+      })
+      .from(aiModels);
+    
+    if (category) {
+      baseQuery = baseQuery.where(eq(aiModels.category, category));
+    }
+    
+    // Apply sorting
+    switch (sortBy) {
+      case 'popular':
+        baseQuery = baseQuery.orderBy(desc(aiModels.likes), desc(aiModels.downloads));
+        break;
+      case 'trending':
+        baseQuery = baseQuery.orderBy(desc(aiModels.imagesGenerated), desc(aiModels.likes));
+        break;
+      case 'newest':
+      default:
+        baseQuery = baseQuery.orderBy(desc(aiModels.createdAt));
+        break;
+    }
+    
+    return baseQuery.limit(limit);
+  }
+
+  async getFeaturedAIModels(limit: number): Promise<AIModel[]> {
+    return db.select().from(aiModels)
+      .where(eq(aiModels.featured, true))
+      .orderBy(desc(aiModels.rating), desc(aiModels.likes))
+      .limit(limit);
+  }
+
+  async searchAIModels(query: string, limit: number): Promise<AIModel[]> {
+    const searchTerm = `%${query.toLowerCase()}%`;
+    return db.select().from(aiModels)
+      .where(
+        or(
+          like(aiModels.name, searchTerm),
+          like(aiModels.description, searchTerm),
+          like(aiModels.category, searchTerm),
+          like(aiModels.provider, searchTerm)
+        )
+      )
+      .orderBy(desc(aiModels.rating), desc(aiModels.likes))
+      .limit(limit);
+  }
+
+  async getForYouModels(userId: string, limit: number): Promise<AIModel[]> {
+    // For now, return featured models - personalization can be added later
+    return this.getFeaturedAIModels(limit);
+  }
+
+  // Images operations
+  async getImages(limit: number): Promise<GeneratedImage[]> {
+    return db.select().from(generatedImages)
+      .orderBy(desc(generatedImages.createdAt))
+      .limit(limit);
   }
 }
 
