@@ -41,7 +41,7 @@ export const generatedImages = pgTable("generated_images", {
   status: text("status").notNull().default("pending"),
   // Card Rarity System
   rarityTier: text("rarity_tier").notNull().default("COMMON"),
-  rarityScore: integer("rarity_score").notNull().default(50),
+  rarityScore: decimal("rarity_score", { precision: 5, scale: 2 }).notNull().default("50.0"),
   rarityStars: integer("rarity_stars").notNull().default(1),
   rarityLetter: text("rarity_letter").notNull().default("C"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

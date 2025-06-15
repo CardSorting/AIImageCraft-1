@@ -331,7 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         imageUrl: "https://placeholder.image.url",
         status: "completed",
         rarityTier: rarity.tier,
-        rarityScore: rarity.score,
+        rarityScore: String(rarity.score),
         rarityStars: rarity.stars,
         rarityLetter: rarity.letter,
         createdAt: new Date()
@@ -385,7 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         seed: null,
         status: "completed",
         rarityTier: rarity.tier,
-        rarityScore: rarity.score,
+        rarityScore: String(rarity.score),
         rarityStars: rarity.stars,
         rarityLetter: rarity.letter,
       });
