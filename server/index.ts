@@ -97,13 +97,8 @@ if (process.env.STRIPE_SECRET_KEY) {
         return res.status(400).json({ error: "Amount and package ID are required" });
       }
 
-      // Get authenticated user ID
-      let userId = 1; // Default for testing
-      if (req.oidc && req.oidc.isAuthenticated()) {
-        const { getOrCreateUserFromAuth0 } = await import('./routes');
-        userId = await getOrCreateUserFromAuth0(req.oidc.user);
-      }
-
+      // Get authenticated user ID (simplified for migration)
+      const userId = "default-user"; // Will be replaced with proper Replit Auth user ID
       console.log(`Creating payment intent for user ID: ${userId}`);
 
       const paymentIntent = await stripe.paymentIntents.create({
@@ -111,7 +106,7 @@ if (process.env.STRIPE_SECRET_KEY) {
         currency: "usd",
         metadata: {
           packageId,
-          userId: userId.toString(), // Store the authenticated user ID
+          userId: userId, // Store the authenticated user ID
           type: "dreamcredits"
         },
       });

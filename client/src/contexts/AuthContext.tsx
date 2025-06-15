@@ -1,26 +1,10 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import type { User } from '@shared/schema';
 
-interface User {
-  sid: string;
-  given_name: string;
-  family_name: string;
-  nickname: string;
-  name: string;
-  picture: string;
-  updated_at: string;
-  email: string;
-  email_verified: boolean;
-  sub: string;
-}
-
-interface AuthData {
-  isAuthenticated: boolean;
+interface AuthContextValue {
   user: User | null;
-  userId?: number;
-}
-
-interface AuthContextValue extends AuthData {
+  isAuthenticated: boolean;
   isLoading: boolean;
   error: any;
   login: () => void;
@@ -30,28 +14,28 @@ interface AuthContextValue extends AuthData {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data, isLoading, error } = useQuery<AuthData>({
-    queryKey: ['/api/auth/profile'],
+  const { data: user, isLoading, error } = useQuery<User>({
+    queryKey: ['/api/auth/user'],
     staleTime: 10 * 60 * 1000, // 10 minutes - very long cache
     gcTime: 15 * 60 * 1000, // 15 minutes garbage collection
     refetchInterval: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+    retry: false,
   });
 
   const login = () => {
-    window.location.href = '/login';
+    window.location.href = '/api/login';
   };
 
   const logout = () => {
-    window.location.href = '/logout';
+    window.location.href = '/api/logout';
   };
 
   const value: AuthContextValue = {
-    user: data?.user || null,
-    isAuthenticated: data?.isAuthenticated || false,
-    userId: data?.userId,
+    user: user || null,
+    isAuthenticated: !!user,
     isLoading,
     error,
     login,
