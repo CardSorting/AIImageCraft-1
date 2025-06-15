@@ -86,9 +86,20 @@ export class CosplayController {
           userId: userId,
           modelId: "fal-ai/flux-pro/kontext",
           prompt: instruction,
-          imageUrl: transformedImages[0].url,
+          negativePrompt: "",
           aspectRatio: "1:1",
-          seed: null
+          steps: "30",
+          cfgScale: "7.0",
+          scheduler: "DPMSolverMultistepScheduler",
+          imageUrl: transformedImages[0].url,
+          fileName: null,
+          fileSize: null,
+          seed: null,
+          status: "completed",
+          rarityTier: "COMMON",
+          rarityScore: "50.0",
+          rarityStars: 1,
+          rarityLetter: "C"
         });
 
         console.log(`[CosplayController] Successfully generated cosplay image with ID: ${generatedImage.id}`);
@@ -130,69 +141,15 @@ export class CosplayController {
     }
   }
 
-  private async getOrCreateUserFromAuth0(oidcUser: any): Promise<number> {
-    if (!oidcUser?.sub) {
-      throw new Error("Invalid Auth0 user data");
-    }
-
-    const auth0Id = oidcUser.sub;
-    let user = await storage.getUserByAuth0Id(auth0Id);
-
-    if (!user) {
-      user = await storage.createUser({
-        username: oidcUser.nickname || oidcUser.email?.split('@')[0] || 'user',
-        password: '' // Auth0 handles authentication, no password needed
-      });
-    }
-
-    return user.id;
+  private async getCreditBalance(userId: string): Promise<number> {
+    return await storage.getCreditBalance(userId);
   }
 
-  private async getCreditBalance(userId: number): Promise<number> {
-    try {
-      const result = await pool.query(
-        'SELECT amount FROM credit_balances WHERE user_id = $1',
-        [userId]
-      );
-      return result.rows[0]?.amount || 0;
-    } catch (error) {
-      console.error('Error fetching credit balance:', error);
-      return 0;
-    }
+  private async deductCredits(userId: string, amount: number, description: string): Promise<void> {
+    await storage.updateCredits(userId, -amount, description);
   }
 
-  private async deductCredits(userId: number, amount: number, description: string): Promise<void> {
-    try {
-      await pool.query(
-        'UPDATE credit_balances SET amount = amount - $1 WHERE user_id = $2',
-        [amount, userId]
-      );
-      
-      // Record transaction
-      await pool.query(
-        'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, (SELECT amount FROM credit_balances WHERE user_id = $2), NOW())',
-        [`tx_${Date.now()}`, userId, 'SPEND', -amount, description]
-      );
-    } catch (error) {
-      console.error('Error deducting credits:', error);
-      throw new Error('Failed to deduct credits');
-    }
-  }
-
-  private async refundCredits(userId: number, amount: number, description: string): Promise<void> {
-    try {
-      await pool.query(
-        'UPDATE credit_balances SET amount = amount + $1 WHERE user_id = $2',
-        [amount, userId]
-      );
-      
-      // Record refund transaction
-      await pool.query(
-        'INSERT INTO credit_transactions (id, user_id, type, amount, description, balance_after, created_at) VALUES ($1, $2, $3, $4, $5, (SELECT amount FROM credit_balances WHERE user_id = $2), NOW())',
-        [`tx_${Date.now()}`, userId, 'REFUND', amount, description]
-      );
-    } catch (error) {
-      console.error('Error refunding credits:', error);
-    }
+  private async refundCredits(userId: string, amount: number, description: string): Promise<void> {
+    await storage.updateCredits(userId, amount, description);
   }
 }
