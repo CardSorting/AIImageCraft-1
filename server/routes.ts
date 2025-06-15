@@ -7,8 +7,26 @@ import { nanoid } from "nanoid";
 import { generateCardRarity } from "./cardRarity";
 import { RunwareImageGenerationService } from "./infrastructure/services/RunwareImageGenerationService";
 import { RunwareImageGenerationAdapter } from "./infrastructure/adapters/RunwareImageGenerationAdapter";
+import { CosplayController } from "./presentation/controllers/CosplayController";
+import multer from "multer";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize controllers
+  const cosplayController = new CosplayController();
+  
+  // Configure multer for file uploads
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files are allowed'));
+      }
+    }
+  });
+
   // Auth middleware
   await setupAuth(app);
 
@@ -455,6 +473,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       res.status(500).json(errorResponse);
+    }
+  });
+
+  // AI Cosplay transformation endpoint using FAL AI
+  app.post("/api/generate-cosplay", isAuthenticated, upload.single('image'), async (req: any, res) => {
+    try {
+      await cosplayController.generateCosplay(req, res);
+    } catch (error) {
+      console.error("Error in cosplay endpoint:", error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to process cosplay transformation"
+      });
     }
   });
 

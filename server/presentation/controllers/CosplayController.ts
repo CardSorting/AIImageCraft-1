@@ -12,14 +12,14 @@ export class CosplayController {
   private falAIService = new FalAICosplayService();
   private creditService = new CreditTransactionService();
 
-  async generateCosplay(req: Request, res: Response): Promise<void> {
+  async generateCosplay(req: any, res: Response): Promise<void> {
     try {
-      if (!req.oidc.isAuthenticated()) {
+      if (!req.isAuthenticated() || !req.user?.claims) {
         res.status(401).json({ error: "Authentication required" });
         return;
       }
 
-      const userId = await this.getOrCreateUserFromAuth0(req.oidc.user);
+      const userId = req.user.claims.sub;
       const { instruction } = req.body;
       const imageFile = req.file;
 
