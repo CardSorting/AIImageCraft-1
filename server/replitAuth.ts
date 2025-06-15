@@ -14,10 +14,23 @@ if (!process.env.REPLIT_DOMAINS) {
 
 const getOidcConfig = memoize(
   async () => {
-    return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
-    );
+    try {
+      console.log('Attempting OpenID Connect discovery with:', {
+        issuer: process.env.ISSUER_URL ?? "https://replit.com/oidc",
+        clientId: process.env.REPL_ID
+      });
+      
+      const config = await client.discovery(
+        new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
+        process.env.REPL_ID!
+      );
+      
+      console.log('OpenID Connect discovery successful');
+      return config;
+    } catch (error) {
+      console.error('OpenID Connect discovery failed:', error);
+      throw error;
+    }
   },
   { maxAge: 3600 * 1000 }
 );
@@ -102,10 +115,19 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
+    const strategyName = `replitauth:${req.hostname}`;
+    console.log('Login attempt with strategy:', strategyName);
+    console.log('Available strategies:', Object.keys(passport._strategies || {}));
+    
+    try {
+      passport.authenticate(strategyName, {
+        prompt: "login consent",
+        scope: ["openid", "email", "profile", "offline_access"],
+      })(req, res, next);
+    } catch (error) {
+      console.error('Authentication error:', error);
+      res.status(500).json({ error: 'Authentication setup failed' });
+    }
   });
 
   app.get("/api/callback", (req, res, next) => {
