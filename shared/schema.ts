@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, bigint, decimal, varchar, jsonb, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, bigint, decimal, numeric, varchar, jsonb, boolean, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -32,7 +32,7 @@ export const generatedImages = pgTable("generated_images", {
   negativePrompt: text("negative_prompt").default(""),
   aspectRatio: text("aspect_ratio").notNull().default("1:1"),
   steps: integer("steps").default(30),
-  cfgScale: integer("cfg_scale").default(7),
+  cfgScale: decimal("cfg_scale", { precision: 5, scale: 2 }).default("7.0"),
   scheduler: text("scheduler").default("DPMSolverMultistepScheduler"),
   imageUrl: text("image_url").notNull(),
   fileName: text("file_name"),
