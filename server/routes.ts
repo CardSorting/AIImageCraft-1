@@ -306,7 +306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Simplified image generation endpoint
+  // Image generation endpoints
   app.post("/api/generate", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
@@ -344,6 +344,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error generating image:", error);
       res.status(500).json({ message: "Failed to generate image" });
+    }
+  });
+
+  // Main image generation endpoint used by frontend
+  app.post("/api/generate-images", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Check credit balance
+      const creditBalance = await storage.getCreditBalance(userId);
+      if (creditBalance < 1) {
+        return res.status(402).json({ 
+          success: false,
+          message: "Insufficient credits",
+          images: [],
+          requestId: nanoid()
+        });
+      }
+
+      // Validate request
+      const validatedData = generateImageRequestSchema.parse(req.body);
+      
+      // Generate rarity for the image
+      const rarity = generateCardRarity(validatedData.prompt);
+
+      // Create and save image record to database
+      const imageRecord = await storage.createImage({
+        userId,
+        modelId: validatedData.model,
+        prompt: validatedData.prompt,
+        negativePrompt: validatedData.negativePrompt || null,
+        aspectRatio: validatedData.aspectRatio,
+        steps: validatedData.steps,
+        cfgScale: validatedData.cfgScale,
+        scheduler: validatedData.scheduler,
+        imageUrl: `https://picsum.photos/seed/${nanoid()}/512/512`, // Temporary placeholder
+        status: "completed",
+        rarityTier: rarity.tier,
+        rarityScore: rarity.score,
+        rarityStars: rarity.stars,
+        rarityLetter: rarity.letter,
+      });
+
+      // Deduct credits
+      await storage.updateCredits(userId, -1, `Image generation: ${validatedData.prompt.substring(0, 50)}...`);
+
+      // Return response in expected format
+      const response = {
+        success: true,
+        images: [imageRecord],
+        requestId: nanoid()
+      };
+
+      res.json(response);
+    } catch (error) {
+      console.error("Error generating images:", error);
+      
+      // Return properly formatted error response
+      const errorResponse = {
+        success: false,
+        message: error instanceof Error ? error.message : "Failed to generate images",
+        images: [],
+        requestId: nanoid()
+      };
+      
+      res.status(500).json(errorResponse);
     }
   });
 

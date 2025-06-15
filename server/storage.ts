@@ -33,6 +33,7 @@ export interface IStorage {
   // Images operations
   getImages(limit: number): Promise<GeneratedImage[]>;
   getUserImages(userId: string, limit: number): Promise<GeneratedImage[]>;
+  createImage(imageData: Omit<GeneratedImage, 'id' | 'createdAt' | 'updatedAt'>): Promise<GeneratedImage>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -213,6 +214,17 @@ export class DatabaseStorage implements IStorage {
       .where(eq(generatedImages.userId, userId))
       .orderBy(desc(generatedImages.createdAt))
       .limit(limit);
+  }
+
+  async createImage(imageData: Omit<GeneratedImage, 'id' | 'createdAt' | 'updatedAt'>): Promise<GeneratedImage> {
+    const now = new Date();
+    const [image] = await db.insert(generatedImages).values({
+      id: nanoid(),
+      ...imageData,
+      createdAt: now,
+      updatedAt: now,
+    }).returning();
+    return image;
   }
 }
 
