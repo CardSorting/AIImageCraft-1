@@ -241,7 +241,7 @@ export default function Generate() {
             {/* Credit Balance */}
             <div className="flex items-center space-x-1 px-3 py-1 bg-primary/10 rounded-full">
               <Zap className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">{creditBalance || 0}</span>
+              <span className="text-sm font-medium">{creditBalance?.balance || 0}</span>
             </div>
           </div>
         </div>
@@ -335,7 +335,7 @@ export default function Generate() {
                   </CardTitle>
                   <div className="flex items-center space-x-1 px-3 py-1 bg-primary/10 rounded-full">
                     <Zap className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">{creditBalance || 0}</span>
+                    <span className="text-sm font-medium">{creditBalance?.balance || 0}</span>
                   </div>
                 </div>
               </CardHeader>
