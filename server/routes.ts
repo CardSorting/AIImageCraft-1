@@ -377,7 +377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         negativePrompt: validatedData.negativePrompt || "",
         aspectRatio: validatedData.aspectRatio,
         steps: validatedData.steps,
-        cfgScale: validatedData.cfgScale.toString(),
+        cfgScale: String(validatedData.cfgScale),
         scheduler: validatedData.scheduler ?? "DPMSolverMultistepScheduler",
         imageUrl: `https://picsum.photos/seed/${nanoid()}/512/512`, // Temporary placeholder
         fileName: null,
