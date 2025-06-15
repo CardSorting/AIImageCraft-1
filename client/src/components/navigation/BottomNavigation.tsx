@@ -71,7 +71,7 @@ export function BottomNavigation() {
     // Check authentication for protected routes
     if (requiresAuth && !authStatus?.isAuthenticated) {
       // Redirect to existing Auth0 login route
-      window.location.href = '/login';
+      window.location.href = '/api/login';
       return;
     }
     
