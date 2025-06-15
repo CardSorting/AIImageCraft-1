@@ -70,7 +70,9 @@ export class DatabaseStorage implements IStorage {
   // Credit operations
   async getCreditBalance(userId: string): Promise<number> {
     const [balance] = await db
-      .select()
+      .select({
+        amount: creditBalances.amount,
+      })
       .from(creditBalances)
       .where(eq(creditBalances.userId, userId));
     
