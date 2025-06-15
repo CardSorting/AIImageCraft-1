@@ -117,7 +117,7 @@ export default function Profile() {
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
-                {user?.name || user?.nickname || "Welcome"}
+                {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.firstName || user?.email?.split('@')[0] || "Welcome"}
               </h1>
               <p className="text-slate-600 dark:text-slate-400">
                 {user?.email}

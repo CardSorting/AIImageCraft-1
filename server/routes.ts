@@ -22,6 +22,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Compatibility endpoint for Auth0 migration - returns Auth0-compatible format
+  app.get('/api/auth/profile', async (req: any, res) => {
+    try {
+      if (!req.isAuthenticated() || !req.user?.claims) {
+        return res.json({ isAuthenticated: false, user: null });
+      }
+
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.json({ isAuthenticated: false, user: null });
+      }
+
+      // Return Auth0-compatible format for legacy components
+      const auth0CompatibleUser = {
+        sub: user.id,
+        email: user.email,
+        given_name: user.firstName,
+        family_name: user.lastName,
+        name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || user.email?.split('@')[0] || 'User',
+        nickname: user.firstName || user.email?.split('@')[0] || 'User',
+        picture: user.profileImageUrl
+      };
+
+      res.json({
+        isAuthenticated: true,
+        user: auth0CompatibleUser,
+        userId: user.id
+      });
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      res.json({ isAuthenticated: false, user: null });
+    }
+  });
+
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });

@@ -410,9 +410,9 @@ export default function ProfilePageRefactored() {
             <div className="flex items-center gap-6 text-white">
               <div className="relative">
                 <Avatar className="w-24 h-24 border-4 border-white/20 shadow-xl">
-                  <AvatarImage src={user?.picture} />
+                  <AvatarImage src={user?.profileImageUrl} />
                   <AvatarFallback className="bg-white/20 text-white text-2xl font-bold">
-                    {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                    {user?.firstName?.charAt(0) || user?.email?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <Button
@@ -425,7 +425,7 @@ export default function ProfilePageRefactored() {
               
               <div className="flex-1">
                 <h1 className="text-3xl font-bold mb-2">
-                  {user?.name || user?.nickname || 'Creative Explorer'}
+                  {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.firstName || user?.email?.split('@')[0] || 'Creative Explorer'}
                 </h1>
                 <p className="text-white/80 text-lg mb-3">
                   {user?.email}
