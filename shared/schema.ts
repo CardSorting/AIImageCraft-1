@@ -1,16 +1,32 @@
-import { pgTable, text, serial, integer, timestamp, bigint, decimal, varchar, jsonb, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, bigint, decimal, varchar, jsonb, boolean, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Session storage table for Replit Auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// Updated users table for Replit Auth
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  id: varchar("id").primaryKey().notNull(), // Replit user ID as string
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const generatedImages = pgTable("generated_images", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   modelId: text("model_id").notNull(),
   prompt: text("prompt").notNull(),
   negativePrompt: text("negative_prompt").default(""),
@@ -52,7 +68,7 @@ export const aiModels = pgTable("ai_models", {
 
 export const userModelInteractions = pgTable("user_model_interactions", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: varchar("user_id").notNull().references(() => users.id),
   modelId: integer("model_id").notNull().references(() => aiModels.id),
   interactionType: text("interaction_type").notNull(), // 'view', 'like', 'bookmark', 'generate', 'share', 'download'
   engagementLevel: integer("engagement_level").default(5), // 1-10 scale based on time spent, actions taken
@@ -64,7 +80,7 @@ export const userModelInteractions = pgTable("user_model_interactions", {
 
 export const userBehaviorProfiles = pgTable("user_behavior_profiles", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   preferredCategories: text("preferred_categories").array().default([]),
   preferredProviders: text("preferred_providers").array().default([]),
   preferredStyles: text("preferred_styles").array().default([]),
@@ -82,7 +98,7 @@ export const userBehaviorProfiles = pgTable("user_behavior_profiles", {
 
 export const userCategoryAffinities = pgTable("user_category_affinities", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   category: text("category").notNull(),
   affinityScore: integer("affinity_score").notNull(), // 0-100
   interactionCount: integer("interaction_count").default(0),
@@ -93,7 +109,7 @@ export const userCategoryAffinities = pgTable("user_category_affinities", {
 
 export const userProviderAffinities = pgTable("user_provider_affinities", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   provider: text("provider").notNull(),
   affinityScore: integer("affinity_score").notNull(), // 0-100
   interactionCount: integer("interaction_count").default(0),
@@ -105,7 +121,7 @@ export const userProviderAffinities = pgTable("user_provider_affinities", {
 
 export const userBookmarks = pgTable("user_bookmarks", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: varchar("user_id").notNull().references(() => users.id),
   modelId: integer("model_id").notNull().references(() => aiModels.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
