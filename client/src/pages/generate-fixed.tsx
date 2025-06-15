@@ -668,29 +668,25 @@ export default function Generate() {
         }>
           {existingImages.map((image: any) => (
             galleryView === "grid" ? (
-              <TradingCard
-                key={image.id}
-                image={image}
-                isHighlighted={newlyCreatedImageIds.includes(image.id)}
-                onDownload={(imageUrl) => {
-                  const link = document.createElement('a');
-                  link.href = imageUrl;
-                  link.download = `dream-bees-art-${image.id}.png`;
-                  link.click();
-                }}
-                onShare={(imageUrl) => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: 'Dream Bees Art Creation',
-                      text: image.prompt,
-                      url: imageUrl
-                    });
-                  } else {
-                    navigator.clipboard.writeText(imageUrl);
-                    toast({ title: "Link copied to clipboard!" });
-                  }
-                }}
-              />
+              <div key={image.id} className="relative">
+                <TradingCard
+                  image={{
+                    id: image.id.toString(),
+                    imageUrl: image.imageUrl,
+                    prompt: image.prompt,
+                    model: image.modelId,
+                    createdAt: image.createdAt,
+                    rarityTier: image.rarityTier || 'COMMON',
+                    rarityScore: image.rarityScore || 0,
+                    rarityStars: image.rarityStars || 1,
+                    rarityLetter: image.rarityLetter || 'C'
+                  }}
+                  isNewest={newlyCreatedImageIds.includes(image.id)}
+                />
+                {newlyCreatedImageIds.includes(image.id) && (
+                  <div className="absolute inset-0 bg-primary/20 rounded-lg animate-pulse pointer-events-none" />
+                )}
+              </div>
             ) : (
               <div 
                 key={image.id} 

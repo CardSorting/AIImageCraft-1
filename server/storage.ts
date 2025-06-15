@@ -130,6 +130,13 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(generatedImages.createdAt))
       .limit(limit);
   }
+
+  async getUserImages(userId: string, limit: number): Promise<GeneratedImage[]> {
+    return db.select().from(generatedImages)
+      .where(eq(generatedImages.userId, userId))
+      .orderBy(desc(generatedImages.createdAt))
+      .limit(limit);
+  }
 }
 
 export const storage = new DatabaseStorage();
