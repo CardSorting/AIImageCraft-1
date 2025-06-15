@@ -1,5 +1,4 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { auth } from "express-openid-connect";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { 
@@ -11,78 +10,13 @@ import {
   requestSizeLimiter,
   rateLimitMiddleware
 } from "./middleware/performance";
-import { checkDatabaseHealth } from "./db";
+// Database health check removed for simplified migration
 
 const app = express();
 
 // Apply core performance optimizations
 app.use(smartCompressionMiddleware());
 app.use(securityHeadersMiddleware);
-
-// Auth0 configuration
-const issuerBaseURL = process.env.AUTH0_ISSUER_BASE_URL?.startsWith('http') 
-  ? process.env.AUTH0_ISSUER_BASE_URL 
-  : `https://${process.env.AUTH0_ISSUER_BASE_URL}`;
-
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.AUTH0_SECRET,
-  baseURL: process.env.AUTH0_BASE_URL,
-  clientID: process.env.AUTH0_CLIENT_ID,
-  issuerBaseURL: issuerBaseURL,
-  session: {
-    rollingDuration: 24 * 60 * 60, // 24 hours
-    absoluteDuration: 7 * 24 * 60 * 60 // 7 days
-  },
-  routes: {
-    login: '/login',
-    logout: '/logout',
-    callback: '/callback'
-  }
-};
-
-// Debug Auth0 configuration
-console.log('Auth0 Environment Variables:');
-console.log('AUTH0_SECRET:', process.env.AUTH0_SECRET ? '[PRESENT]' : '[MISSING]');
-console.log('AUTH0_BASE_URL:', process.env.AUTH0_BASE_URL);
-console.log('AUTH0_CLIENT_ID:', process.env.AUTH0_CLIENT_ID);
-console.log('AUTH0_ISSUER_BASE_URL:', process.env.AUTH0_ISSUER_BASE_URL);
-
-// Validate Auth0 configuration
-if (!config.secret || !config.baseURL || !config.clientID || !config.issuerBaseURL) {
-  console.error('Missing required Auth0 environment variables:');
-  console.error('AUTH0_SECRET:', !!process.env.AUTH0_SECRET);
-  console.error('AUTH0_BASE_URL:', !!process.env.AUTH0_BASE_URL);
-  console.error('AUTH0_CLIENT_ID:', !!process.env.AUTH0_CLIENT_ID);
-  console.error('AUTH0_ISSUER_BASE_URL:', !!process.env.AUTH0_ISSUER_BASE_URL);
-  throw new Error('Auth0 configuration incomplete');
-}
-
-// Validate URL formats
-try {
-  new URL(config.issuerBaseURL);
-  new URL(config.baseURL);
-} catch (error) {
-  console.error('Invalid URL format in Auth0 configuration:');
-  console.error('issuerBaseURL:', config.issuerBaseURL);
-  console.error('baseURL:', config.baseURL);
-  throw new Error('Auth0 URLs must be valid URIs');
-}
-
-// auth router attaches /login, /logout, and /callback routes to the baseURL
-app.use(auth(config));
-
-// Add debugging middleware to see what's happening with auth
-app.use((req, res, next) => {
-  if (req.path === '/callback' || req.path === '/login') {
-    console.log('Auth Route:', req.path);
-    console.log('Headers:', req.headers);
-    console.log('Query:', req.query);
-    console.log('Is Authenticated:', req.oidc?.isAuthenticated());
-  }
-  next();
-});
 
 // For Stripe webhooks, we need raw body
 app.use('/webhook/stripe', express.raw({type: 'application/json'}));
@@ -95,7 +29,7 @@ app.use(express.urlencoded({ extended: false }));
 // Add robots.txt route
 app.get("/robots.txt", (req, res) => {
   res.set('Content-Type', 'text/plain');
-  const baseUrl = process.env.AUTH0_BASE_URL || 'https://dreambeesart.com';
+  const baseUrl = `https://${req.hostname}`;
   res.send(`User-agent: *
 Allow: /
 
@@ -111,7 +45,7 @@ app.get("/api/sitemap.xml", async (req, res) => {
     const { storage } = await import('./storage');
     
     // Base URL for your site
-    const baseUrl = process.env.AUTH0_BASE_URL || 'https://dreambeesart.com';
+    const baseUrl = `https://${req.hostname}`;
     
     // Static pages
     const staticPages: Array<{ url: string; priority: string; changefreq: string; lastmod?: string }> = [
@@ -122,14 +56,8 @@ app.get("/api/sitemap.xml", async (req, res) => {
       { url: '/credits', priority: '0.6', changefreq: 'monthly' }
     ];
     
-    // Get dynamic pages from database
-    const models = await storage.getAIModels(100); // Get top 100 models
-    const modelPages = models.map(model => ({
-      url: `/model/${model.id}`,
-      priority: '0.7',
-      changefreq: 'weekly',
-      lastmod: new Date().toISOString()
-    }));
+    // Skip dynamic pages for now during migration
+    const modelPages: any[] = [];
     
     // Combine all pages
     const allPages = [...staticPages, ...modelPages];
