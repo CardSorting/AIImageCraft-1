@@ -7,7 +7,7 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Landing from "@/pages/landing";
 import Gallery from "@/pages/gallery";
-import Generate from "@/pages/generate";
+import GenerateFixed from "@/pages/generate-fixed";
 import History from "@/pages/history";
 import Profile from "@/pages/profile-refactored";
 import ModelsPage from "@/pages/models-refactored";
@@ -26,9 +26,9 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
-      <Route path="/create" component={Generate} />
+      <Route path="/create" component={GenerateFixed} />
       <Route path="/gallery" component={Gallery} />
-      <Route path="/generate" component={Generate} />
+
       <Route path="/history" component={History} />
       <Route path="/profile" component={Profile} />
       <Route path="/models" component={ModelsPage} />

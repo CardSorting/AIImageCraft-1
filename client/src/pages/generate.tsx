@@ -39,69 +39,139 @@ interface ImageGenerationResponse {
 }
 
 export default function Generate() {
+  // ALL HOOKS MUST BE DECLARED FIRST - NO CONDITIONAL LOGIC BEFORE HOOKS
+  
+  // State hooks - always in same order
   const [activeTab, setActiveTab] = useState("create");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [highlightPrompt, setHighlightPrompt] = useState(false);
   const [newlyCreatedImageIds, setNewlyCreatedImageIds] = useState<number[]>([]);
   const [showCompletedImages, setShowCompletedImages] = useState(false);
   const [completedImages, setCompletedImages] = useState<any[]>([]);
-
   const [showSettings, setShowSettings] = useState(false);
   const [galleryView, setGalleryView] = useState<"grid" | "list">("grid");
+  
+  // Context and custom hooks - always in same order
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const [location] = useLocation();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Get URL parameters before form initialization
-  const urlParams = new URLSearchParams(window.location.search);
-  const modelParam = urlParams.get('model');
-  console.log('Generate page URL params:', { modelParam, fullUrl: window.location.href });
-  
+  // Form hook - always declared
   const form = useForm<GenerateImageRequest>({
     resolver: zodResolver(generateImageRequestSchema),
     defaultValues: {
       prompt: "",
       negativePrompt: "",
       aspectRatio: "1:1",
-      model: modelParam || "rundiffusion:130@100", // Use URL parameter if available
+      model: "rundiffusion:130@100",
       steps: 30,
       cfgScale: 7,
       scheduler: "DPMSolverMultistepScheduler",
     },
   });
 
-  // Handle parameters from URL (when clicking from home feed)
+  // Query hooks - always declared, conditionally enabled
+  const { data: allImages = [], refetch } = useQuery({
+    queryKey: ["/api/images/my"],
+    queryFn: () => fetch("/api/images/my").then(res => res.json()),
+    enabled: isAuthenticated && !authLoading,
+    refetchInterval: 60000,
+    staleTime: 30000,
+  });
+
+  // Models query - always declared
+  const { data: modelsResponse } = useQuery({
+    queryKey: ["/api/v1/models/catalog"],
+    queryFn: () => fetch("/api/v1/models/catalog").then(res => res.json()),
+  });
+
+  // Mutation hook - always declared
+  const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
+    mutationFn: async (data) => {
+      const response = await apiRequest("POST", "/api/generate-images", data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Images Generated Successfully! 🎨",
+        description: `Your masterpiece is ready! ${data.creditsUsed ? `Used ${data.creditsUsed} credits` : ''}`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/images/my"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/credits/balance/1"] });
+      
+      setNewlyCreatedImageIds([]);
+      
+      refetch().then((result) => {
+        if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+          const sortedImages = result.data.sort((a: any, b: any) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          
+          const newestImages = sortedImages.slice(0, data.images?.length || 1);
+          const newestImageIds = newestImages.map((img: any) => img.id);
+          setNewlyCreatedImageIds(newestImageIds);
+          
+          console.log('Image generation complete:', { isMobile, newestImages: newestImages.length });
+          if (isMobile) {
+            console.log('Setting completed images for mobile overlay');
+            setCompletedImages(newestImages);
+            setShowCompletedImages(true);
+            setActiveTab("gallery");
+          }
+          
+          setTimeout(() => {
+            setNewlyCreatedImageIds([]);
+            setShowCompletedImages(false);
+          }, 8000);
+        }
+      });
+      form.reset();
+    },
+    onError: (error) => {
+      toast({
+        title: "Generation Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Effects - always declared in same order
   useEffect(() => {
+    // Get URL parameters after component mounts
+    const urlParams = new URLSearchParams(window.location.search);
+    const modelParam = urlParams.get('model');
+    console.log('Generate page URL params:', { modelParam, fullUrl: window.location.href });
+    
+    if (modelParam) {
+      form.setValue('model', modelParam);
+    }
+  }, []); // Run only once on mount
+
+  useEffect(() => {
+    // Handle URL parameters for form values
     const urlParams = new URLSearchParams(window.location.search);
     const promptParam = urlParams.get('prompt');
     const modelParam = urlParams.get('model');
     const aspectRatioParam = urlParams.get('aspectRatio');
     
-    // Only trigger highlighting and toast if there are actual parameters from home feed
     if (promptParam || modelParam || aspectRatioParam) {
-      // Set form values from URL parameters
-      if (promptParam) {
-        form.setValue('prompt', promptParam);
-      }
-      if (modelParam) {
-        form.setValue('model', modelParam);
-      }
+      if (promptParam) form.setValue('prompt', promptParam);
+      if (modelParam) form.setValue('model', modelParam);
       if (aspectRatioParam && ['1:1', '16:9', '9:16', '3:4', '4:3'].includes(aspectRatioParam)) {
         form.setValue('aspectRatio', aspectRatioParam as '1:1' | '16:9' | '9:16' | '3:4' | '4:3');
       }
       
-      // Show toast to indicate settings were loaded and highlight prompt
       setHighlightPrompt(true);
       toast({
         title: "Settings Loaded",
         description: "Image settings have been pre-filled from your selection",
       });
       
-      // Remove highlight after 3 seconds but keep model parameter
       setTimeout(() => {
         setHighlightPrompt(false);
-        // Keep model parameter but clear prompt and aspectRatio to prevent highlighting on refresh
         const currentParams = new URLSearchParams(window.location.search);
         const modelParam = currentParams.get('model');
         if (modelParam) {
@@ -113,26 +183,14 @@ export default function Generate() {
     }
   }, [location, form, toast]);
 
-  // Use centralized auth from hook - always call hooks in same order
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-
-  // Fetch existing images for authenticated user (today only) - always declare this hook
-  const { data: allImages = [], refetch } = useQuery({
-    queryKey: ["/api/images/my"],
-    queryFn: () => fetch("/api/images/my").then(res => res.json()),
-    enabled: isAuthenticated && !authLoading, // Only fetch if authenticated and not loading
-    refetchInterval: 60000, // Refresh every minute instead of default
-    staleTime: 30000, // Consider data fresh for 30 seconds
-  });
-
-  // Handle authentication redirect after hooks are declared
   useEffect(() => {
+    // Handle authentication redirect
     if (!authLoading && !isAuthenticated) {
       window.location.href = '/api/login';
     }
   }, [isAuthenticated, authLoading]);
 
-  // Show loading while checking authentication
+  // Show loading state - conditional rendering after all hooks
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -155,76 +213,12 @@ export default function Generate() {
     );
   }) : [];
 
-  // Fetch available models
-  const { data: modelsResponse } = useQuery({
-    queryKey: ["/api/v1/models/catalog"],
-    queryFn: () => fetch("/api/v1/models/catalog").then(res => res.json()),
-  });
-
+  // Derived values from hooks
   const availableModels = modelsResponse?.data || [];
-  
-  // Get the currently selected model info
   const selectedModel = availableModels.find((model: any) => model.modelId === form.watch('model'));
   const currentModelName = selectedModel?.name || 'Juggernaut Pro Flux';
 
-  const generateImagesMutation = useMutation<ImageGenerationResponse, Error, GenerateImageRequest>({
-    mutationFn: async (data) => {
-      const response = await apiRequest("POST", "/api/generate-images", data);
-      return response.json();
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Images Generated Successfully! 🎨",
-        description: `Your masterpiece is ready! ${data.creditsUsed ? `Used ${data.creditsUsed} credits` : ''}`,
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/images/my"] });
-      // Refresh credit balance to show updated amount
-      queryClient.invalidateQueries({ queryKey: ["/api/credits/balance/1"] });
-      
-      // Clear any existing highlights first
-      setNewlyCreatedImageIds([]);
-      
-      refetch().then((result) => {
-        // Mark newly created images for highlighting (get the most recent ones)
-        if (result.data && Array.isArray(result.data) && result.data.length > 0) {
-          // Sort by creation time and get the newest images
-          const sortedImages = result.data.sort((a: any, b: any) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-          
-          // Get the newest generated images
-          const newestImages = sortedImages.slice(0, data.images?.length || 1);
-          const newestImageIds = newestImages.map((img: any) => img.id);
-          setNewlyCreatedImageIds(newestImageIds);
-          
-          // On mobile, show completed images immediately
-          console.log('Image generation complete:', { isMobile, newestImages: newestImages.length });
-          if (isMobile) {
-            console.log('Setting completed images for mobile overlay');
-            setCompletedImages(newestImages);
-            setShowCompletedImages(true);
-            // Auto-switch to gallery tab for easy access
-            setActiveTab("gallery");
-          }
-          
-          // Remove the highlight after 8 seconds for better visibility
-          setTimeout(() => {
-            setNewlyCreatedImageIds([]);
-            setShowCompletedImages(false);
-          }, 8000);
-        }
-      });
-      form.reset();
-    },
-    onError: (error) => {
-      toast({
-        title: "Generation Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
+  // Component functions
   const onSubmit = (data: GenerateImageRequest) => {
     generateImagesMutation.mutate(data);
   };
@@ -232,6 +226,43 @@ export default function Generate() {
   const addQuickPrompt = (prompt: string) => {
     form.setValue("prompt", prompt);
   };
+
+  const renderMobileCreateForm = () => (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Selected Model Display */}
+        <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+          <div className="flex items-center space-x-2">
+            <Brain className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Selected Model:</span>
+            <span className="text-sm text-blue-700 dark:text-blue-300">{currentModelName}</span>
+          </div>
+        </div>
+
+        {/* Component continues... */}
+      </form>
+    </Form>
+  );
+
+  // Main component render
+  return (
+    <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="AI Art Generator - Create Stunning Digital Artwork"
+        description="Generate beautiful AI artwork with professional models. Create, customize, and download your digital masterpieces."
+      />
+      <NavigationHeader />
+
+      {isMobile ? (
+        renderMobileCreateForm()
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          {/* Desktop layout continues... */}
+        </div>
+      )}
+    </div>
+  );
+}
 
   const renderMobileCreateForm = () => (
     <Form {...form}>
