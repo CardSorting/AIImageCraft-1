@@ -31,16 +31,21 @@ export const generatedImages = pgTable("generated_images", {
   prompt: text("prompt").notNull(),
   negativePrompt: text("negative_prompt").default(""),
   aspectRatio: text("aspect_ratio").notNull().default("1:1"),
+  steps: integer("steps").default(30),
+  cfgScale: integer("cfg_scale").default(7),
+  scheduler: text("scheduler").default("DPMSolverMultistepScheduler"),
   imageUrl: text("image_url").notNull(),
   fileName: text("file_name"),
   fileSize: integer("file_size"),
   seed: bigint("seed", { mode: "number" }),
+  status: text("status").notNull().default("pending"),
   // Card Rarity System
   rarityTier: text("rarity_tier").notNull().default("COMMON"),
   rarityScore: integer("rarity_score").notNull().default(50),
   rarityStars: integer("rarity_stars").notNull().default(1),
   rarityLetter: text("rarity_letter").notNull().default("C"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const aiModels = pgTable("ai_models", {

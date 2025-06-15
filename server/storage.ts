@@ -217,12 +217,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createImage(imageData: Omit<GeneratedImage, 'id' | 'createdAt' | 'updatedAt'>): Promise<GeneratedImage> {
-    const now = new Date();
     const [image] = await db.insert(generatedImages).values({
-      id: nanoid(),
       ...imageData,
-      createdAt: now,
-      updatedAt: now,
     }).returning();
     return image;
   }
