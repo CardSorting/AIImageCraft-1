@@ -66,32 +66,7 @@ export class DatabaseStorage implements IStorage {
 
   // AI Models operations
   async getAIModels(limit: number, sortBy: string, category?: string): Promise<AIModelWithCounts[]> {
-    let baseQuery = db
-      .select({
-        id: aiModels.id,
-        modelId: aiModels.modelId,
-        name: aiModels.name,
-        description: aiModels.description,
-        category: aiModels.category,
-        version: aiModels.version,
-        provider: aiModels.provider,
-        featured: aiModels.featured,
-        rating: aiModels.rating,
-        downloads: aiModels.downloads,
-        likes: aiModels.likes,
-        discussions: aiModels.discussions,
-        imagesGenerated: aiModels.imagesGenerated,
-        tags: aiModels.tags,
-        capabilities: aiModels.capabilities,
-        pricing: aiModels.pricing,
-        thumbnail: aiModels.thumbnail,
-        gallery: aiModels.gallery,
-        createdAt: aiModels.createdAt,
-        updatedAt: aiModels.updatedAt,
-        likeCount: sql<number>`0`,
-        bookmarkCount: sql<number>`0`,
-      })
-      .from(aiModels);
+    let baseQuery = db.select().from(aiModels);
     
     if (category) {
       baseQuery = baseQuery.where(eq(aiModels.category, category));
@@ -111,12 +86,19 @@ export class DatabaseStorage implements IStorage {
         break;
     }
     
-    return baseQuery.limit(limit);
+    const models = await baseQuery.limit(limit);
+    
+    // Add like and bookmark counts (simplified for now)
+    return models.map(model => ({
+      ...model,
+      likeCount: 0,
+      bookmarkCount: 0
+    }));
   }
 
   async getFeaturedAIModels(limit: number): Promise<AIModel[]> {
     return db.select().from(aiModels)
-      .where(eq(aiModels.featured, true))
+      .where(eq(aiModels.featured, 1))
       .orderBy(desc(aiModels.rating), desc(aiModels.likes))
       .limit(limit);
   }
