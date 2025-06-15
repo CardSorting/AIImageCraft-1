@@ -358,7 +358,7 @@ export default function ProfilePageRefactored() {
           <Card className="mb-8 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white text-center">
               <Button 
-                onClick={() => window.location.href = '/login'}
+                onClick={() => window.location.href = '/api/login'}
                 size="lg"
                 className="w-full bg-white text-blue-600 hover:bg-gray-50 font-semibold"
               >

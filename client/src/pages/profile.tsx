@@ -44,7 +44,7 @@ export default function Profile() {
           {/* Sign In Card */}
           <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-slate-200/50 dark:border-slate-700/50 mb-8">
             <Button 
-              onClick={() => window.location.href = '/login'}
+              onClick={() => window.location.href = '/api/login'}
               className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
             >
               <LogIn className="h-6 w-6 mr-3" />
