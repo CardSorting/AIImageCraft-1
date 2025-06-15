@@ -17,10 +17,9 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { 
   Sparkles, ChevronDown, ChevronRight, Sliders, Camera, Wand2, 
-  Brain, Zap, Star, Plus, X, Settings, Lightbulb, ImageIcon, 
+  Brain, Zap, Star, Plus, X, Lightbulb, ImageIcon, 
   Shuffle, Copy, Download, Share, Eye, Menu, ArrowLeft, Grid, List,
   Square, RectangleHorizontal, MonitorSpeaker, Smartphone, Tablet
 } from "lucide-react";
@@ -48,7 +47,7 @@ export default function Generate() {
   const [newlyCreatedImageIds, setNewlyCreatedImageIds] = useState<number[]>([]);
   const [showCompletedImages, setShowCompletedImages] = useState(false);
   const [completedImages, setCompletedImages] = useState<any[]>([]);
-  const [showSettings, setShowSettings] = useState(false);
+
   const [galleryView, setGalleryView] = useState<"grid" | "list">("grid");
   
   // Context and custom hooks
@@ -244,22 +243,6 @@ export default function Generate() {
               <Zap className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium">{creditBalance || 0}</span>
             </div>
-            <Sheet open={showSettings} onOpenChange={setShowSettings}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Settings className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-80">
-                <SheetHeader>
-                  <SheetTitle>Advanced Settings</SheetTitle>
-                  <SheetDescription>Fine-tune your generation parameters</SheetDescription>
-                </SheetHeader>
-                <div className="mt-6 space-y-4">
-                  {renderAdvancedSettings()}
-                </div>
-              </SheetContent>
-            </Sheet>
           </div>
         </div>
       </div>
