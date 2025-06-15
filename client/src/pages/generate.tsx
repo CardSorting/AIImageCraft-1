@@ -113,10 +113,19 @@ export default function Generate() {
     }
   }, [location, form, toast]);
 
-  // Use centralized auth from hook
+  // Use centralized auth from hook - always call hooks in same order
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Redirect to login if not authenticated
+  // Fetch existing images for authenticated user (today only) - always declare this hook
+  const { data: allImages = [], refetch } = useQuery({
+    queryKey: ["/api/images/my"],
+    queryFn: () => fetch("/api/images/my").then(res => res.json()),
+    enabled: isAuthenticated && !authLoading, // Only fetch if authenticated and not loading
+    refetchInterval: 60000, // Refresh every minute instead of default
+    staleTime: 30000, // Consider data fresh for 30 seconds
+  });
+
+  // Handle authentication redirect after hooks are declared
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       window.location.href = '/api/login';
@@ -134,15 +143,6 @@ export default function Generate() {
       </div>
     );
   }
-
-  // Fetch existing images for authenticated user (today only)
-  const { data: allImages = [], refetch } = useQuery({
-    queryKey: ["/api/images/my"],
-    queryFn: () => fetch("/api/images/my").then(res => res.json()),
-    enabled: isAuthenticated || false, // Only fetch if authenticated
-    refetchInterval: 60000, // Refresh every minute instead of default
-    staleTime: 30000, // Consider data fresh for 30 seconds
-  });
 
   // Filter images to show only today's generations
   const existingImages = Array.isArray(allImages) ? allImages.filter((image: any) => {
