@@ -1,533 +1,410 @@
-import { users, generatedImages, aiModels, userModelInteractions, userBookmarks, userLikes, chatSessions, chatMessages, type User, type InsertUser, type GeneratedImage, type InsertImage, type AIModel, type InsertAIModel, type UserModelInteraction, type InsertUserModelInteraction, type UserBookmark, type InsertUserBookmark, type UserLike, type InsertUserLike, type ChatSession, type InsertChatSession, type ChatMessage, type InsertChatMessage, type AIModelWithCounts } from "@shared/schema";
-import { db, createMemoizedQuery } from "./infrastructure/database";
-import { eq, desc, asc, like, and, or, sql, count, inArray, isNotNull } from "drizzle-orm";
-import { performance } from 'perf_hooks';
+import {
+  users,
+  generatedImages,
+  aiModels,
+  userModelInteractions,
+  userBookmarks,
+  userLikes,
+  creditBalances,
+  creditTransactions,
+  chatSessions,
+  chatMessages,
+  userBehaviorProfiles,
+  userCategoryAffinities,
+  userProviderAffinities,
+  type User,
+  type UpsertUser,
+  type GeneratedImage,
+  type InsertImage,
+  type AIModel,
+  type AIModelWithCounts,
+  type InsertAIModel,
+  type UserModelInteraction,
+  type InsertUserModelInteraction,
+  type UserBookmark,
+  type InsertUserBookmark,
+  type UserLike,
+  type InsertUserLike,
+  type ChatSession,
+  type InsertChatSession,
+  type ChatMessage,
+  type InsertChatMessage,
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, sql, count, inArray } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
+// Interface for storage operations
 export interface IStorage {
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  getUserByAuth0Id(auth0Id: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // User operations (mandatory for Replit Auth)
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
   
-  // Image storage methods
+  // Image operations
   createImage(image: InsertImage): Promise<GeneratedImage>;
-  getImages(limit?: number): Promise<GeneratedImage[]>;
-  getImagesByUserId(userId: number, limit?: number): Promise<GeneratedImage[]>;
-  getImageById(id: number): Promise<GeneratedImage | undefined>;
-  getImagesByModelId(modelId: string, limit?: number): Promise<(GeneratedImage & { username: string })[]>;
-  deleteImage(id: number): Promise<boolean>;
+  getUserImages(userId: string, limit?: number): Promise<GeneratedImage[]>;
+  getImage(id: string): Promise<GeneratedImage | undefined>;
   
-  // AI Model storage methods
-  createAIModel(model: InsertAIModel): Promise<AIModel>;
-  getAIModels(limit?: number, sortBy?: string, category?: string): Promise<AIModel[]>;
-  getAIModelById(id: number): Promise<AIModel | undefined>;
-  getAIModelByModelId(modelId: string): Promise<AIModel | undefined>;
-  updateAIModel(id: number, model: Partial<InsertAIModel>): Promise<AIModel | undefined>;
-  deleteAIModel(id: number): Promise<boolean>;
-  searchAIModels(query: string, limit?: number): Promise<AIModel[]>;
-  getFeaturedAIModels(limit?: number): Promise<AIModel[]>;
-  getForYouModels(userId: number, limit?: number): Promise<AIModel[]>;
-  getBookmarkedModels(userId: number, limit?: number): Promise<AIModel[]>;
+  // AI Model operations
+  getModels(limit?: number): Promise<AIModelWithCounts[]>;
+  getModel(id: number): Promise<AIModel | undefined>;
+  createModel(model: InsertAIModel): Promise<AIModel>;
   
-  // User interaction methods
-  createUserInteraction(interaction: InsertUserModelInteraction): Promise<UserModelInteraction>;
-  createUserBookmark(bookmark: InsertUserBookmark): Promise<UserBookmark>;
-  removeUserBookmark(userId: number, modelId: number): Promise<boolean>;
-  isModelBookmarked(userId: number, modelId: number): Promise<boolean>;
+  // User interaction operations
+  recordInteraction(interaction: InsertUserModelInteraction): Promise<UserModelInteraction>;
+  getUserInteractions(userId: string): Promise<UserModelInteraction[]>;
   
-  // User like methods
-  createUserLike(like: InsertUserLike): Promise<UserLike>;
-  removeUserLike(userId: number, modelId: number): Promise<boolean>;
-  isModelLiked(userId: number, modelId: number): Promise<boolean>;
+  // Bookmark operations
+  toggleBookmark(userId: string, modelId: number): Promise<boolean>;
+  getUserBookmarks(userId: string): Promise<UserBookmark[]>;
   
-  // Chat session methods
+  // Like operations
+  toggleLike(userId: string, modelId: number): Promise<boolean>;
+  getUserLikes(userId: string): Promise<UserLike[]>;
+  
+  // Credit operations
+  getCreditBalance(userId: string): Promise<number>;
+  updateCredits(userId: string, amount: number, description: string): Promise<void>;
+  
+  // Chat operations
   createChatSession(session: InsertChatSession): Promise<ChatSession>;
-  getChatSessions(userId: number, limit?: number): Promise<ChatSession[]>;
-  getChatSessionById(sessionId: string): Promise<ChatSession | undefined>;
-  updateChatSession(sessionId: string, updates: Partial<InsertChatSession>): Promise<ChatSession | undefined>;
-  deleteChatSession(sessionId: string): Promise<boolean>;
-  
-  // Chat message methods
-  createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
-  getChatMessages(sessionId: string, limit?: number): Promise<ChatMessage[]>;
-  updateChatMessage(messageId: number, updates: Partial<InsertChatMessage>): Promise<ChatMessage | undefined>;
+  getUserChatSessions(userId: string): Promise<ChatSession[]>;
+  getChatSession(sessionId: string): Promise<ChatSession | undefined>;
+  addChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  getChatMessages(sessionId: string): Promise<ChatMessage[]>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async getUser(id: number): Promise<User | undefined> {
+  // User operations (mandatory for Replit Auth)
+  async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
+    return user;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user || undefined;
-  }
-
-  async getUserByAuth0Id(auth0Id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, auth0Id));
-    return user || undefined;
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async upsertUser(userData: UpsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values(insertUser)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
       .returning();
     return user;
   }
 
-  async createImage(insertImage: InsertImage): Promise<GeneratedImage> {
+  // Image operations
+  async createImage(imageData: InsertImage): Promise<GeneratedImage> {
     const [image] = await db
       .insert(generatedImages)
       .values({
-        ...insertImage,
-        negativePrompt: insertImage.negativePrompt || "",
-        aspectRatio: insertImage.aspectRatio || "1:1",
-        fileName: insertImage.fileName || null,
-        fileSize: insertImage.fileSize || null,
-        seed: insertImage.seed || null,
+        ...imageData,
+        id: nanoid(),
       })
       .returning();
     return image;
   }
 
-  async getImages(limit: number = 50): Promise<GeneratedImage[]> {
-    const start = performance.now();
-    
-    try {
-      // Ultra-fast query - minimal fields only
-      const images = await db
-        .select({
-          id: generatedImages.id,
-          userId: generatedImages.userId,
-          imageUrl: generatedImages.imageUrl,
-          createdAt: generatedImages.createdAt
-        })
-        .from(generatedImages)
-        .orderBy(desc(generatedImages.createdAt))
-        .limit(5); // Extreme limit for max speed
-      
-      const duration = performance.now() - start;
-      console.log(`[ULTRA-FAST] Images: ${duration.toFixed(2)}ms for ${images.length} records`);
-      
-      // Minimal object construction for speed
-      return images.map(img => ({
-        id: img.id,
-        userId: img.userId,
-        modelId: 'default',
-        prompt: '',
-        negativePrompt: null,
-        aspectRatio: '1:1',
-        imageUrl: img.imageUrl,
-        fileName: null,
-        fileSize: null,
-        seed: null,
-        rarityTier: 'common',
-        rarityScore: 0,
-        rarityStars: 0,
-        rarityLetter: 'C',
-        createdAt: img.createdAt
-      })) as GeneratedImage[];
-    } catch (error) {
-      const duration = performance.now() - start;
-      console.error(`[ERROR] Ultra-fast images failed in ${duration.toFixed(2)}ms:`, error);
-      return [];
-    }
-  }
-
-  async getImagesByUserId(userId: number, limit: number = 50): Promise<GeneratedImage[]> {
-    const images = await db
+  async getUserImages(userId: string, limit = 50): Promise<GeneratedImage[]> {
+    return await db
       .select()
       .from(generatedImages)
       .where(eq(generatedImages.userId, userId))
       .orderBy(desc(generatedImages.createdAt))
       .limit(limit);
-    return images;
   }
 
-  async getImageById(id: number): Promise<GeneratedImage | undefined> {
-    const [image] = await db.select().from(generatedImages).where(eq(generatedImages.id, id));
-    return image || undefined;
+  async getImage(id: string): Promise<GeneratedImage | undefined> {
+    const [image] = await db
+      .select()
+      .from(generatedImages)
+      .where(eq(generatedImages.id, id));
+    return image;
   }
 
-  async getImagesByModelId(modelId: string, limit: number = 20): Promise<(GeneratedImage & { username: string })[]> {
+  // AI Model operations
+  async getModels(limit = 100): Promise<AIModelWithCounts[]> {
+    const likeCountQuery = db
+      .select({
+        modelId: userLikes.modelId,
+        count: count().as('likeCount')
+      })
+      .from(userLikes)
+      .groupBy(userLikes.modelId)
+      .as('likeCounts');
+
+    const bookmarkCountQuery = db
+      .select({
+        modelId: userBookmarks.modelId,
+        count: count().as('bookmarkCount')
+      })
+      .from(userBookmarks)
+      .groupBy(userBookmarks.modelId)
+      .as('bookmarkCounts');
+
     const results = await db
       .select({
-        id: generatedImages.id,
-        userId: generatedImages.userId,
-        modelId: generatedImages.modelId,
-        prompt: generatedImages.prompt,
-        negativePrompt: generatedImages.negativePrompt,
-        aspectRatio: generatedImages.aspectRatio,
-        imageUrl: generatedImages.imageUrl,
-        fileName: generatedImages.fileName,
-        fileSize: generatedImages.fileSize,
-        seed: generatedImages.seed,
-        rarityTier: generatedImages.rarityTier,
-        rarityScore: generatedImages.rarityScore,
-        rarityStars: generatedImages.rarityStars,
-        rarityLetter: generatedImages.rarityLetter,
-        createdAt: generatedImages.createdAt,
-        username: users.username,
-      })
-      .from(generatedImages)
-      .innerJoin(users, eq(generatedImages.userId, users.id))
-      .where(eq(generatedImages.modelId, modelId))
-      .orderBy(desc(generatedImages.createdAt))
-      .limit(limit);
-    
-    return results;
-  }
-
-  async deleteImage(id: number): Promise<boolean> {
-    const result = await db.delete(generatedImages).where(eq(generatedImages.id, id));
-    return (result.rowCount || 0) > 0;
-  }
-
-  // AI Model methods implementation
-  async createAIModel(insertModel: InsertAIModel): Promise<AIModel> {
-    const [model] = await db.insert(aiModels).values(insertModel).returning();
-    return model;
-  }
-
-  async getAIModels(limit: number = 50, sortBy: string = 'newest', category?: string): Promise<AIModelWithCounts[]> {
-    // Optimized single query with subqueries for counts
-    let baseQuery = db
-      .select({
         id: aiModels.id,
-        modelId: aiModels.modelId,
         name: aiModels.name,
+        checkpoint: aiModels.checkpoint,
         description: aiModels.description,
         category: aiModels.category,
-        version: aiModels.version,
         provider: aiModels.provider,
-        featured: aiModels.featured,
-        rating: aiModels.rating,
-        downloads: aiModels.downloads,
-        likes: aiModels.likes,
-        discussions: aiModels.discussions,
-        imagesGenerated: aiModels.imagesGenerated,
+        modelType: aiModels.modelType,
+        baseModel: aiModels.baseModel,
+        isNsfw: aiModels.isNsfw,
         tags: aiModels.tags,
         capabilities: aiModels.capabilities,
         pricing: aiModels.pricing,
-        thumbnail: aiModels.thumbnail,
-        gallery: aiModels.gallery,
+        imageUrl: aiModels.imageUrl,
+        isActive: aiModels.isActive,
+        popularity: aiModels.popularity,
+        qualityScore: aiModels.qualityScore,
+        performanceMetrics: aiModels.performanceMetrics,
         createdAt: aiModels.createdAt,
         updatedAt: aiModels.updatedAt,
-        likeCount: sql<number>`COALESCE((SELECT COUNT(*) FROM ${userLikes} WHERE ${userLikes.modelId} = ${aiModels.id}), 0)`.as('likeCount'),
-        bookmarkCount: sql<number>`COALESCE((SELECT COUNT(*) FROM ${userBookmarks} WHERE ${userBookmarks.modelId} = ${aiModels.id}), 0)`.as('bookmarkCount'),
+        likeCount: sql<number>`COALESCE(${likeCountQuery.count}, 0)`.as('likeCount'),
+        bookmarkCount: sql<number>`COALESCE(${bookmarkCountQuery.count}, 0)`.as('bookmarkCount'),
       })
-      .from(aiModels);
-    
-    if (category) {
-      baseQuery = baseQuery.where(eq(aiModels.category, category));
-    }
-    
-    // Advanced sorting based on user preference
-    switch (sortBy) {
-      case 'highest_rated':
-        baseQuery = baseQuery.orderBy(desc(aiModels.rating));
-        break;
-      case 'most_liked':
-        baseQuery = baseQuery.orderBy(desc(aiModels.likes));
-        break;
-      case 'most_discussed':
-        baseQuery = baseQuery.orderBy(desc(aiModels.discussions));
-        break;
-      case 'most_images':
-        baseQuery = baseQuery.orderBy(desc(aiModels.imagesGenerated));
-        break;
-      case 'newest':
-        baseQuery = baseQuery.orderBy(desc(aiModels.createdAt));
-        break;
-      case 'oldest':
-        baseQuery = baseQuery.orderBy(asc(aiModels.createdAt));
-        break;
-      default:
-        baseQuery = baseQuery.orderBy(desc(aiModels.createdAt));
-    }
-    
-    return await baseQuery.limit(limit) as AIModelWithCounts[];
-  }
-
-  async getAIModelById(id: number): Promise<AIModel | undefined> {
-    const [model] = await db.select().from(aiModels).where(eq(aiModels.id, id));
-    return model || undefined;
-  }
-
-  async getAIModelByModelId(modelId: string): Promise<AIModel | undefined> {
-    const [model] = await db.select().from(aiModels).where(eq(aiModels.modelId, modelId));
-    return model || undefined;
-  }
-
-  async updateAIModel(id: number, updateData: Partial<InsertAIModel>): Promise<AIModel | undefined> {
-    try {
-      const [model] = await db.update(aiModels)
-        .set({ ...updateData, updatedAt: new Date() })
-        .where(eq(aiModels.id, id))
-        .returning();
-      return model || undefined;
-    } catch (error) {
-      console.error("Error updating AI model:", error);
-      return undefined;
-    }
-  }
-
-  async deleteAIModel(id: number): Promise<boolean> {
-    try {
-      const result = await db.delete(aiModels).where(eq(aiModels.id, id));
-      return result.rowCount > 0;
-    } catch (error) {
-      console.error("Error deleting AI model:", error);
-      return false;
-    }
-  }
-
-  async searchAIModels(query: string, limit: number = 20): Promise<AIModel[]> {
-    return db.select().from(aiModels)
-      .where(like(aiModels.name, `%${query}%`))
-      .orderBy(desc(aiModels.rating))
+      .from(aiModels)
+      .leftJoin(likeCountQuery, eq(aiModels.id, likeCountQuery.modelId))
+      .leftJoin(bookmarkCountQuery, eq(aiModels.id, bookmarkCountQuery.modelId))
+      .where(eq(aiModels.isActive, true))
+      .orderBy(desc(aiModels.popularity))
       .limit(limit);
+
+    return results.map(result => ({
+      ...result,
+      likeCount: result.likeCount || 0,
+      bookmarkCount: result.bookmarkCount || 0,
+    }));
   }
 
-  async getFeaturedAIModels(limit: number = 10): Promise<AIModel[]> {
-    return db.select().from(aiModels)
-      .where(eq(aiModels.featured, 1))
-      .orderBy(desc(aiModels.rating))
-      .limit(limit);
+  async getModel(id: number): Promise<AIModel | undefined> {
+    const [model] = await db
+      .select()
+      .from(aiModels)
+      .where(eq(aiModels.id, id));
+    return model;
   }
 
-  // Advanced "For You" algorithm based on user interactions
-  async getForYouModels(userId: number, limit: number = 20): Promise<AIModel[]> {
-    // Get user's interaction history to understand preferences
-    const userInteractions = await db.select()
+  async createModel(modelData: InsertAIModel): Promise<AIModel> {
+    const [model] = await db
+      .insert(aiModels)
+      .values(modelData)
+      .returning();
+    return model;
+  }
+
+  // User interaction operations
+  async recordInteraction(interactionData: InsertUserModelInteraction): Promise<UserModelInteraction> {
+    const [interaction] = await db
+      .insert(userModelInteractions)
+      .values({
+        ...interactionData,
+        id: nanoid(),
+      })
+      .returning();
+    return interaction;
+  }
+
+  async getUserInteractions(userId: string): Promise<UserModelInteraction[]> {
+    return await db
+      .select()
       .from(userModelInteractions)
       .where(eq(userModelInteractions.userId, userId))
-      .orderBy(desc(userModelInteractions.createdAt))
-      .limit(100);
-
-    if (userInteractions.length === 0) {
-      // New user - show featured and highly rated models
-      return db.select().from(aiModels)
-        .where(eq(aiModels.featured, 1))
-        .orderBy(desc(aiModels.rating))
-        .limit(limit);
-    }
-
-    // Extract categories and providers from user's history
-    const interactedModelIds = userInteractions.map(i => i.modelId);
-    const interactedModels = await db.select()
-      .from(aiModels)
-      .where(sql`${aiModels.id} = ANY(${interactedModelIds})`);
-
-    const preferredCategories = [...new Set(interactedModels.map(m => m.category))];
-    const preferredProviders = [...new Set(interactedModels.map(m => m.provider))];
-
-    // Recommend similar models the user hasn't interacted with
-    return db.select().from(aiModels)
-      .where(
-        and(
-          sql`${aiModels.category} = ANY(${preferredCategories}) OR ${aiModels.provider} = ANY(${preferredProviders})`,
-          sql`${aiModels.id} NOT IN (${interactedModelIds.join(',')})`
-        )
-      )
-      .orderBy(desc(aiModels.rating), desc(aiModels.likes))
-      .limit(limit);
+      .orderBy(desc(userModelInteractions.timestamp));
   }
 
-  async getBookmarkedModels(userId: number, limit: number = 50): Promise<AIModel[]> {
-    return db.select({
-      id: aiModels.id,
-      modelId: aiModels.modelId,
-      name: aiModels.name,
-      description: aiModels.description,
-      category: aiModels.category,
-      version: aiModels.version,
-      provider: aiModels.provider,
-      featured: aiModels.featured,
-      rating: aiModels.rating,
-      downloads: aiModels.downloads,
-      likes: aiModels.likes,
-      discussions: aiModels.discussions,
-      imagesGenerated: aiModels.imagesGenerated,
-      tags: aiModels.tags,
-      capabilities: aiModels.capabilities,
-      pricing: aiModels.pricing,
-      thumbnail: aiModels.thumbnail,
-      gallery: aiModels.gallery,
-      createdAt: aiModels.createdAt,
-      updatedAt: aiModels.updatedAt,
-    })
-    .from(aiModels)
-    .innerJoin(userBookmarks, eq(userBookmarks.modelId, aiModels.id))
-    .where(eq(userBookmarks.userId, userId))
-    .orderBy(desc(userBookmarks.createdAt))
-    .limit(limit);
-  }
-
-  // User interaction methods
-  async createUserInteraction(interaction: InsertUserModelInteraction): Promise<UserModelInteraction> {
-    const [newInteraction] = await db.insert(userModelInteractions)
-      .values(interaction)
-      .returning();
-    return newInteraction;
-  }
-
-  async createUserBookmark(bookmark: InsertUserBookmark): Promise<UserBookmark> {
-    const [newBookmark] = await db.insert(userBookmarks)
-      .values(bookmark)
-      .returning();
-    return newBookmark;
-  }
-
-  async removeUserBookmark(userId: number, modelId: number): Promise<boolean> {
-    try {
-      const result = await db.delete(userBookmarks)
-        .where(and(
-          eq(userBookmarks.userId, userId),
-          eq(userBookmarks.modelId, modelId)
-        ));
-      return (result.rowCount || 0) > 0;
-    } catch (error) {
-      console.error("Error removing bookmark:", error);
-      return false;
-    }
-  }
-
-  async isModelBookmarked(userId: number, modelId: number): Promise<boolean> {
-    const [bookmark] = await db.select()
+  // Bookmark operations
+  async toggleBookmark(userId: string, modelId: number): Promise<boolean> {
+    const existing = await db
+      .select()
       .from(userBookmarks)
       .where(and(
         eq(userBookmarks.userId, userId),
         eq(userBookmarks.modelId, modelId)
-      ))
-      .limit(1);
-    return !!bookmark;
-  }
+      ));
 
-  async createUserLike(insertLike: InsertUserLike): Promise<UserLike> {
-    // Check if like already exists, if so, just return it
-    const [existingLike] = await db
-      .select()
-      .from(userLikes)
-      .where(and(eq(userLikes.userId, insertLike.userId), eq(userLikes.modelId, insertLike.modelId)));
-    
-    if (existingLike) {
-      return existingLike;
-    }
-
-    const [like] = await db
-      .insert(userLikes)
-      .values(insertLike)
-      .returning();
-    return like;
-  }
-
-  async removeUserLike(userId: number, modelId: number): Promise<boolean> {
-    try {
-      const result = await db
-        .delete(userLikes)
-        .where(and(eq(userLikes.userId, userId), eq(userLikes.modelId, modelId)));
-      
-      return (result.rowCount || 0) > 0;
-    } catch (error) {
-      console.error('Error removing like:', error);
+    if (existing.length > 0) {
+      await db
+        .delete(userBookmarks)
+        .where(and(
+          eq(userBookmarks.userId, userId),
+          eq(userBookmarks.modelId, modelId)
+        ));
       return false;
+    } else {
+      await db
+        .insert(userBookmarks)
+        .values({
+          id: nanoid(),
+          userId,
+          modelId,
+        });
+      return true;
     }
   }
 
-  async isModelLiked(userId: number, modelId: number): Promise<boolean> {
-    const [like] = await db.select()
+  async getUserBookmarks(userId: string): Promise<UserBookmark[]> {
+    return await db
+      .select()
+      .from(userBookmarks)
+      .where(eq(userBookmarks.userId, userId))
+      .orderBy(desc(userBookmarks.createdAt));
+  }
+
+  // Like operations
+  async toggleLike(userId: string, modelId: number): Promise<boolean> {
+    const existing = await db
+      .select()
       .from(userLikes)
       .where(and(
         eq(userLikes.userId, userId),
         eq(userLikes.modelId, modelId)
-      ))
-      .limit(1);
-    return !!like;
-  }
+      ));
 
-  // Chat session methods
-  async createChatSession(insertSession: InsertChatSession): Promise<ChatSession> {
-    const [session] = await db.insert(chatSessions)
-      .values(insertSession)
-      .returning();
-    return session;
-  }
-
-  async getChatSessions(userId: number, limit: number = 50): Promise<ChatSession[]> {
-    return await db.select()
-      .from(chatSessions)
-      .where(eq(chatSessions.userId, userId))
-      .orderBy(desc(chatSessions.lastActivity))
-      .limit(limit);
-  }
-
-  async getChatSessionById(sessionId: string): Promise<ChatSession | undefined> {
-    const [session] = await db.select()
-      .from(chatSessions)
-      .where(eq(chatSessions.id, sessionId))
-      .limit(1);
-    return session;
-  }
-
-  async updateChatSession(sessionId: string, updates: Partial<InsertChatSession>): Promise<ChatSession | undefined> {
-    const [updated] = await db.update(chatSessions)
-      .set({ ...updates, lastActivity: new Date() })
-      .where(eq(chatSessions.id, sessionId))
-      .returning();
-    return updated;
-  }
-
-  async deleteChatSession(sessionId: string): Promise<boolean> {
-    try {
-      // Delete messages first
-      await db.delete(chatMessages)
-        .where(eq(chatMessages.sessionId, sessionId));
-      
-      // Then delete the session
-      const result = await db.delete(chatSessions)
-        .where(eq(chatSessions.id, sessionId));
-      
-      return (result.rowCount || 0) > 0;
-    } catch (error) {
-      console.error('Error deleting chat session:', error);
+    if (existing.length > 0) {
+      await db
+        .delete(userLikes)
+        .where(and(
+          eq(userLikes.userId, userId),
+          eq(userLikes.modelId, modelId)
+        ));
       return false;
+    } else {
+      await db
+        .insert(userLikes)
+        .values({
+          id: nanoid(),
+          userId,
+          modelId,
+        });
+      return true;
     }
   }
 
-  // Chat message methods
-  async createChatMessage(insertMessage: InsertChatMessage): Promise<ChatMessage> {
-    const [message] = await db.insert(chatMessages)
-      .values(insertMessage)
-      .returning();
+  async getUserLikes(userId: string): Promise<UserLike[]> {
+    return await db
+      .select()
+      .from(userLikes)
+      .where(eq(userLikes.userId, userId))
+      .orderBy(desc(userLikes.createdAt));
+  }
+
+  // Credit operations
+  async getCreditBalance(userId: string): Promise<number> {
+    const [balance] = await db
+      .select()
+      .from(creditBalances)
+      .where(eq(creditBalances.userId, userId));
     
-    // Update session message count and last activity
-    await db.update(chatSessions)
-      .set({ 
-        messageCount: sql`${chatSessions.messageCount} + 1`,
-        lastActivity: new Date()
+    if (!balance) {
+      // Create initial balance for new user
+      await db
+        .insert(creditBalances)
+        .values({
+          userId,
+          balance: "100.00", // Starting credits
+          lastUpdated: new Date(),
+        });
+      return 100;
+    }
+    
+    return parseFloat(balance.balance);
+  }
+
+  async updateCredits(userId: string, amount: number, description: string): Promise<void> {
+    const currentBalance = await this.getCreditBalance(userId);
+    const newBalance = currentBalance + amount;
+    
+    // Update balance
+    await db
+      .insert(creditBalances)
+      .values({
+        userId,
+        balance: newBalance.toFixed(2),
+        lastUpdated: new Date(),
       })
-      .where(eq(chatSessions.id, insertMessage.sessionId));
-    
+      .onConflictDoUpdate({
+        target: creditBalances.userId,
+        set: {
+          balance: newBalance.toFixed(2),
+          lastUpdated: new Date(),
+        },
+      });
+
+    // Record transaction
+    await db
+      .insert(creditTransactions)
+      .values({
+        id: nanoid(),
+        userId,
+        type: amount > 0 ? "CREDIT" : "DEBIT",
+        amount: Math.abs(amount).toFixed(2),
+        description,
+        metadata: JSON.stringify({ previousBalance: currentBalance, newBalance }),
+      });
+  }
+
+  // Chat operations
+  async createChatSession(sessionData: InsertChatSession): Promise<ChatSession> {
+    const [session] = await db
+      .insert(chatSessions)
+      .values({
+        ...sessionData,
+        id: nanoid(),
+      })
+      .returning();
+    return session;
+  }
+
+  async getUserChatSessions(userId: string): Promise<ChatSession[]> {
+    return await db
+      .select()
+      .from(chatSessions)
+      .where(eq(chatSessions.userId, userId))
+      .orderBy(desc(chatSessions.lastActivity));
+  }
+
+  async getChatSession(sessionId: string): Promise<ChatSession | undefined> {
+    const [session] = await db
+      .select()
+      .from(chatSessions)
+      .where(eq(chatSessions.id, sessionId));
+    return session;
+  }
+
+  async addChatMessage(messageData: InsertChatMessage): Promise<ChatMessage> {
+    const [message] = await db
+      .insert(chatMessages)
+      .values({
+        ...messageData,
+        id: nanoid(),
+      })
+      .returning();
+
+    // Update session activity
+    await db
+      .update(chatSessions)
+      .set({
+        lastActivity: new Date(),
+        messageCount: sql`${chatSessions.messageCount} + 1`,
+      })
+      .where(eq(chatSessions.id, messageData.sessionId));
+
     return message;
   }
 
-  async getChatMessages(sessionId: string, limit: number = 100): Promise<ChatMessage[]> {
-    return await db.select()
+  async getChatMessages(sessionId: string): Promise<ChatMessage[]> {
+    return await db
+      .select()
       .from(chatMessages)
       .where(eq(chatMessages.sessionId, sessionId))
-      .orderBy(chatMessages.createdAt)
-      .limit(limit);
-  }
-
-  async updateChatMessage(messageId: number, updates: Partial<InsertChatMessage>): Promise<ChatMessage | undefined> {
-    const [updated] = await db.update(chatMessages)
-      .set(updates)
-      .where(eq(chatMessages.id, messageId))
-      .returning();
-    return updated;
+      .orderBy(chatMessages.createdAt);
   }
 }
 
