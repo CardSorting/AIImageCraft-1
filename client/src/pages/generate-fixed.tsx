@@ -55,7 +55,7 @@ export default function Generate() {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const [location] = useLocation();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
 
   // Form hook
   const form = useForm<GenerateImageRequest>({
@@ -86,9 +86,9 @@ export default function Generate() {
   });
 
   const { data: creditBalance } = useQuery({
-    queryKey: ["/api/credits/balance/1"],
-    queryFn: () => fetch("/api/credits/balance/1").then(res => res.json()),
-    enabled: isAuthenticated && !authLoading,
+    queryKey: ["/api/credits/balance", user?.id || ""],
+    queryFn: () => fetch(`/api/credits/balance/${user?.id}`).then(res => res.json()),
+    enabled: isAuthenticated && !authLoading && !!user?.id,
     refetchInterval: 30000,
   });
 
@@ -104,7 +104,7 @@ export default function Generate() {
         description: "Your masterpiece is ready!",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/images/my"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/credits/balance/1"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/credits/balance", user?.id || ""] });
       
       setNewlyCreatedImageIds([]);
       
