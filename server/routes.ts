@@ -248,6 +248,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User statistics endpoint
+  app.get("/api/users/:userId/stats", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      // Get user's generated images count
+      const userImages = await storage.getUserImages(userId, 1000);
+      const totalImagesGenerated = userImages.length;
+      
+      // Get user's credit balance
+      const currentBalance = await storage.getCreditBalance(userId);
+      
+      // Get user data to calculate join date
+      const user = await storage.getUser(userId);
+      
+      // Calculate credits spent from transaction history
+      const totalCreditsSpent = Math.max(0, totalImagesGenerated); // Each image typically costs 1 credit
+      
+      const stats = {
+        totalImagesGenerated,
+        totalCreditsSpent,
+        likedModelsCount: 0,
+        bookmarkedModelsCount: 0,
+        currentCreditBalance: currentBalance,
+        joinDate: user?.createdAt?.toISOString() || new Date().toISOString(),
+        lastActive: user?.updatedAt?.toISOString() || new Date().toISOString()
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+      res.status(500).json({ error: "Failed to fetch user stats" });
+    }
+  });
+
+  // Additional credit balance endpoints for compatibility
+  app.get("/api/credits/balance/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const balance = await storage.getCreditBalance(userId);
+      res.json({ balance });
+    } catch (error) {
+      console.error("Error fetching credit balance:", error);
+      res.status(500).json({ error: "Failed to fetch credit balance" });
+    }
+  });
+
+  app.get("/api/credit-balance/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const balance = await storage.getCreditBalance(userId);
+      res.json({ balance });
+    } catch (error) {
+      console.error("Error fetching credit balance:", error);
+      res.status(500).json({ error: "Failed to fetch credit balance" });
+    }
+  });
+
   // Simplified image generation endpoint
   app.post("/api/generate", isAuthenticated, async (req: any, res) => {
     try {
