@@ -1,0 +1,51 @@
+chunk-RPCDYKBN.js?v=0227b59b:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {balance}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-RPCDYKBN.js?v=0227b59b:9934:17)
+    at reconcileChildFibers2 (chunk-RPCDYKBN.js?v=0227b59b:10564:15)
+    at reconcileChildren (chunk-RPCDYKBN.js?v=0227b59b:14292:37)
+    at updateHostComponent (chunk-RPCDYKBN.js?v=0227b59b:14807:11)
+    at beginWork (chunk-RPCDYKBN.js?v=0227b59b:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=0227b59b:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=0227b59b:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=0227b59b:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=0227b59b:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=0227b59b:19198:20)Understand this error
+chunk-RPCDYKBN.js?v=0227b59b:14032 The above error occurred in the <span> component:
+
+    at span
+    at div
+    at div
+    at div
+    at _c3 (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/src/components/ui/card.tsx:45:12)
+    at div
+    at _c (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at div
+    at div
+    at Generate (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/src/pages/generate-fixed.tsx:66:37)
+    at Route (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=0227b59b:265:16)
+    at Switch (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=0227b59b:321:17)
+    at Router (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/src/App.tsx?v=FQYPRNBi6EkiPEaJS3rsy:41:22)
+    at main
+    at div
+    at MobileLayout (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/src/components/layout/MobileLayout.tsx:20:3)
+    at Provider (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=0227b59b:38:15)
+    at TooltipProvider (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=0227b59b:64:5)
+    at AuthProvider (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/src/contexts/AuthContext.tsx:21:32)
+    at QueryClientProvider (https://31ce2729-ca0d-439b-8bfc-61d876978070-00-1ln0kvensmy6r.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=0227b59b:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=0227b59b:14032Understand this error
+chunk-RPCDYKBN.js?v=0227b59b:9129 Uncaught Error: Objects are not valid as a React child (found: object with keys {balance}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-RPCDYKBN.js?v=0227b59b:9934:17)
+    at reconcileChildFibers2 (chunk-RPCDYKBN.js?v=0227b59b:10564:15)
+    at reconcileChildren (chunk-RPCDYKBN.js?v=0227b59b:14292:37)
+    at updateHostComponent (chunk-RPCDYKBN.js?v=0227b59b:14807:11)
+    at beginWork (chunk-RPCDYKBN.js?v=0227b59b:15935:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=0227b59b:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=0227b59b:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=0227b59b:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=0227b59b:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=0227b59b:18736:28)
